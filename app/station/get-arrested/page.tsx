@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { ArrowLeft, Upload, Camera, Loader2, AlertCircle } from "lucide-react"
+import { ArrowLeft, Upload, Loader2, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -373,7 +373,6 @@ export default function GetArrestedPage() {
                   >
                     <Upload className="mr-2 h-4 w-4" /> Upload Photo
                   </Button>
-                  
                 </div>
               </div>
 
@@ -407,10 +406,24 @@ export default function GetArrestedPage() {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
+                    onInput={(e) => {
+                      // Only allow letters and spaces
+                      const target = e.target as HTMLInputElement
+                      const filteredValue = target.value.replace(/[^a-zA-Z\s]/g, "")
+                      if (target.value !== filteredValue) {
+                        target.value = filteredValue
+                        setFormData({
+                          ...formData,
+                          name: filteredValue,
+                        })
+                      }
+                    }}
                     placeholder="John Doe"
                     required
                     className="bg-gray-900 border-gray-700 text-white"
+                    maxLength={50}
                   />
+                  <p className="text-xs text-gray-400">Only letters and spaces allowed (max 50 characters)</p>
                 </div>
 
                 <div className="space-y-2">
@@ -547,8 +560,6 @@ export default function GetArrestedPage() {
                   )}
                 </div>
               </div>
-
-       
 
               <div className="flex gap-4">
                 <Button

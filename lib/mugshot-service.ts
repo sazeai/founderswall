@@ -1,6 +1,10 @@
 import { createClient } from "@/utils/supabase/server"
 import type { Mugshot, Connection } from "./types"
 
+// Add a simple cache at the top of the file
+let mugshotsCache: { data: Mugshot[]; timestamp: number } | null = null
+const CACHE_DURATION = 30000 // 30 seconds
+
 // Helper function to get badge type for a user
 async function getBadgeTypeForUser(userId: string | null): Promise<string> {
   if (!userId) return "wanted"
@@ -32,10 +36,22 @@ async function getBadgeTypesForUsers(userIds: (string | null)[]): Promise<Record
     badgeMap[profile.user_id] = profile.badge_type || "wanted"
   })
 
+  // Fill in missing users with default badge
+  validUserIds.forEach((userId) => {
+    if (!badgeMap[userId]) {
+      badgeMap[userId] = "wanted"
+    }
+  })
+
   return badgeMap
 }
 
 export async function getMugshots(): Promise<Mugshot[]> {
+  // Check cache first
+  if (mugshotsCache && Date.now() - mugshotsCache.timestamp < CACHE_DURATION) {
+    return mugshotsCache.data
+  }
+
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -48,11 +64,11 @@ export async function getMugshots(): Promise<Mugshot[]> {
     return []
   }
 
-  // Get badge types for all users
+  // Get badge types for all users in one batch
   const userIds = data.map((mugshot) => mugshot.user_id)
   const badgeMap = await getBadgeTypesForUsers(userIds)
 
-  return data.map((mugshot) => ({
+  const result = data.map((mugshot) => ({
     id: mugshot.id,
     name: mugshot.name,
     crime: mugshot.crime,
@@ -70,6 +86,11 @@ export async function getMugshots(): Promise<Mugshot[]> {
     paymentStatus: mugshot.payment_status,
     connections: mugshot.connections || [],
   }))
+
+  // Update cache
+  mugshotsCache = { data: result, timestamp: Date.now() }
+
+  return result
 }
 
 export async function getConnections() {

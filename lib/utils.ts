@@ -15,14 +15,23 @@ export function generateSlug(title: string): string {
     .replace(/^-+|-+$/g, "") // Remove leading/trailing hyphens
 }
 
-// Normalize username for URL
+// Update the normalizeUsername function to only use the first two words
 export function normalizeUsername(username: string): string {
   if (!username) return ""
 
-  return username
-    .toLowerCase() // Convert to lowercase
-    .trim() // Remove leading/trailing spaces
-    .replace(/[^\w\s-]/g, "") // Remove special characters
+  // First clean the username by removing special characters and normalizing spaces
+  const cleanedUsername = username
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-zA-Z\s]/g, "") // Remove ALL special characters, keep only letters and spaces
+    .replace(/\s+/g, " ") // Normalize multiple spaces to single spaces
+
+  // Take only the first two words
+  const words = cleanedUsername.split(" ")
+  const firstTwoWords = words.slice(0, 2).join(" ")
+
+  // Convert to URL-friendly format
+  return firstTwoWords
     .replace(/\s+/g, "-") // Replace spaces with hyphens
     .replace(/-+/g, "-") // Replace multiple hyphens with a single hyphen
     .replace(/^-+|-+$/g, "") // Remove leading/trailing hyphens

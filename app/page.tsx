@@ -2,43 +2,114 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import {
-  Eye,
-  Link2,
-  Search,
-  X,
-  ZoomIn,
-  ZoomOut,
-  RefreshCw,
-  Filter,
-  Info,
-  Maximize,
-  Minimize,
-  AlertCircle,
-  ChevronDown,
-  Star,
-  Crown,
-  ExternalLink,
-  Twitter,
-  AlertTriangle,
-} from "lucide-react"
-import { getMugshots, getConnections, createConnection as createDbConnection } from "@/lib/mugshot-service-client"
+import { X, ZoomIn, ZoomOut, RefreshCw, Maximize, Minimize, AlertCircle, Star, Crown, Quote } from "lucide-react"
+import { getMugshots, getConnections } from "@/lib/mugshot-service-client"
 import CriminalModal from "@/components/criminal-modal"
-import ConnectionModal from "@/components/connection-modal"
-import ConnectionBadge from "@/components/connection-badge"
 import type { Mugshot } from "@/lib/types"
 import type { Connection } from "@/lib/types"
 import { PublicHeader } from "@/components/public-header"
 import PublicFooter from "@/components/public-footer"
-
 import LoadingMugshotWall from "@/components/loading-mugshot-wall"
 import { getRandomRotation, getPinPosition } from "@/utils/crimeBoardEffects"
+// Remove this line:
+// import { getProducts } from "@/lib/product-service"
 
 // Define connection types for filter
 const connectionTypes = ["all", "collaborator", "competitor", "same-tech", "mentor", "inspired-by"]
+
+// Motivational quotes for indie makers
+const motivationalQuotes = [
+  "Ship early, ship often. Perfection is the enemy of progress.",
+  "Build in public. Learn in public. Fail in public. Succeed in public.",
+  "The best time to launch was yesterday. The second best time is today.",
+  "Your first version should embarrass you, or you waited too long to ship.",
+  "Focus on solving real problems for real people.",
+  "Consistency beats intensity. Show up every day.",
+  "Don't wait for permission. Just start building.",
+  "Revenue is the ultimate validation.",
+  "Build something people want, not something you think they need.",
+  "The best marketing is a great product.",
+  "Iterate based on feedback, not assumptions.",
+  "Small bets, quick wins, compound over time.",
+  "Your unfair advantage is being you. Lean into it.",
+  "Solve your own problems first. You'll be more passionate about it.",
+  "Done is better than perfect.",
+]
+
+// Add these helper functions after the motivationalQuotes array and before the Home component:
+
+// Points calculation based on product count
+const calculatePoints = (productCount: number): number => {
+  if (productCount === 1) return 10
+  if (productCount === 2) return 25
+  if (productCount === 3) return 45
+  if (productCount === 4) return 70
+  if (productCount >= 5) return 100 + (productCount - 5) * 20 // 100+ for 5+, +20 for each additional
+  return 0
+}
+
+// Convert points to star display
+const getStarDisplay = (points: number) => {
+  const fullStars = Math.min(Math.floor(points / 20), 5) // Max 5 stars
+  const hasHalfStar = points % 20 >= 10
+  const remainingPoints = points % 20
+
+  return {
+    fullStars,
+    hasHalfStar,
+    displayPoints: points,
+  }
+}
+
+// Get winning titles based on position and product count
+const getWinningTitle = (position: number, productCount: number): string => {
+  if (position === 0) {
+    // First place
+    if (productCount >= 5) return "🚀 SERIAL LAUNCHER"
+    if (productCount >= 4) return "⚡ PRODUCT MACHINE"
+    if (productCount >= 3) return "🔥 LAUNCH LEGEND"
+    if (productCount >= 2) return "💎 BUILD MASTER"
+    return "👑 TOP BUILDER"
+  } else if (position === 1) {
+    // Second place
+    if (productCount >= 4) return "🌟 LAUNCH EXPERT"
+    if (productCount >= 3) return "⭐ SHIP CHAMPION"
+    if (productCount >= 2) return "🎯 BUILD HERO"
+    return "🥈 ELITE MAKER"
+  } else {
+    // Third place
+    if (productCount >= 3) return "🔧 CRAFT MASTER"
+    if (productCount >= 2) return "🛠️ BUILD WIZARD"
+    return "🥉 RISING STAR"
+  }
+}
+
+// Render star component
+const StarRating = ({ points }: { points: number }) => {
+  const { fullStars, hasHalfStar } = getStarDisplay(points)
+
+  return (
+    <div className="flex items-center">
+      {/* Render full stars */}
+      {Array.from({ length: fullStars }).map((_, i) => (
+        <span key={i} className="text-yellow-400 text-sm">
+          ★
+        </span>
+      ))}
+      {/* Render half star if needed */}
+      {hasHalfStar && <span className="text-yellow-400 text-sm">☆</span>}
+      {/* Fill remaining slots with empty stars up to 5 */}
+      {Array.from({ length: Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0)) }).map((_, i) => (
+        <span key={`empty-${i}`} className="text-gray-600 text-sm">
+          ☆
+        </span>
+      ))}
+    </div>
+  )
+}
 
 export default function Home() {
   const [selectedCriminal, setSelectedCriminal] = useState<Mugshot | null>(null)
@@ -48,11 +119,8 @@ export default function Home() {
   const [mugshots, setMugshots] = useState<Mugshot[]>([])
   const [showConnectionModal, setShowConnectionModal] = useState(false)
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null)
-  const [highlightedCriminals, setHighlightedCriminals] = useState<string[]>([])
   const [zoomLevel, setZoomLevel] = useState(1)
-  const [isFiltered, setIsFiltered] = useState(false)
   const [hoveredCriminal, setHoveredCriminal] = useState<string | null>(null)
-  const [investigatingCriminal, setInvestigatingCriminal] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -64,6 +132,14 @@ export default function Home() {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false)
   // New state to track pulsing connections
   const [pulsingConnections, setPulsingConnections] = useState<string[]>([])
+  // New state for investigating criminal
+  const [investigatingCriminal, setInvestigatingCriminal] = useState<string | null>(null)
+  // New state for filtered flag
+  const [isFiltered, setIsFiltered] = useState(false)
+  // State for current quote
+  const [currentQuote, setCurrentQuote] = useState(motivationalQuotes[0])
+  // Add this state after the other useState declarations
+  const [productCounts, setProductCounts] = useState<Record<string, number>>({})
 
   // New state for panning
   const [panPosition, setPanPosition] = useState({ x: 0, y: 0 })
@@ -79,7 +155,22 @@ export default function Home() {
   const filterDropdownRef = useRef<HTMLDivElement>(null)
 
   // Separate featured and regular mugshots
-  const featuredMugshots = mugshots.filter((mugshot) => mugshot.featured)
+  const featuredMugshots = useMemo(() => mugshots.filter((mugshot) => mugshot.featured), [mugshots])
+
+  // Sort mugshots for leaderboard based on actual products from database
+  const leaderboardMugshots = useMemo(() => {
+    // Create a copy of mugshots and add product counts
+    const mugshotsWithProducts = mugshots.map((mugshot) => ({
+      ...mugshot,
+      productCount: productCounts[mugshot.id] || 0,
+    }))
+
+    // Filter out mugshots with 0 products and sort by product count (descending), take top 3
+    return mugshotsWithProducts
+      .filter((mugshot) => mugshot.productCount > 0) // Only show mugshots with products
+      .sort((a, b) => b.productCount - a.productCount)
+      .slice(0, 3)
+  }, [mugshots, productCounts])
 
   // Generate JSON-LD Schema for homepage
   const generateHomePageSchema = () => {
@@ -162,6 +253,16 @@ export default function Home() {
     setBottomTornEdge(generateTornEdge())
   }, [])
 
+  // Rotate quotes every 8 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * motivationalQuotes.length)
+      setCurrentQuote(motivationalQuotes[randomIndex])
+    }, 8000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   // Add coffee stains effect
   useEffect(() => {
     if (!boardRef.current || isLoading) return
@@ -201,27 +302,68 @@ export default function Home() {
     }
   }, [isLoading])
 
-  // Load mugshots and connections from Supabase on mount
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true)
-      setError(null)
+  // Load mugshots, connections, and product counts from database
+  const loadData = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
 
-      try {
-        // Fetch mugshots and connections in parallel
-        const [mugshotsData, connectionsData] = await Promise.all([getMugshots(), getConnections()])
+    try {
+      // Replace this:
+      // const [mugshotsData, connectionsData, productsData] = await Promise.all([
+      //   getMugshots(),
+      //   getConnections(),
+      //   getProducts(1000), // Get a large number to count all products
+      // ])
 
-        setMugshots(mugshotsData)
-        setConnections(connectionsData)
-      } catch (err) {
-        setError("Failed to load data. Please try refreshing the page.")
-      } finally {
-        setIsLoading(false)
+      // With this (back to the original working version):
+      const [mugshotsData, connectionsData] = await Promise.all([getMugshots(), getConnections()])
+
+      console.log("Loaded mugshots:", mugshotsData.length)
+      console.log("Loaded connections:", connectionsData.length)
+
+      // Fetch products directly from API
+      const productsResponse = await fetch("/api/products?limit=1000")
+      const productsData = await productsResponse.json()
+
+      console.log("Products API response:", productsData)
+      console.log("Products count:", Array.isArray(productsData) ? productsData.length : 0)
+
+      setMugshots(mugshotsData)
+      setConnections(connectionsData)
+
+      // Calculate product counts per founder (mugshot.id)
+      const counts: Record<string, number> = {}
+
+      if (Array.isArray(productsData)) {
+        productsData.forEach((product) => {
+          // product.founderId should be the mugshots.id
+          if (product.founderId) {
+            counts[product.founderId] = (counts[product.founderId] || 0) + 1
+            console.log("Counting product for founder:", product.founderId, "new count:", counts[product.founderId])
+          }
+        })
       }
-    }
 
-    loadData()
+      // Debug logging to see what we're getting
+      console.log("Final product counts:", counts)
+      console.log(
+        "Mugshots IDs:",
+        mugshotsData.map((m) => m.id),
+      )
+
+      setProductCounts(counts)
+    } catch (err) {
+      setError("Failed to load data. Please try refreshing the page.")
+      console.error("Error loading data:", err)
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
+
+  // Update the useEffect to use the memoized function
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -258,20 +400,20 @@ export default function Home() {
       // Clear pulsing connections
       setPulsingConnections([])
     }
-  }, [mode, investigatingCriminal, connections, connectionTypeFilter])
+  }, [mode, connections, connectionTypeFilter])
 
   // Handle responsive layout
   useEffect(() => {
     const handleResize = () => {
-      // Force re-render when window size changes to update the layout
-      setMugshots([...mugshots])
+      // Force re-render without creating new array reference
+      setZoomLevel((prev) => prev) // Trigger re-render without changing state
     }
 
     window.addEventListener("resize", handleResize)
     return () => {
       window.removeEventListener("resize", handleResize)
     }
-  }, [mugshots])
+  }, [])
 
   const openCriminalModal = (criminal: Mugshot) => {
     if (mode === "view") {
@@ -286,103 +428,13 @@ export default function Home() {
   }
 
   const handleCriminalClick = (criminal: Mugshot) => {
-    // Don't trigger clicks if we're panning
     if (isPanning) return
-
-    if (mode === "connect") {
-      handleConnectMode(criminal)
-    } else if (mode === "investigate") {
-      handleInvestigateMode(criminal)
-    } else {
-      openCriminalModal(criminal)
-    }
-  }
-
-  const handleConnectMode = (criminal: Mugshot) => {
-    if (selectedCriminals.includes(criminal.id)) {
-      // Deselect if already selected
-      setSelectedCriminals(selectedCriminals.filter((id) => id !== criminal.id))
-    } else if (selectedCriminals.length < 2) {
-      // Add to selection if less than 2 selected
-      const newSelected = [...selectedCriminals, criminal.id]
-      setSelectedCriminals(newSelected)
-
-      // If we now have 2 selected, open the connection modal
-      if (newSelected.length === 2) {
-        setShowConnectionModal(true)
-      }
-    }
-  }
-
-  const handleInvestigateMode = (criminal: Mugshot) => {
-    // If we're already investigating this criminal, clear the investigation
-    if (investigatingCriminal === criminal.id) {
-      setInvestigatingCriminal(null)
-      setHighlightedCriminals([])
-      setIsFiltered(false)
-      return
-    }
-
-    // Find all connections involving this criminal
-    const relatedConnections = connections.filter(
-      (conn) => conn.fromCriminalId === criminal.id || conn.toCriminalId === criminal.id,
-    )
-
-    // Get all criminals connected to this one
-    const connectedCriminals = relatedConnections
-      .flatMap((conn) => [conn.fromCriminalId, conn.toCriminalId])
-      .filter((id) => id !== criminal.id)
-
-    // Highlight the selected criminal and all connected criminals
-    setHighlightedCriminals([criminal.id, ...connectedCriminals])
-    setInvestigatingCriminal(criminal.id)
-  }
-
-  const createConnection = async (
-    connectionType: string,
-    evidence: string,
-  ): Promise<{ success: boolean; error: string | null }> => {
-    if (selectedCriminals.length !== 2) {
-      return { success: false, error: "Please select two criminals to connect." }
-    }
-
-    try {
-      const newConnectionData = {
-        fromCriminalId: selectedCriminals[0],
-        toCriminalId: selectedCriminals[1],
-        connectionType,
-        evidence,
-        createdBy: "user",
-      }
-
-      const { connection, error } = await createDbConnection(newConnectionData)
-
-      if (error) {
-        return { success: false, error }
-      }
-
-      if (connection) {
-        setConnections([...connections, connection])
-        setSelectedCriminals([])
-        setShowConnectionModal(false)
-        return { success: true, error: null }
-      } else {
-        return { success: false, error: "Failed to create connection. Please try again." }
-      }
-    } catch (err) {
-      return { success: false, error: "An unexpected error occurred. Please try again." }
-    }
-  }
-
-  const cancelConnection = () => {
-    setSelectedCriminals([])
-    setShowConnectionModal(false)
+    openCriminalModal(criminal)
   }
 
   const resetMode = () => {
     setMode("view")
     setSelectedCriminals([])
-    setHighlightedCriminals([])
     setIsFiltered(false)
     setInvestigatingCriminal(null)
     setConnectionTypeFilter("all")
@@ -603,7 +655,7 @@ export default function Home() {
 
     // Calculate new pan position
     const newPanX = e.touches[0].clientX - startPanPosition.x
-    const newPanY = e.touches[0].clientY - startPanPosition.y
+    const newPanY = e.touches[0].clientY - panPosition.y
 
     // Update pan position
     setPanPosition({ x: newPanX, y: newPanY })
@@ -634,9 +686,7 @@ export default function Home() {
             // Reset view when entering fullscreen
             resetView()
           })
-          .catch((err) => {
-         
-          })
+          .catch((err) => {})
       }
     } else {
       // Exit fullscreen
@@ -738,6 +788,36 @@ export default function Home() {
     }
   }
 
+  // Get medal for leaderboard position
+  const getLeaderboardMedal = (position: number) => {
+    switch (position) {
+      case 0:
+        return {
+          icon: "🥇",
+          color: "bg-yellow-500",
+          shadow: "shadow-yellow-500/50",
+        }
+      case 1:
+        return {
+          icon: "🥈",
+          color: "bg-gray-400",
+          shadow: "shadow-gray-400/50",
+        }
+      case 2:
+        return {
+          icon: "🥉",
+          color: "bg-amber-700",
+          shadow: "shadow-amber-700/50",
+        }
+      default:
+        return {
+          icon: "",
+          color: "bg-gray-700",
+          shadow: "shadow-gray-700/50",
+        }
+    }
+  }
+
   // Show loading state
   if (isLoading) {
     return <LoadingMugshotWall />
@@ -762,6 +842,71 @@ export default function Home() {
     )
   }
 
+  // Update the LeaderboardComponent to use the new points system:
+  // Replace the existing LeaderboardComponent with this updated version:
+  const LeaderboardComponent = ({ className = "" }: { className?: string }) => (
+    <div className={`bg-black/70 backdrop-blur-md rounded-lg border border-yellow-500 p-3 shadow-xl ${className}`}>
+      <div className="flex items-center justify-center text-yellow-400 text-sm font-bold mb-4">
+        <Crown className="h-4 w-4 mr-2" fill="currentColor" />
+        TOP FOUNDERS
+      </div>
+
+      {leaderboardMugshots.map((mugshot, index) => {
+        const points = calculatePoints(mugshot.productCount)
+        const title = getWinningTitle(index, mugshot.productCount)
+
+        return (
+          <div key={mugshot.id} className="flex items-center justify-between text-white text-sm mb-3">
+            <div className="flex items-center flex-1 min-w-0">
+              {/* Profile photo with medal overlay */}
+              <div className="relative mr-3 flex-shrink-0">
+                <div
+                  className={`w-8 h-8 rounded-full overflow-hidden border-2 ${
+                    index === 0
+                      ? "border-yellow-500 shadow-yellow-500/50"
+                      : index === 1
+                        ? "border-gray-400 shadow-gray-400/50"
+                        : "border-amber-700 shadow-amber-700/50"
+                  }`}
+                >
+                  <Image
+                    src={mugshot.imageUrl || "/placeholder.svg?height=32&width=32&query=person"}
+                    alt={mugshot.name}
+                    width={32}
+                    height={32}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                {/* Medal badge for top 3 */}
+                <div className="absolute -bottom-1 -right-1 text-xs">
+                  {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"}
+                </div>
+              </div>
+
+              <div className="flex flex-col min-w-0 flex-1">
+                {/* Name - ensure it doesn't wrap */}
+                <span className="text-white font-medium text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+                  {mugshot.name}
+                </span>
+                {/* Title */}
+                <span className="text-yellow-400 text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis">
+                  {title}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-end flex-shrink-0 ml-2">
+              {/* Stars */}
+              <StarRating points={points} />
+              {/* Points */}
+              <span className="text-xs text-gray-400 mt-1">{points} pts</span>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+
   return (
     <main className="min-h-screen flex flex-col bg-black overflow-x-hidden">
       {/* JSON-LD Schema for Homepage */}
@@ -773,113 +918,153 @@ export default function Home() {
       />
 
       <PublicHeader />
-      {/* Hero Section */}
-      <section className="pt-24 px-6 text-center">
-        <div className="relative inline-block">
-          <h1
-            className="text-white text-3xl sm:text-5xl font-bold tracking-wider mb-4 glitch-text"
-            data-text="FoundersWall"
-          >
-            FOUNDERS WALL
-          </h1>
 
-          <div className="absolute -top-2 -right-6 bg-yellow-400 text-black text-xs px-2 py-1 rotate-12 font-bold">
-            v1.0.0
+      {/* New Hero Section */}
+      <section className="relative bg-gradient-to-br from-red-600 via-red-700 to-red-800 min-h-screen overflow-hidden">
+        {/* Playful Background Doodles and Text */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Background Pattern */}
+          <div
+            className="absolute inset-0 opacity-5"
+            style={{
+              backgroundImage: `
+          radial-gradient(circle at 25% 25%, #fbbf24 2px, transparent 2px),
+          radial-gradient(circle at 75% 75%, #fbbf24 1px, transparent 1px)
+        `,
+              backgroundSize: "80px 80px",
+            }}
+          />
+
+          {/* Playful Doodles and Text Overlays */}
+          <div className="absolute top-10 left-10 text-yellow-300 opacity-20 transform -rotate-12">
+            <div className="text-6xl">💻</div>
+          </div>
+          <div className="absolute top-20 right-20 text-white opacity-15 transform rotate-12 font-mono text-sm">
+            SHIP IT!
+          </div>
+          <div className="absolute top-32 left-1/4 text-yellow-400 opacity-25 transform rotate-6">
+            <div className="text-4xl">🚀</div>
+          </div>
+          <div className="absolute top-40 right-1/3 text-white opacity-10 transform -rotate-6 font-mono text-xs">
+            ZERO FUNDING
+          </div>
+          <div className="absolute bottom-32 left-16 text-yellow-300 opacity-20 transform rotate-45">
+            <div className="text-5xl">⚡</div>
+          </div>
+          <div className="absolute bottom-20 right-16 text-white opacity-15 transform -rotate-12 font-mono text-sm">
+            BUILT IN PUBLIC
           </div>
         </div>
-      </section>
 
-      {/* Yellow Caution Stripe */}
-      <div className="h-8 w-full bg-yellow-400 relative overflow-hidden my-4">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "repeating-linear-gradient(45deg, #000 0, #000 10px, #f6e05e 10px, #f6e05e 20px)",
-            backgroundSize: "28px 28px",
-          }}
-        ></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-black font-black text-sm tracking-wider">⚠️ INDIE MAKERS ZONE ⚠️</span>
+        {/* Main Content */}
+        <div className="relative z-10 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
+            {/* Left Side - Typography */}
+            <div className="text-center lg:text-left order-2 lg:order-1">
+              <div className="mb-6 lg:mb-8 relative">
+                <h1
+                  className="text-5xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[7rem] font-black text-yellow-400 leading-none"
+                  style={{
+                    textShadow: "4px 4px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000",
+                    fontFamily: "'Arial Black', sans-serif",
+                  }}
+                >
+                  <span className="block">FOUNDERS</span>
+                  <span className="block -mt-2 lg:-mt-4">WALL</span>
+                </h1>
+                <div className="absolute -bottom-4 left-0 lg:relative lg:bottom-auto lg:left-auto lg:inline-block lg:ml-4 lg:mt-2">
+                  <div className="bg-yellow-400 text-black px-3 py-1 text-xs lg:text-sm font-bold transform rotate-12 shadow-lg border-2 border-black">
+                    WANTED
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-6 lg:mb-8">
+                <h2 className="text-white text-xl sm:text-2xl lg:text-3xl font-bold mb-2 lg:mb-3">
+                  Where Legendary Builders Get Tracked
+                </h2>
+                <p className="text-yellow-200 text-base sm:text-lg lg:text-xl">
+                  The most consistent, creative, and relentless indie hackers.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Link
+                  href="/station"
+                  className="group bg-yellow-400 hover:bg-yellow-500 text-black px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center justify-center"
+                >
+                  <span className="mr-2">👮‍♂️</span>
+                  Get on the Board
+                  <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
+                </Link>
+                <button
+                  onClick={() => {
+                    const corkboardSection = document.getElementById("corkboard-section")
+                    corkboardSection?.scrollIntoView({ behavior: "smooth" })
+                  }}
+                  className="group bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                >
+                  <span className="mr-2">🔍</span>
+                  View Suspects
+                  <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
+                </button>
+              </div>
+
+              {/* THIS WEEK'S LEADERBOARD - Only show on mobile */}
+              <div className="mt-8 lg:hidden">
+                <LeaderboardComponent />
+              </div>
+            </div>
+
+            {/* Right Side - Hero Visual */}
+            <div className="flex flex-col justify-center lg:justify-end order-1 lg:order-2">
+              <div className="relative">
+                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-3xl opacity-30 scale-110"></div>
+                <div className="absolute inset-0 bg-red-400 rounded-full blur-2xl opacity-20 scale-125"></div>
+
+                <div className="relative">
+                  <Image
+                    src="/wallimg.png"
+                    alt="Founders shipping like hell"
+                    width={600}
+                    height={540}
+                    className="w-64 h-64 sm:w-72 sm:h-72 lg:w-[380px] lg:h-[380px] xl:w-[450px] xl:h-[450px] object-contain drop-shadow-2xl"
+                    priority
+                  />
+
+                  {/* Floating Achievement Badges */}
+                  <div className="absolute -top-4 -left-4 bg-green-500 text-white px-2 py-1 text-xs font-bold transform -rotate-12 shadow-lg">
+                    $10K MRR
+                  </div>
+                  <div className="absolute top-8 -right-8 bg-blue-500 text-white px-2 py-1 text-xs font-bold transform rotate-12 shadow-lg">
+                    SHIPPED
+                  </div>
+                  <div className="absolute -bottom-4 -right-4 bg-purple-500 text-white px-2 py-1 text-xs font-bold transform rotate-6 shadow-lg">
+                    INDIE
+                  </div>
+                  <div className="absolute bottom-8 -left-8 bg-orange-500 text-white px-2 py-1 text-xs font-bold transform -rotate-6 shadow-lg">
+                    LEGEND
+                  </div>
+                </div>
+
+                {/* THIS WEEK'S LEADERBOARD - Only show on desktop, below the image */}
+                <div className="hidden max-w-md lg:block">
+                  <LeaderboardComponent />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <section className="pt-6 px-6 pb-4 text-center">
-        <div className="bg-gray-800 border-4 border-red-500 p-6 rounded-md mb-6 transform -rotate-1 max-w-2xl mx-auto relative">
-          {/* Indie maker stickers */}
-          <div className="absolute -top-4 -right-4 bg-blue-500 text-white text-xs px-3 py-2 rotate-12 font-black rounded-lg shadow-lg border-2 border-white">
-            <span className="block">SHIPPED</span>
-            <span className="block text-yellow-300">IN 1 DAY</span>
-          </div>
-          <div className="absolute -bottom-4 -left-4 bg-orange-500 text-white text-xs px-3 py-2 -rotate-6 font-black rounded-lg shadow-lg border-2 border-white">
-            <span className="block">ZERO</span>
-            <span className="block text-yellow-300">FUNDING</span>
-          </div>
-
-          <div className="flex items-center justify-center">
-            <h2
-              className="text-red-500 text-xl sm:text-2xl font-black tracking-wider"
-              style={{
-                fontFamily: "'Arial Black', 'Helvetica', sans-serif",
-                textShadow: "2px 2px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000",
-              }}
-            >
-              LEGENDS IN THE MAKING
-            </h2>
-          </div>
-
-          <div className="mt-4">
-            <h3 className="text-3xl md:text-4xl font-bold text-white mb-1">THE INDIE HACKER</h3>
-
-            <div
-              className="text-3xl md:text-4xl font-black text-yellow-400"
-              style={{
-                fontFamily: "'Fredoka One', cursive",
-                textShadow: "2px 2px 0px #000",
-              }}
-            >
-              WALL OF FAME
-            </div>
-            <div className="mt-2 text-yellow-300 text-sm font-mono">
-              <span className="inline-block mx-1">💻</span>
-              <span className="inline-block mx-1">MAKERS</span>
-              <span className="inline-block mx-1">•</span>
-              <span className="inline-block mx-1">BUILDERS</span>
-              <span className="inline-block mx-1">•</span>
-              <span className="inline-block mx-1">CREATORS</span>
-              <span className="inline-block mx-1">💻</span>
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/station"
-              className="py-3 px-6 bg-red-500 hover:bg-red-600 rounded-md text-white text-lg font-bold text-center inline-flex items-center justify-center transition-transform transform hover:scale-105 relative overflow-hidden"
-            >
-              <span className="mr-2">👮‍♂️</span> Get on the Board
-              <span className="absolute -bottom-1 -right-1 text-xs bg-yellow-400 text-black px-1 rotate-12">HOT!</span>
-            </Link>
-            <button
-              onClick={() => {
-                const corkboardSection = document.getElementById("corkboard-section")
-                corkboardSection?.scrollIntoView({ behavior: "smooth" })
-              }}
-              className="py-3 px-6 bg-gray-700 hover:bg-gray-600 rounded-md text-white text-lg font-bold text-center inline-flex items-center justify-center transition-transform transform hover:scale-105 border-2 border-dashed border-gray-500"
-            >
-              <span className="mr-2">🔍</span> Meet Suspects
-            </button>
-          </div>
-
-          {/* Indie maker stats */}
-          <div className="mt-4 flex justify-center gap-3 flex-wrap">
-            <div className="bg-gray-700 px-3 py-1 rounded-full text-xs text-white flex items-center">
-              <span className="text-green-400 mr-1">▲</span> 24% MRR
-            </div>
-            <div className="bg-gray-700 px-3 py-1 rounded-full text-xs text-white flex items-center">
-              <span className="text-yellow-400 mr-1">★</span> {mugshots.length}+ Makers
-            </div>
-            <div className="bg-gray-700 px-3 py-1 rounded-full text-xs text-white flex items-center">
-              <span className="text-blue-400 mr-1">⚡</span> Built in Public
-            </div>
+        {/* Bottom Quote Section - Replaced ticker with motivational quotes */}
+        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white backdrop-blur-sm py-3 overflow-hidden">
+          <div className="flex items-center justify-center text-center px-4">
+            <Quote className="h-5 w-5 text-yellow-400 mr-3 flex-shrink-0" />
+            <p className="text-white text-sm md:text-base font-medium transition-opacity duration-500">
+              {currentQuote}
+            </p>
+            <Quote className="h-5 w-5 text-yellow-400 ml-3 flex-shrink-0 transform rotate-180" />
           </div>
         </div>
       </section>
@@ -893,253 +1078,13 @@ export default function Home() {
             backgroundSize: "28px 28px",
           }}
         ></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-black font-black text-xs tracking-wider">
-            APPROACH WITH CAUTION - HIGHLY PRODUCTIVE
-          </span>
-        </div>
       </div>
-
-      {/* Compact Featured Section */}
-      {featuredMugshots.length > 0 && (
-        <div className="mx-4 mt-6 container mx-auto mb-4">
-          {/* Compact Crime Scene Banner */}
-          <div className="relative">
-            <div className="bg-red-600 text-white p-2 transform -rotate-1 shadow-lg border-2 border-red-700">
-              <div className="flex items-center justify-center space-x-2">
-                <AlertTriangle className="h-4 w-4" />
-                <h3 className="text-sm font-bold font-mono tracking-wider">⚠ MOST WANTED THIS WEEK ⚠</h3>
-                <AlertTriangle className="h-4 w-4" />
-              </div>
-            </div>
-          </div>
-
-          {/* Compact Featured Card - Horizontal Layout */}
-          <div className="mt-2">
-            {featuredMugshots.slice(0, 1).map((featuredMugshot) => {
-              const badgeInfo = getFeaturedBadgeInfo(featuredMugshot.badgeType || "wanted")
-
-              return (
-                <div
-                  key={`featured-${featuredMugshot.id}`}
-                  className="cursor-pointer"
-                  onClick={() => openCriminalModal(featuredMugshot)}
-                >
-                  <div className="bg-gray-900 border-2 border-yellow-500 shadow-xl relative overflow-hidden">
-                    <div className="flex items-center p-4 space-x-4">
-                      {/* Mugshot - Smaller */}
-                      <div className="relative flex-shrink-0">
-                        <div className="border-2 border-gray-300 bg-white p-1 shadow-lg transform -rotate-2">
-                          <Image
-                            src={featuredMugshot.imageUrl || "/placeholder.svg"}
-                            alt={`Most Wanted: ${featuredMugshot.name}`}
-                            width={80}
-                            height={80}
-                            className="w-20 h-20 object-cover grayscale"
-                          />
-                          <div className="bg-black text-white text-center py-0.5 mt-1">
-                            <div className="text-xs font-mono font-bold">SUSPECT</div>
-                          </div>
-                        </div>
-
-                        {/* Crown badge */}
-                        <div className="absolute -top-1 -left-1">
-                          <Crown className="h-5 w-5 text-yellow-400" fill="currentColor" />
-                        </div>
-                      </div>
-
-                      {/* Details - Compact */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-bold text-lg text-white font-mono truncate">
-                            {featuredMugshot.name.toUpperCase()}
-                          </h4>
-                          <div
-                            className={`${badgeInfo.bgColor} ${badgeInfo.color} px-2 py-1 text-xs font-bold rounded transform rotate-3`}
-                          >
-                            {badgeInfo.text}
-                          </div>
-                        </div>
-
-                        <div className="bg-yellow-500 text-black p-2 mb-2 border-l-4 border-red-500">
-                          <div className="text-xs font-bold mb-1">ALLEGED CRIME:</div>
-                          <div className="text-sm font-mono italic line-clamp-2">"{featuredMugshot.crime}"</div>
-                        </div>
-
-                        {/* Evidence Links - Inline */}
-                        {(featuredMugshot.productUrl || featuredMugshot.twitterHandle) && (
-                          <div className="flex space-x-2">
-                            {featuredMugshot.productUrl && (
-                              <a
-                                href={featuredMugshot.productUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center text-xs bg-red-600 text-white px-2 py-1 font-mono font-bold hover:bg-red-700 transition-colors"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <ExternalLink className="h-3 w-3 mr-1" />
-                                EVIDENCE
-                              </a>
-                            )}
-                            {featuredMugshot.twitterHandle && (
-                              <a
-                                href={`https://x.com/${featuredMugshot.twitterHandle?.replace("@", "")}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center text-xs bg-red-600 text-white px-2 py-1 font-mono font-bold hover:bg-red-700 transition-colors"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Twitter className="h-3 w-3 mr-1" />
-                                SOCIAL
-                              </a>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Danger Level - Vertical */}
-                      <div className="flex-shrink-0 text-center hidden md:block">
-                        <div className="text-xs font-mono font-bold text-red-500 mb-1">DANGER</div>
-                        <div className="flex flex-col space-y-1">
-                          {[...Array(5)].map((_, i) => (
-                            <div key={i} className="w-2 h-2 bg-red-500 rounded-full"></div>
-                          ))}
-                        </div>
-                        <div className="text-xs font-mono text-red-500 mt-1 transform rotate-90 origin-center">MAX</div>
-                      </div>
-                    </div>
-
-                    {/* Bottom warning strip */}
-                    <div className="bg-yellow-500 text-black text-center py-1">
-                      <div className="text-xs font-bold font-mono">
-                        🚨 IF SEEN, REPORT TO FOUNDERSWALL IMMEDIATELY 🚨
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Investigation Board Section - Removed px-6 padding to make it full-width */}
       <section
         id="corkboard-section"
-        className={`flex-1 py-8 overflow-x-hidden ${isFullscreen ? "fixed inset-0 z-50 bg-black" : ""}`}
+        className={`flex-1 overflow-x-hidden ${isFullscreen ? "fixed inset-0 z-50 bg-black" : ""}`}
       >
-        {/* Investigation Toolbar - Always visible in fullscreen */}
-        <div
-          className={`bg-gray-800 p-3 rounded-md mb-4 mx-4 flex flex-wrap gap-2 items-center justify-center md:justify-between ${
-            isFullscreen ? "sticky top-2 z-[100]" : ""
-          }`}
-        >
-          <div className="flex space-x-2">
-            <button
-              className={`p-2 rounded flex items-center ${mode === "view" ? "bg-red-500" : "bg-gray-700 hover:bg-gray-600"}`}
-              onClick={() => resetMode()}
-              title="View Mode"
-            >
-              <Eye size={16} className="mr-1" />
-              <span className="text-xs text-white">View</span>
-            </button>
-            <button
-              className={`p-2 rounded flex items-center ${mode === "connect" ? "bg-red-500" : "bg-gray-700 hover:bg-gray-600"}`}
-              onClick={() => {
-                setMode("connect")
-                setHighlightedCriminals([])
-                setInvestigatingCriminal(null)
-              }}
-              title="Connect Mode"
-            >
-              <Link2 size={16} className="mr-1" />
-              <span className="text-xs text-white">Connect</span>
-            </button>
-            <button
-              className={`p-2 rounded flex items-center ${mode === "investigate" ? "bg-red-500" : "bg-gray-700 hover:bg-gray-600"}`}
-              onClick={() => {
-                setMode("investigate")
-                setSelectedCriminals([])
-              }}
-              title="Investigate Mode"
-            >
-              <Search size={16} className="mr-1" />
-              <span className="text-xs text-white">Investigate</span>
-            </button>
-          </div>
-
-          {/* Connection Type Filter - only visible in investigate mode */}
-          {mode === "investigate" && (
-            <div className="relative" ref={filterDropdownRef}>
-              <button
-                onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-                className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-md flex items-center text-sm"
-              >
-                <Filter className="mr-2 h-4 w-4" />
-                <span>{getConnectionTypeDisplayName(connectionTypeFilter)}</span>
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </button>
-
-              {isFilterDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-gray-800 rounded-md shadow-lg z-[110]">
-                  {connectionTypes.map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => handleConnectionTypeFilter(type)}
-                      className={`w-full text-left px-4 py-2 text-sm ${
-                        connectionTypeFilter === type ? "bg-gray-700 text-white" : "text-gray-300 hover:bg-gray-700"
-                      }`}
-                    >
-                      {type === "all" && "All Connections"}
-                      {type !== "all" && (
-                        <div className="flex items-center">
-                          <div
-                            className="w-3 h-3 rounded-full mr-2"
-                            style={{ backgroundColor: getConnectionColor(type) }}
-                          ></div>
-                          {getConnectionTypeDisplayName(type)}
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Zoom controls - visible on both desktop and mobile in fullscreen */}
-          <div className={`${isFullscreen ? "flex" : "hidden md:flex"} space-x-2 ml-4`}>
-            <button
-              onClick={() => handleZoom("in")}
-              className="p-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded flex items-center"
-              title="Zoom In"
-            >
-              <ZoomIn size={16} />
-            </button>
-            <button
-              onClick={() => handleZoom("out")}
-              className="p-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded flex items-center"
-              title="Zoom Out"
-            >
-              <ZoomOut size={16} />
-            </button>
-            <button
-              onClick={resetView}
-              className="p-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded flex items-center"
-              title="Reset View"
-            >
-              <RefreshCw size={16} />
-            </button>
-            <button
-              onClick={toggleFullscreen}
-              className="p-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded flex items-center"
-              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-            >
-              {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
-            </button>
-          </div>
-        </div>
-
         {/* Connection error notification */}
         {connectionError && (
           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 text-white px-4 py-2 rounded-md z-50 flex items-center">
@@ -1175,54 +1120,40 @@ export default function Home() {
           {/* Paper overlay with slight texture for torn effect */}
           <div className="absolute inset-0 bg-[#ddd] z-0 opacity-5 pointer-events-none"></div>
 
-          {/* Filter Toggle Button - Fixed position, outside of the content container */}
-          {mode === "investigate" && investigatingCriminal && (
-            <div className={`absolute ${isFullscreen ? "top-16" : "top-4"} right-4 z-40 pointer-events-auto`}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setIsFiltered(!isFiltered)
-                }}
-                className="bg-gray-800/90 hover:bg-gray-700 text-white px-3 py-2 rounded-md flex items-center text-sm shadow-lg"
-              >
-                {isFiltered ? (
-                  <>
-                    <Eye className="mr-2 h-4 w-4" /> Show All
-                  </>
-                ) : (
-                  <>
-                    <Filter className="mr-2 h-4 w-4" /> Show Connected Only
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-
-          {/* Sticky notes - decorative elements */}
-          <div
-            className="absolute left-4 top-4 z-5 w-48 bg-yellow-200 p-4 shadow-md transform rotate-[-5deg]"
-            style={{ maxWidth: "200px" }}
-          >
-            <div className="text-black font-handwriting text-sm">
-              <p className="font-bold mb-2">INVESTIGATION NOTES:</p>
-              <p>They're all using different stacks, but something links them</p>
-            </div>
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6">
-              <div className="w-4 h-4 rounded-full bg-red-500 shadow-md mx-auto"></div>
-            </div>
+          {/* Zoom Controls - Top Left */}
+          <div className="absolute top-4 left-4 z-40 flex flex-col space-y-2">
+            <button
+              onClick={() => handleZoom("in")}
+              className="w-10 h-10 bg-gray-800/90 hover:bg-gray-700 text-white rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm"
+              title="Zoom In"
+            >
+              <ZoomIn size={20} />
+            </button>
+            <button
+              onClick={() => handleZoom("out")}
+              className="w-10 h-10 bg-gray-800/90 hover:bg-gray-700 text-white rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm"
+              title="Zoom Out"
+            >
+              <ZoomOut size={20} />
+            </button>
           </div>
 
-          <div
-            className="absolute right-8 top-16 z-5 w-48 bg-blue-100 p-4 shadow-md transform rotate-[4deg]"
-            style={{ maxWidth: "200px" }}
-          >
-            <div className="text-black font-handwriting text-sm">
-              <p className="font-bold mb-2">FOLLOW UP:</p>
-              <p>Pins don’t lie. Someone’s rising too fast</p>
-            </div>
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6">
-              <div className="w-4 h-4 rounded-full bg-blue-500 shadow-md mx-auto"></div>
-            </div>
+          {/* Reset and Fullscreen Controls - Top Right */}
+          <div className="absolute top-4 right-4 z-40 flex flex-col space-y-2">
+            <button
+              onClick={resetView}
+              className="w-10 h-10 bg-gray-800/90 hover:bg-gray-700 text-white rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm"
+              title="Reset View"
+            >
+              <RefreshCw size={20} />
+            </button>
+            <button
+              onClick={toggleFullscreen}
+              className="w-10 h-10 bg-gray-800/90 hover:bg-gray-700 text-white rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm"
+              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+            >
+              {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+            </button>
           </div>
 
           {/* Content container with panning and zooming */}
@@ -1241,24 +1172,7 @@ export default function Home() {
               const position = getGridPosition(index)
               const rotation = getRandomRotation() // Random rotation between -7 and 7 degrees
               const isSelected = selectedCriminals.includes(mugshot.id)
-              const isHighlighted = highlightedCriminals.includes(mugshot.id)
               const isHovered = hoveredCriminal === mugshot.id
-              const isInvestigating = investigatingCriminal === mugshot.id
-
-              // Add this new line to determine if this card should pulse
-              const shouldPulse =
-                mode === "investigate" && isHighlighted && !isInvestigating && investigatingCriminal !== null
-
-              // Get connections for this criminal
-              const criminalConnections = getCriminalConnections(mugshot.id)
-              const hasConnections = criminalConnections.length > 0
-
-              // Determine if this card should be visible in filtered mode
-              const isVisible = !isFiltered || isHighlighted || isInvestigating
-
-              // Determine if this card should be dimmed in investigation mode
-              const shouldBeDimmed =
-                mode === "investigate" && investigatingCriminal && !isHighlighted && !isInvestigating
 
               // Get random pin position
               const pinPosition = getPinPosition("top-left")
@@ -1270,18 +1184,12 @@ export default function Home() {
                 <div
                   key={mugshot.id}
                   className={`absolute cursor-pointer transition-all duration-300
-                    ${isSelected ? "ring-4 ring-red-500" : ""}
-                    ${isHighlighted && !isSelected ? "ring-2 ring-yellow-400" : ""}
-                    ${!isVisible ? "hidden" : ""}`}
+                    ${isSelected ? "ring-4 ring-red-500" : ""}`}
                   style={{
                     top: position.top,
                     left: position.left,
                     transform: `rotate(${rotation}deg)`,
-                    zIndex: isInvestigating ? 35 : isHighlighted ? 25 : 10,
-                    // Apply dimming directly to non-highlighted mugshots
-                    opacity: shouldBeDimmed ? 0.5 : 1,
-                    // Add a highlight glow effect to highlighted mugshots but only if not pulsing
-                    boxShadow: isHighlighted && !shouldPulse ? "0 0 15px 5px rgba(255, 255, 0, 0.3)" : "",
+                    zIndex: 10,
                     width: typeof window !== "undefined" && window.innerWidth < 768 ? "90px" : "120px", // Smaller on mobile
                     // Add margin to create more space between cards
                     margin: "10px",
@@ -1357,216 +1265,32 @@ export default function Home() {
                           <Star className="inline h-3 w-3 ml-1 text-yellow-500" fill="currentColor" />
                         )}
                       </div>
-
-                      {/* Connection Badges */}
-                      {(mode === "investigate" || hasConnections) &&
-                        criminalConnections.map((connection, i) => {
-                          // Determine if this connection should be highlighted
-                          const connectedId =
-                            connection.fromCriminalId === mugshot.id
-                              ? connection.toCriminalId
-                              : connection.fromCriminalId
-                          const isConnectionHighlighted = highlightedCriminals.includes(connectedId)
-
-                          // Check if this connection should be pulsing
-                          const isPulsing = pulsingConnections.includes(connection.id)
-
-                          // Only show badge if in investigate mode or if this is a highlighted connection
-                          if (mode !== "investigate" && !isConnectionHighlighted) return null
-
-                          // Position badges in different corners based on index
-                          const positions = [
-                            "bottom-0 right-0", // bottom right
-                            "bottom-0 left-0", // bottom left
-                            "top-0 right-0", // top right
-                            "top-0 left-0", // top left
-                          ]
-                          const position = positions[i % positions.length]
-
-                          return (
-                            <ConnectionBadge
-                              key={connection.id}
-                              connection={connection}
-                              position={position}
-                              color={getConnectionColor(connection.connectionType)}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleConnectionClick(connection)
-                              }}
-                              isHighlighted={isConnectionHighlighted || isInvestigating}
-                              isPulsing={isPulsing}
-                            />
-                          )
-                        })}
-
-                      {/* Action Buttons - Only show when hovered or selected */}
-                      {(isHovered || isSelected || isInvestigating) && (
-                        <div className="absolute bottom-0 left-0 right-0 flex justify-between bg-black/80 text-white text-[8px] font-mono">
-                          <button
-                            className="flex-1 py-1 flex items-center justify-center hover:bg-gray-700"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (mode === "view") {
-                                setMode("investigate")
-                                handleInvestigateMode(mugshot)
-                              } else {
-                                handleCriminalClick(mugshot)
-                              }
-                            }}
-                          >
-                            <Eye className="h-2 w-2 mr-1" /> INVESTIGATE
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </div>
-
-                  {/* Connection Info Labels - Only show when investigating this criminal */}
-                  {isInvestigating &&
-                    getConnectedCriminals(mugshot.id).map(({ criminal, connection }) => {
-                      // Check if this connection should be pulsing
-                      const isPulsing = pulsingConnections.includes(connection.id)
-
-                      return (
-                        <div
-                          key={connection.id}
-                          className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-30 pointer-events-auto"
-                        >
-                          <div
-                            className={`bg-gray-900/90 text-white text-xs px-2 py-1 rounded shadow-lg flex items-center ${
-                              isPulsing ? "animate-connection-pulse" : ""
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleConnectionClick(connection)
-                            }}
-                          >
-                            <div
-                              className="w-2 h-2 rounded-full mr-1"
-                              style={{ backgroundColor: getConnectionColor(connection.connectionType) }}
-                            ></div>
-                            <span className="capitalize mr-1">{connection.connectionType}</span>
-
-                            <Info className="ml-1 h-3 w-3 opacity-70" />
-                          </div>
-                        </div>
-                      )
-                    })}
                 </div>
               )
             })}
           </div>
         </div>
 
-        {/* Mobile Controls - Floating at the bottom (hidden in fullscreen) */}
-        {!isFullscreen && (
-          <div className="md:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 flex space-x-3 bg-gray-800/90 rounded-full px-4 py-2 shadow-lg">
-            <button
-              onClick={() => handleZoom("in")}
-              className="w-10 h-10 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center"
-              title="Zoom In"
-            >
-              <ZoomIn size={20} />
-            </button>
-            <button
-              onClick={() => handleZoom("out")}
-              className="w-10 h-10 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center"
-              title="Zoom Out"
-            >
-              <ZoomOut size={20} />
-            </button>
-            <button
-              onClick={resetView}
-              className="w-10 h-10 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center"
-              title="Reset View"
-            >
-              <RefreshCw size={20} />
-            </button>
-            <button
-              onClick={toggleFullscreen}
-              className="w-10 h-10 bg-gray-700 hover:bg-gray-600 text-white rounded-full flex items-center justify-center"
-              title="Fullscreen"
-            >
-              <Maximize size={20} />
-            </button>
-          </div>
-        )}
-
         {/* Modals - Rendered inside the corkboard section for fullscreen compatibility */}
         {/* Criminal Modal */}
         {selectedCriminal && <CriminalModal criminal={selectedCriminal} onClose={closeCriminalModal} />}
-
-        {/* Connection Modal */}
-        {showConnectionModal && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4">
-            <ConnectionModal
-              criminals={mugshots.filter((m) => selectedCriminals.includes(m.id))}
-              onSave={createConnection}
-              onCancel={cancelConnection}
-            />
-          </div>
-        )}
-
-        {/* Connection Detail Modal */}
-        {selectedConnection && (
-          <div
-            className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4"
-            onClick={closeConnectionDetail}
-          >
-            <div className="bg-gray-800 rounded-lg p-4 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-white font-bold text-lg">Connection Details</h3>
-                <button onClick={closeConnectionDetail} className="text-gray-400 hover:text-white">
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="mb-4">
-                <div className="flex items-center mb-2">
-                  <div
-                    className="w-3 h-3 rounded-full mr-2"
-                    style={{ backgroundColor: getConnectionColor(selectedConnection.connectionType) }}
-                  ></div>
-                  <span className="text-white capitalize">{selectedConnection.connectionType}</span>
-                </div>
-
-                <div className="bg-gray-700 p-3 rounded text-white text-sm mb-4">{selectedConnection.evidence}</div>
-
-                <div className="flex justify-between text-sm text-gray-400">
-                  <span>Created: {new Date(selectedConnection.createdAt).toLocaleDateString()}</span>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded"
-                  onClick={closeConnectionDetail}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Stats - Added mx-4 to maintain some spacing */}
         <div className="flex justify-center w-full text-lg mb-8 mx-4">
           <div className="flex items-center flex-wrap justify-center gap-4">
             <div className="flex items-center">
               <div className="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
-              <span className="text-white">{mugshots.length} criminals</span>
+              <span className="text-white">{mugshots.length} Founders</span>
             </div>
-            <span className="text-gray-500">|</span>
-            <div className="flex items-center">
-              <div className="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
-              <span className="text-white">{connections.length} connections</span>
-            </div>
+          
             {featuredMugshots.length > 0 && (
               <>
                 <span className="text-gray-500">|</span>
                 <div className="flex items-center">
                   <Crown className="h-4 w-4 text-yellow-500 mr-2" fill="currentColor" />
-                  <span className="text-white">{featuredMugshots.length} featured</span>
+                  <span className="text-white">{featuredMugshots.length} Featured</span>
                 </div>
               </>
             )}

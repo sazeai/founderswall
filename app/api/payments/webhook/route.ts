@@ -1,18 +1,40 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { dodoPayments } from "@/lib/dodo-payments"
 import { createServiceRoleClient } from "@/utils/supabase/service-role"
+import crypto from "crypto"
 
 export async function POST(request: NextRequest) {
   try {
+    // Get webhook headers
+    const webhookId = request.headers.get("webhook-id")
+    const webhookSignature = request.headers.get("webhook-signature")
+    const webhookTimestamp = request.headers.get("webhook-timestamp")
+    const webhookSecret = process.env.DODO_WEBHOOK_KEY
+
+    // Clone the request to get the raw body for signature verification
+    // and also parse it as JSON for processing
+    const rawBody = await request.text()
+    const body = JSON.parse(rawBody)
+
+    // Verify webhook signature
+    if (webhookId && webhookSignature && webhookTimestamp && webhookSecret) {
+      // Concatenate the webhook-id, webhook-timestamp, and stringified payload with periods
+      const payload = `${webhookId}.${webhookTimestamp}.${rawBody}`
+
+      // Compute HMAC SHA256 signature
+      const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(payload).digest("hex")
+
+      // Compare signatures
+      if (webhookSignature !== expectedSignature) {
+        return NextResponse.json({ error: "Invalid webhook signature" }, { status: 401 })
+      }
+    } else {
+      // Missing required headers for verification
+      return NextResponse.json({ error: "Missing webhook verification headers" }, { status: 400 })
+    }
+
     // Create a Supabase client with service role key to bypass RLS
     const supabase = createServiceRoleClient()
-
-    // Verify webhook signature (if Dodo provides one)
-    const webhookKey = process.env.DODO_WEBHOOK_KEY
-    const signature = request.headers.get("x-dodo-signature")
-
-    // TODO: Implement signature verification when Dodo provides it
-    const body = await request.json()
 
     // Extract event data - handle different webhook formats
     let eventId: string
@@ -27,10 +49,10 @@ export async function POST(request: NextRequest) {
       eventType = body.event_type
       objectId = body.object_id
       eventData = body
-    } else if (body.data && body.data.payment_id) {
-      // Alternative format - create our own event ID
+    } else if (body.type && body.data && body.data.payment_id) {
+      // Alternative format based on documentation
       eventId = `evt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      eventType = body.data.status === "succeeded" ? "payment.succeeded" : `payment.${body.data.status}`
+      eventType = body.type
       objectId = body.data.payment_id
       eventData = body
     } else {

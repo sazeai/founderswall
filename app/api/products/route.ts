@@ -11,6 +11,8 @@ export async function GET(request: Request) {
   const offset = Number.parseInt(searchParams.get("offset") || "0")
   const filter = searchParams.get("filter") as "trending" | "newest" | "most-wanted" | undefined
 
+  console.log("API: Getting products with limit:", limit, "offset:", offset)
+
   try {
     const supabase = await createClient()
 
@@ -29,11 +31,21 @@ export async function GET(request: Request) {
       .limit(limit)
       .range(offset, offset + limit - 1)
 
+    console.log("API: Raw query result:", { productsCount: products?.length || 0, error })
+
     if (error) {
+      console.error("API: Products query error:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Get upvote counts for each product
+    if (!products) {
+      console.log("API: No products returned from query")
+      return NextResponse.json([])
+    }
+
+    console.log("API: Found", products.length, "products")
+
+    // Get upvote counts for each product individually
     const upvoteCounts = new Map()
 
     // Count upvotes for each product individually
@@ -80,8 +92,10 @@ export async function GET(request: Request) {
       }
     })
 
+    console.log("API: Returning", formattedProducts.length, "formatted products")
     return NextResponse.json(formattedProducts)
   } catch (error) {
+    console.error("API: Unexpected error:", error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "An unknown error occurred" },
       { status: 500 },
@@ -103,7 +117,7 @@ async function generateUniqueCaseId(supabase: any, maxRetries = 5): Promise<stri
         // Fallback to random if there's an error
         return `L${Math.floor(Math.random() * 10000)
           .toString()
-          .padStart(3,0)}`
+          .padStart(3, 0)}`
       }
 
       let nextNumber = 1

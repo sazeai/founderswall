@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { UserIcon, LogIn, LogOut, Loader2 } from "lucide-react"
@@ -18,47 +18,8 @@ export function PublicHeader() {
   const [logoutError, setLogoutError] = useState<string | null>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    const supabase = createClient()
-
-    // Get initial user
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      setUser(user)
-      setIsLoading(false)
-    }
-
-    getUser()
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null)
-      setIsLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  // Handle scroll effect for header
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  // Close mobile menu when path changes
-  useEffect(() => {
-    setIsMenuOpen(false)
-  }, [pathname])
-
-  const handleLogout = async () => {
+  // Add useCallback to prevent unnecessary re-renders
+  const handleLogout = useCallback(async () => {
     setLogoutError(null)
     setIsSigningOut(true)
 
@@ -77,7 +38,63 @@ export function PublicHeader() {
       setLogoutError("Failed to sign out. Please try again.")
       setIsSigningOut(false)
     }
-  }
+  }, [router])
+
+  // Optimize the auth effect to prevent redundant calls
+  useEffect(() => {
+    const supabase = createClient()
+    let mounted = true
+
+    // Get initial user
+    const getUser = async () => {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        if (mounted) {
+          setUser(user)
+          setIsLoading(false)
+        }
+      } catch (error) {
+        if (mounted) {
+          setUser(null)
+          setIsLoading(false)
+        }
+      }
+    }
+
+    getUser()
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (mounted) {
+        setUser(session?.user || null)
+        setIsLoading(false)
+      }
+    })
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  // Handle scroll effect for header
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // Close mobile menu when path changes
+  useEffect(() => {
+    setIsMenuOpen(false)
+  }, [pathname])
 
   return (
     <header
@@ -183,7 +200,6 @@ export function PublicHeader() {
                     label="The Heist Board"
                     active={pathname === "/launch" || pathname.startsWith("/launch/")}
                   />
-                 
 
                   {isLoading ? (
                     <div className="w-full h-10 bg-gray-700 animate-pulse rounded"></div>
