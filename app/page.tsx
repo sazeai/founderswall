@@ -920,7 +920,7 @@ export default function Home() {
       <PublicHeader />
 
       {/* New Hero Section */}
-      <section className="relative bg-gradient-to-br from-red-600 via-red-700 to-red-800 min-h-screen overflow-hidden">
+      <section className="relative bg-gradient-to-br from-red-600 via-red-700 top-16-custom to-red-800 min-h-screen overflow-hidden">
         {/* Playful Background Doodles and Text */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {/* Background Pattern */}
@@ -1019,7 +1019,7 @@ export default function Home() {
 
             {/* Right Side - Hero Visual */}
             <div className="flex flex-col justify-center lg:justify-end order-1 lg:order-2">
-              <div className="relative">
+              <div className="relative flex flex-col justify-center">
                 <div className="absolute inset-0 bg-yellow-400 rounded-full blur-3xl opacity-30 scale-110"></div>
                 <div className="absolute inset-0 bg-red-400 rounded-full blur-2xl opacity-20 scale-125"></div>
 
