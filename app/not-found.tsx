@@ -72,7 +72,7 @@ export default function NotFound() {
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700"
         style={{
-          backgroundImage: "url('/images/founder-404-bg.png')",
+          backgroundImage: "url('/404-not-found.png')",
           filter: isDarkMode ? "brightness(0.2) contrast(2) saturate(0.5)" : "brightness(0.7) contrast(1.2)",
         }}
       />
