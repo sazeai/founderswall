@@ -958,12 +958,12 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="relative z-10 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 items-center w-full">
             {/* Left Side - Typography */}
             <div className="text-center lg:text-left order-2 lg:order-1">
               <div className="mb-6 lg:mb-8 relative">
                 <h1
-                  className="text-5xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[7rem] font-black text-yellow-400 leading-none"
+                  className="text-6xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-[7rem] font-black text-yellow-400 leading-none"
                   style={{
                     textShadow: "4px 4px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000",
                     fontFamily: "'Arial Black', sans-serif",
@@ -1012,7 +1012,7 @@ export default function Home() {
               </div>
 
               {/* THIS WEEK'S LEADERBOARD - Only show on mobile */}
-              <div className="mt-8 lg:hidden">
+              <div className="mt-4 lg:hidden">
                 <LeaderboardComponent />
               </div>
             </div>
@@ -1023,7 +1023,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-yellow-400 rounded-full blur-3xl opacity-30 scale-110"></div>
                 <div className="absolute inset-0 bg-red-400 rounded-full blur-2xl opacity-20 scale-125"></div>
 
-                <div className="relative">
+                <div className="relative flex justify-center">
                   <Image
                     src="/wallimg.png"
                     alt="Founders shipping like hell"
@@ -1049,7 +1049,7 @@ export default function Home() {
                 </div>
 
                 {/* THIS WEEK'S LEADERBOARD - Only show on desktop, below the image */}
-                <div className="hidden max-w-md lg:block">
+                <div className="hidden max-w-md mx-auto w-full lg:block">
                   <LeaderboardComponent />
                 </div>
               </div>
