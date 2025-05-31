@@ -181,7 +181,7 @@ export default function NotFound() {
         <div className="text-red-400 font-bold mb-2">ERROR 404</div>
         <div className="text-xs">Founder not found in database</div>
         <div className="text-xs">They might be shipping something new...</div>
-        <div className="text-xs text-yellow-400 mt-2">💡 Hover bottom-right corner</div>
+        <div className="text-xs text-yellow-400 mt-2">💡 Hover OVer The Candle</div>
       </div>
 
       {/* Hidden Dark Mode Trigger Zone */}
