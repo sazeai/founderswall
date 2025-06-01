@@ -62,8 +62,9 @@ export async function GET(req: NextRequest) {
   }
 
   const username = mugshotProfile?.name || 'Unknown'; 
-  const twitter = mugshotProfile?.twitter_handle ? `@${mugshotProfile.twitter_handle}` : '';
+  const twitter = mugshotProfile?.twitter_handle ? `${mugshotProfile.twitter_handle}` : '';
   const avatar = mugshotProfile?.mugshot_url || `${req.nextUrl.origin}/images/indie-hackers/ava-ai.png`;
+  const logoUrl = `${req.nextUrl.origin}/founderwall-logo.png`;
 
   // Pushpin SVG (inline)
   const PushPin = (
@@ -72,6 +73,17 @@ export async function GET(req: NextRequest) {
       <rect x="14.5" y="16" width="3" height="10" rx="1.5" fill="#b03a2e" />
     </svg>
   );
+
+  // Paper texture SVG as data URI (subtle noise)
+  const paperTexture = 'data:image/svg+xml;utf8,<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg"><filter id="n" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="t"/><feColorMatrix type="saturate" values="0.2"/><feComponentTransfer><feFuncA type="linear" slope="0.04"/></feComponentTransfer></filter><rect width="1200" height="630" fill="white" opacity="0"/><rect width="1200" height="630" filter="url(%23n)"/></svg>';
+
+  // Floating sticky notes with dopamine text
+  const floatingNotes = [
+    { x: 80, y: 90, rot: -8, color: '#fffbe6', pin: true, text: '#BuildInPublic' },
+    { x: 1000, y: 120, rot: 6, color: '#ffe066', pin: false, text: 'Shipped 🚀' },
+    { x: 200, y: 500, rot: 4, color: '#fffbe6', pin: true, text: 'Indie Win!' },
+    { x: 950, y: 500, rot: -5, color: '#ffe066', pin: false, text: 'Maker Streak' },
+  ];
 
   try {
     const imageResponse = new ImageResponse(
@@ -84,10 +96,59 @@ export async function GET(req: NextRequest) {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            background: '#18181b', // Outer background for contrast
+            background: '#18181b',
             position: 'relative',
+            overflow: 'hidden',
           }}
         >
+          {/* Paper texture overlay */}
+          <img
+            src={paperTexture}
+            width={1200}
+            height={630}
+            style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', opacity: 0.18, zIndex: 1 }}
+            alt="paper texture"
+          />
+          {/* Floating sticky notes with dopamine text */}
+          {floatingNotes.map((note, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: note.x,
+                top: note.y,
+                width: 140,
+                height: 120,
+                background: note.color,
+                borderRadius: 16,
+                border: '2px solid #e2b203',
+                boxShadow: '0 4px 16px 0 rgba(0,0,0,0.10)',
+                transform: `rotate(${note.rot}deg)`,
+                zIndex: 2,
+                opacity: 0.72,
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                fontFamily: 'Comic Sans MS, Comic Sans, Inter, cursive',
+                fontWeight: 700,
+                fontSize: 22,
+                color: '#b68900',
+                padding: '18px 10px 10px 10px',
+                textAlign: 'center',
+                letterSpacing: 0.5,
+              }}
+            >
+              {note.pin && (
+                <svg width="24" height="24" viewBox="0 0 32 32" style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', zIndex: 3 }}>
+                  <circle cx="16" cy="10" r="7" fill="#e74c3c" stroke="#b03a2e" strokeWidth="2" />
+                  <rect x="14.5" y="16" width="3" height="10" rx="1.5" fill="#b03a2e" />
+                </svg>
+              )}
+              <span style={{ position: 'relative', zIndex: 4 }}>{note.text}</span>
+            </div>
+          ))}
+  
+          {/* Main sticky note card */}
           <div
             style={{
               position: 'relative',
@@ -97,13 +158,14 @@ export async function GET(req: NextRequest) {
               borderRadius: 24,
               border: '3px solid #e2b203',
               boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
-              padding: '56px 64px 40px 64px',
+              padding: '32px 40px 28px 40px',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               fontFamily: 'Inter, Comic Sans MS, Comic Sans, cursive',
               color: '#18181b',
               overflow: 'visible',
+              zIndex: 10,
             }}
           >
             {PushPin}
@@ -123,11 +185,31 @@ export async function GET(req: NextRequest) {
               {pinData.content?.slice(0, 180) || ''}
             </div>
             {/* Build Update label */}
-            <div style={{ fontSize: 28, fontWeight: 700, color: '#b68900', marginBottom: 8, letterSpacing: 1 }}>
+            <div style={{ fontSize: 28, fontWeight: 700, color: '#cc5f24', marginBottom: 4, letterSpacing: 1 }}>
               🚧 Build Update
             </div>
+            {/* FoundersWall text logo in bottom right */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 18,
+                right: 32,
+                fontFamily: 'Pacifico, Comic Sans MS, Comic Sans, cursive',
+                fontSize: 30,
+                color: '#e2b203',
+                textShadow: '0 2px 8px #fffbe6, 0 1px 0 #fff',
+                opacity: 0.96,
+                letterSpacing: 1.5,
+                fontWeight: 700,
+                zIndex: 30,
+                pointerEvents: 'none',
+                userSelect: 'none',
+              }}
+            >
+              FoundersWall
+            </div>
           </div>
-          {/* Footer */}
+          {/* Footer tagline */}
           <div
             style={{
               position: 'absolute',
@@ -139,11 +221,16 @@ export async function GET(req: NextRequest) {
               color: '#fff',
               letterSpacing: 1,
               fontWeight: 600,
-              opacity: 0.85,
+              opacity: 0.92,
               fontFamily: 'Inter, sans-serif',
+              zIndex: 20,
+              textShadow: '0 2px 8px #18181b',
+              display: 'flex', 
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            founderswall.com · View full log & share your own
+            Every log is a milestone. Share yours!
           </div>
         </div>
       ),
