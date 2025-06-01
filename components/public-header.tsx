@@ -117,6 +117,11 @@ export function PublicHeader() {
               label="The Heist Board"
               active={pathname === "/launch" || pathname.startsWith("/launch/")}
             />
+            <NavLink
+              href="/logs"
+              label="Pin Wall"
+              active={pathname === "/logs"}
+            />
 
             {/* Show loading state while checking auth */}
             {isLoading ? (
@@ -199,6 +204,11 @@ export function PublicHeader() {
                     href="/launch"
                     label="The Heist Board"
                     active={pathname === "/launch" || pathname.startsWith("/launch/")}
+                  />
+                  <MobileNavLink
+                    href="/logs"
+                    label="Pin Wall"
+                    active={pathname === "/logs"}
                   />
 
                   {isLoading ? (
