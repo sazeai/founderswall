@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import StationHeader from "./station-header"
 import AccessGuard from "@/components/access-guard"
+import { PaymentStatusProvider } from "@/components/PaymentStatusProvider"
 
 // Add this line to mark the route as dynamic
 export const dynamic = "force-dynamic"
@@ -26,20 +27,22 @@ export default async function StationLayout({
       redirect("/login?redirectedFrom=/station")
     }
 
-    // Always wrap in AccessGuard - it will handle payment check
+    // Wrap in PaymentStatusProvider, then AccessGuard
     return (
-      <AccessGuard requiresPayment={true}>
-        <div className="min-h-screen flex flex-col bg-gray-900 text-white">
-          <StationHeader user={user} />
-          <main className="flex-grow py-12 px-4">{children}</main>
-        </div>
-      </AccessGuard>
+      <PaymentStatusProvider>
+        <AccessGuard requiresPayment={true}>
+          <div className="min-h-screen flex flex-col bg-dark text-white">
+            <StationHeader user={user} />
+            <main className="flex-grow py-12 px-4">{children}</main>
+          </div>
+        </AccessGuard>
+      </PaymentStatusProvider>
     )
   } catch (error) {
     console.error("Error in station layout:", error)
     // Fallback to a simple error page
     return (
-      <div className="min-h-screen flex flex-col items-center py-12 justify-center bg-gray-900 text-white">
+      <div className="min-h-screen flex flex-col items-center py-12 justify-center bg-dark text-white">
         <h1 className="text-2xl font-bold mb-4">Something went wrong</h1>
         <p className="mb-4">We're having trouble loading this page.</p>
         <a href="/" className="text-red-500 hover:underline">

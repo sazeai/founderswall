@@ -263,14 +263,13 @@ export default function EditMugshotPage() {
   // If the cropper is showing, render it instead of the normal form
   if (showCropper && formData.imagePreview) {
     return (
-      <div className="min-h-screen bg-gray-800 text-white">
+      <div className="min-h-screen bg-gray-900 text-white">
         <div className="pt-6 px-6 flex items-center">
           <button onClick={handleCropCancel} className="text-white mr-4">
             <ArrowLeft className="h-6 w-6" />
           </button>
           <h1 className="text-2xl font-bold">Position Your Mugshot</h1>
         </div>
-
         <div className="h-6 w-full bg-yellow-400 mt-4 relative overflow-hidden">
           <div
             className="absolute inset-0"
@@ -280,7 +279,6 @@ export default function EditMugshotPage() {
             }}
           ></div>
         </div>
-
         <div className="p-6">
           <ImageCropper
             imageUrl={formData.imagePreview}
@@ -293,31 +291,29 @@ export default function EditMugshotPage() {
   }
 
   return (
-    <div className="min-h-screen max-w-4xl mx-auto bg-gray-800 rounded-lg border border-gray-700">
+    <div className="min-h-screen max-w-4xl mx-auto bg-gray-900 rounded-xl border border-gray-800 shadow-lg">
       <div className="p-6">
         <div className="mb-6">
           <div className="flex items-center">
             <button onClick={() => router.push("/station")} className="text-white mr-4">
               <ArrowLeft className="h-6 w-6" />
             </button>
-            <h1 className="text-2xl font-bold">Edit Your Mugshot</h1>
+            <h1 className="text-2xl font-bold text-white">Edit Your Mugshot</h1>
           </div>
         </div>
-
         {/* Error message */}
         {error && (
-          <div className="bg-red-900/50 text-white p-3 rounded-md mb-4 flex items-start">
-            <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+          <div className="bg-red-900/70 text-white p-3 rounded-md mb-4 flex items-start border border-red-700">
+            <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-red-400" />
             <p className="text-sm">{error}</p>
           </div>
         )}
-
         {/* Success message */}
         {success && (
-          <div className="bg-green-900/50 text-white p-3 rounded-md mb-4 flex items-start">
+          <div className="bg-green-900/70 text-white p-3 rounded-md mb-4 flex items-start border border-green-700">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5"
+              className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-green-400"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -330,23 +326,22 @@ export default function EditMugshotPage() {
             <p className="text-sm">{success}</p>
           </div>
         )}
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-6">
-            <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center">
+            <div className="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center bg-gray-800">
               {formData.imagePreview ? (
                 <div className="relative w-full h-64 mx-auto">
                   <Image
                     src={formData.imagePreview || "/placeholder.svg"}
                     alt="Preview"
                     fill
-                    className="object-contain"
+                    className="object-contain rounded-lg border border-gray-700 bg-gray-900"
                   />
                   <div className="absolute bottom-2 right-2 flex space-x-2">
                     <button
                       type="button"
                       onClick={() => setShowCropper(true)}
-                      className="bg-gray-800 text-white rounded-full p-2"
+                      className="bg-gray-900 text-white rounded-full p-2 border border-gray-700"
                       title="Edit crop"
                     >
                       <svg
@@ -368,7 +363,7 @@ export default function EditMugshotPage() {
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, imageFile: null, imagePreview: "" })}
-                      className="bg-red-500 text-white rounded-full p-2"
+                      className="bg-red-500 text-white rounded-full p-2 border border-red-700"
                       title="Remove image"
                     >
                       <svg
@@ -394,18 +389,17 @@ export default function EditMugshotPage() {
                     src={formData.imageUrl || "/placeholder.svg"}
                     alt="Current Mugshot"
                     fill
-                    className="object-contain"
+                    className="object-contain rounded-lg border border-gray-700 bg-gray-900"
                   />
                 </div>
               ) : (
                 <div className="py-12">
                   <div className="flex justify-center mb-4">
-                    <Upload className="h-12 w-12 text-gray-500" />
+                    <Upload className="h-12 w-12 text-yellow-400" />
                   </div>
                   <p className="text-gray-300 mb-2">No mugshot image found</p>
                 </div>
               )}
-
               <input
                 type="file"
                 id="imageFile"
@@ -421,14 +415,13 @@ export default function EditMugshotPage() {
                   className="border-gray-700 text-white"
                   onClick={triggerFileInput}
                 >
-                  <Upload className="mr-2 h-4 w-4" /> {formData.imageUrl ? "Change Photo" : "Upload Photo"}
+                  <Upload className="mr-2 h-4 w-4 text-yellow-400" /> {formData.imageUrl ? "Change Photo" : "Upload Photo"}
                 </Button>
                 <Button type="button" variant="outline" className="border-gray-700 text-white">
-                  <Camera className="mr-2 h-4 w-4" /> Take Photo
+                  <Camera className="mr-2 h-4 w-4 text-yellow-400" /> Take Photo
                 </Button>
               </div>
             </div>
-
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-white">
@@ -448,7 +441,6 @@ export default function EditMugshotPage() {
                   Your name cannot be changed as it's used in your maker profile URL (founderswall.com/maker/your-name)
                 </p>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="crime" className="text-white">
                   Your Crime
@@ -464,7 +456,6 @@ export default function EditMugshotPage() {
                 />
                 <p className="text-xs text-gray-400">This will appear on your mugshot sign</p>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="note" className="text-white">
                   Handwritten Note
@@ -480,7 +471,6 @@ export default function EditMugshotPage() {
                 />
                 <p className="text-xs text-gray-400">This will appear as a handwritten note below your mugshot</p>
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="productUrl" className="text-white">
                   Product URL
@@ -495,7 +485,6 @@ export default function EditMugshotPage() {
                   required
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="twitterHandle" className="text-white">
                   X/Twitter Handle
@@ -511,8 +500,7 @@ export default function EditMugshotPage() {
                 />
               </div>
             </div>
-
-            <Button type="submit" className="w-full bg-red-500 hover:bg-red-600 text-white" disabled={loading}>
+            <Button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

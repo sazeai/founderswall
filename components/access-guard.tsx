@@ -8,23 +8,12 @@ import type { User } from "@supabase/supabase-js"
 import PaymentModal from "./payment-modal"
 import { Loader2, Lock, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { usePaymentStatus } from "./PaymentStatusProvider"
 
 interface AccessGuardProps {
   children: React.ReactNode
   requiresPayment?: boolean
   fallback?: React.ReactNode
-}
-
-interface PaymentStatus {
-  has_lifetime_access: boolean
-  payments: Array<{
-    id: string
-    payment_id: string
-    status: string
-    amount: number
-    currency: string
-    created_at: string
-  }>
 }
 
 export default function AccessGuard({ children, requiresPayment = false, fallback }: AccessGuardProps) {
@@ -53,51 +42,19 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
 
     return () => subscription.unsubscribe()
   }, [])
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null)
-  const [loading, setLoading] = useState(true)
+
+  const { paymentStatus, loading: paymentLoading, refresh } = usePaymentStatus()
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
 
   useEffect(() => {
-    async function checkAccess() {
-      // Wait for user loading to complete first
-      if (userLoading) {
-        return
-      }
-
-      // Mark that we've checked auth state
+    if (!userLoading) {
       setAuthChecked(true)
-
-      // If payment is not required, show children immediately
-      if (!requiresPayment) {
-        setLoading(false)
-        return
-      }
-
-      // If no user, we'll show the access denied screen
-      if (!user) {
-        setLoading(false)
-        return
-      }
-
-      // Check if user has paid
-      try {
-        const response = await fetch("/api/payments/status")
-        if (response.ok) {
-          const data = await response.json()
-          setPaymentStatus(data)
-        }
-      } catch (error) {
-      } finally {
-        setLoading(false)
-      }
     }
-
-    checkAccess()
-  }, [user, requiresPayment, userLoading])
+  }, [userLoading])
 
   // Show loading state while checking
-  if (userLoading || !authChecked || loading) {
+  if (userLoading || !authChecked || (requiresPayment && paymentLoading)) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -195,8 +152,8 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
           onClose={() => setShowPaymentModal(false)}
           onSuccess={() => {
             setShowPaymentModal(false)
-            // Just refresh payment status, don't reload the whole page
-            window.location.reload()
+            // Refresh payment status in context
+            refresh()
           }}
         />
       )}

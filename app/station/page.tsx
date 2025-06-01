@@ -2,6 +2,8 @@ import type React from "react"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/server"
 import { Camera, FileText, Users, Eye, Edit, Crown, Star } from "lucide-react"
+import { StationHeaderClient } from '@/components/StationHeaderClient';
+import { YourLogsWall } from '@/components/YourLogsWall';
 
 export default async function StationDashboard() {
   const supabase = await createClient()
@@ -60,23 +62,38 @@ export default async function StationDashboard() {
   const badgeType = userProfile?.badge_type || "wanted"
 
   return (
-    <div className="container mx-auto p-2">
+    <div className="container mx-auto py-8 px-4">
+      <header className="mb-8 flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-white">Your Station</h1>
+        <StationHeaderClient />
+      </header>
+      
+      {/* 
+        Placeholder for "Your Logs" section 
+        Here you would list the user's past pins with stats (views, reactions, etc.)
+        And options to manage/edit their logs.
+      */}
+      <section className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4 text-white">Your Logs</h2>
+        <YourLogsWall />
+      </section>
+
       {/* Header Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-red-500">DETECTIVE STATION</h1>
+        <h1 className="text-3xl font-bold mb-2 text-red-500 stamped-text">DETECTIVE STATION</h1>
         <p className="text-gray-400">Your criminal investigation headquarters</p>
       </div>
 
       {/* Criminal Status Card */}
-      <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8">
+      <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-lg p-6 mb-8 relative">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold mb-2">Your Indie Crime Status</h2>
+            <h2 className="text-xl font-bold mb-2 text-white">Your Indie Crime Status</h2>
             <div className="flex items-center gap-2">
-              {badgeType === "community_pick" && <Crown className="w-5 h-5 text-yellow-500" />}
-              {badgeType === "startup_saviour" && <Star className="w-5 h-5 text-blue-500" />}
-              <span className="text-lg font-medium">
-                {badgeType === "wanted" && "WANTED"}
+              {badgeType === "community_pick" && <Crown className="w-5 h-5 text-yellow-400" />}
+              {badgeType === "startup_saviour" && <Star className="w-5 h-5 text-blue-400" />}
+              <span className="text-lg font-bold text-white uppercase tracking-wider">
+                {badgeType === "wanted" && <span className="font-handwriting text-yellow-400">WANTED</span>}
                 {badgeType === "community_pick" && "COMMUNITY PICK"}
                 {badgeType === "startup_saviour" && "STARTUP SAVIOUR"}
               </span>
@@ -89,18 +106,24 @@ export default async function StationDashboard() {
           </div>
           <div className="text-right">
             {userMugshot ? (
-              <div>
-                <p className="text-green-500 font-medium">IN CUSTODY</p>
+              <div className="flex flex-col items-end">
+                <span className="flex items-center gap-2 text-green-400 font-bold uppercase">
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>IN CUSTODY
+                </span>
                 <p className="text-gray-400 text-sm">Mugshot on file</p>
               </div>
             ) : (
-              <div>
-                <p className="text-yellow-500 font-medium">AT LARGE</p>
+              <div className="flex flex-col items-end">
+                <span className="flex items-center gap-2 text-red-500 font-bold uppercase">
+                  <span className="inline-block w-2 h-2 rounded-full bg-red-500"></span>AT LARGE
+                </span>
                 <p className="text-gray-400 text-sm">No mugshot yet</p>
               </div>
             )}
           </div>
         </div>
+        {/* Small tape accent */}
+        <div className="absolute -top-2 left-8 w-12 h-2 bg-yellow-400/80 rounded shadow-sm z-10"></div>
       </div>
 
       {/* Stats Grid */}
@@ -108,7 +131,7 @@ export default async function StationDashboard() {
         <CriminalStatCard
           title="Your Mugshot"
           value={mugshotsCount || 0}
-          icon={<Camera className="w-8 h-8 text-red-500" />}
+          icon={<Camera className="w-8 h-8 text-yellow-400" />}
           linkText={userMugshot ? "Edit Mugshot" : "Get Arrested"}
           linkHref={userMugshot ? "/station/edit-mugshot" : "/station/get-arrested"}
           status={userMugshot ? "active" : "missing"}
@@ -117,7 +140,7 @@ export default async function StationDashboard() {
         <CriminalStatCard
           title="Build Log"
           value={productsCount}
-          icon={<FileText className="w-8 h-8 text-green-500" />}
+          icon={<FileText className="w-8 h-8 text-blue-400" />}
           linkText="Submit Product"
           linkHref="/station/submit-launch"
           status="normal"
@@ -128,7 +151,7 @@ export default async function StationDashboard() {
         <CriminalStatCard
           title="Connections Found"
           value={connectionsCount || 0}
-          icon={<Users className="w-8 h-8 text-yellow-500" />}
+          icon={<Users className="w-8 h-8 text-yellow-400" />}
           linkText="Investigate"
           linkHref="/"
           status="normal"
@@ -138,8 +161,8 @@ export default async function StationDashboard() {
       {/* Action Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Criminal Operations */}
-        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-bold mb-4 text-red-500">CRIMINAL OPERATIONS</h2>
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg relative">
+          <h2 className="text-xl font-bold mb-4 text-white">CRIMINAL OPERATIONS</h2>
           <div className="space-y-4">
             {!userMugshot ? (
               <CriminalActionCard
@@ -179,12 +202,14 @@ export default async function StationDashboard() {
                 external={true}
               />
             )}
+            {/* Small tape accent */}
+            <div className="absolute -top-2 left-8 w-10 h-2 bg-yellow-400/80 rounded shadow-sm z-10"></div>
           </div>
         </div>
 
         {/* Investigation Activities */}
-        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-bold mb-4 text-yellow-500">INVESTIGATION ACTIVITIES</h2>
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg relative">
+          <h2 className="text-xl font-bold mb-4 text-white">INVESTIGATION ACTIVITIES</h2>
           <div className="space-y-4">
             <CriminalActionCard
               title="View The Wall"
@@ -203,13 +228,14 @@ export default async function StationDashboard() {
               href="/launch"
               priority="normal"
             />
+            <div className="absolute -top-2 right-8 w-10 h-2 bg-yellow-400/80 rounded shadow-sm z-10"></div>
           </div>
         </div>
       </div>
 
       {/* Recent Activity */}
-      <div className="mt-8 bg-gray-800 rounded-lg p-6 border border-gray-700">
-        <h2 className="text-xl font-bold mb-4">CASE FILE ACTIVITY</h2>
+      <div className="mt-8 bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
+        <h2 className="text-xl font-bold mb-4 text-white">CASE FILE ACTIVITY</h2>
         <div className="space-y-4">
           <ActivityItem
             title="Detective Account Created"
@@ -256,20 +282,22 @@ function CriminalStatCard({
 }) {
   return (
     <div
-      className={`bg-gray-800 rounded-lg p-6 border ${
-        status === "active" ? "border-green-500/50" : status === "missing" ? "border-red-500/50" : "border-gray-700"
-      }`}
+      className="bg-gray-900 border border-gray-800 rounded-xl shadow-md p-6"
     >
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-medium text-gray-300">{title}</h3>
+        <h3 className="text-lg font-bold text-white">{title}</h3>
         {icon}
       </div>
-      <p className="text-3xl font-bold mb-4">{value}</p>
+      <p className="text-3xl font-bold text-white mb-4">{value}</p>
       <Link
         href={linkHref}
-        className={`text-sm flex items-center ${
-          status === "missing" ? "text-red-400 hover:text-red-300" : "text-gray-400 hover:text-white"
-        } transition-colors`}
+        className={`text-sm flex items-center font-bold underline underline-offset-2 transition-colors ${
+          status === "missing"
+            ? "text-red-400 hover:text-red-300"
+            : status === "active"
+            ? "text-green-400 hover:text-green-300"
+            : "text-yellow-400 hover:text-yellow-300"
+        }`}
       >
         {linkText}
         <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,22 +323,16 @@ function CriminalActionCard({
   priority: "high" | "normal"
   external?: boolean
 }) {
-  const className = `block rounded-lg p-4 transition-colors ${
-    priority === "high"
-      ? "bg-red-900/30 hover:bg-red-900/50 border border-red-500/30"
-      : "bg-gray-700 hover:bg-gray-600 border border-gray-600"
-  }`
-
+  const className = `block rounded-xl p-4 shadow-md border border-gray-800 bg-gray-900 transition-colors hover:border-yellow-400`
   const content = (
     <div className="flex items-start space-x-3">
-      <div className={`rounded-full p-2 ${priority === "high" ? "bg-red-500/20" : "bg-gray-800"}`}>{icon}</div>
+      <div className={`rounded-full p-2 bg-gray-800 border-2 border-yellow-400 shadow-sm`}>{icon}</div>
       <div className="flex-1">
-        <h3 className="font-medium">{title}</h3>
-        <p className="text-sm text-gray-400">{description}</p>
+        <h3 className="font-bold text-white text-base">{title}</h3>
+        <p className="text-sm text-gray-300">{description}</p>
       </div>
     </div>
   )
-
   if (external) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
@@ -318,7 +340,6 @@ function CriminalActionCard({
       </a>
     )
   }
-
   return (
     <Link href={href} className={className}>
       {content}
@@ -344,14 +365,13 @@ function ActivityItem({
       case "nomination":
         return "border-blue-500"
       default:
-        return "border-gray-500"
+        return "border-yellow-400"
     }
   }
-
   return (
-    <div className={`border-l-2 ${getColor()} pl-4 py-2`}>
-      <h4 className="font-medium">{title}</h4>
-      <p className="text-sm text-gray-400">{description}</p>
+    <div className={`border-l-4 pl-4 py-2 rounded shadow-sm bg-gray-900 border-gray-800 ${getColor()}`}>
+      <h4 className="font-bold text-white">{title}</h4>
+      <p className="text-sm text-gray-300">{description}</p>
       <p className="text-xs text-gray-500 mt-1">{time}</p>
     </div>
   )

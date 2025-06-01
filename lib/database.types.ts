@@ -210,6 +210,55 @@ export interface Database {
           created_at?: string
         }
       }
+      pins: {
+        Row: {
+          id: string
+          content: string
+          user_id: string
+          product_id: string | null
+          visibility: 'public' | 'private'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          content: string
+          user_id: string
+          product_id?: string | null
+          visibility: 'public' | 'private'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          content?: string
+          user_id?: string
+          product_id?: string | null
+          visibility?: 'public' | 'private'
+          created_at?: string
+        }
+      }
+      pin_reactions: {
+        Row: {
+          id: string
+          pin_id: string
+          user_id: string
+          emoji: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          pin_id: string
+          user_id: string
+          emoji: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          pin_id?: string
+          user_id?: string
+          emoji?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

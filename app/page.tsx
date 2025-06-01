@@ -14,8 +14,6 @@ import { PublicHeader } from "@/components/public-header"
 import PublicFooter from "@/components/public-footer"
 import LoadingMugshotWall from "@/components/loading-mugshot-wall"
 import { getRandomRotation, getPinPosition } from "@/utils/crimeBoardEffects"
-// Remove this line:
-// import { getProducts } from "@/lib/product-service"
 
 // Define connection types for filter
 const connectionTypes = ["all", "collaborator", "competitor", "same-tech", "mentor", "inspired-by"]
@@ -818,6 +816,16 @@ export default function Home() {
     }
   }
 
+  const [isAddLogModalOpen, setIsAddLogModalOpen] = useState(false)
+
+  // Optional: Callback to refresh pins after a new log is posted
+  const handleLogPosted = () => {
+    // Here you might want to trigger a re-fetch of pins in PinWall
+    // This depends on how PinWall handles data fetching and updates
+    // For now, we can just log it or perhaps PinWall's realtime subscription handles it.
+    console.log('A new log has been posted, PinWall should update.')
+  }
+
   // Show loading state
   if (isLoading) {
     return <LoadingMugshotWall />
@@ -1309,6 +1317,8 @@ export default function Home() {
         ></div>
       </div>
       <PublicFooter />
+
+      {/* PinWall component, floating button, and AddLogModal have been moved to app/logs/page.tsx */}
     </main>
   )
 }

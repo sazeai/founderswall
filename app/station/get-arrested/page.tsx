@@ -236,14 +236,13 @@ export default function GetArrestedPage() {
   // If the cropper is showing, render it instead of the normal form
   if (showCropper && formData.imagePreview) {
     return (
-      <div className="min-h-screen bg-gray-800 text-white">
+      <div className="min-h-screen bg-gray-900 text-white">
         <div className="px-6 flex items-center">
           <button onClick={handleCropCancel} className="text-white mr-4">
             <ArrowLeft className="h-6 w-6" />
           </button>
           <h1 className="text-2xl font-bold">Position Your Mugshot</h1>
         </div>
-
         <div className="h-6 w-full bg-yellow-400 mt-4 relative overflow-hidden">
           <div
             className="absolute inset-0"
@@ -253,7 +252,6 @@ export default function GetArrestedPage() {
             }}
           ></div>
         </div>
-
         <div className="p-6">
           <ImageCropper
             imageUrl={formData.imagePreview}
@@ -266,45 +264,43 @@ export default function GetArrestedPage() {
   }
 
   return (
-    <div className="min-h-screen max-w-4xl mx-auto bg-gray-900 rounded-lg p-6 border border-gray-700">
+    <div className="min-h-screen max-w-4xl mx-auto bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
       {/* Form Steps */}
       <div className="p-4">
         <div className="mb-6">
           <div className="flex justify-between mb-2">
-            <div className={`w-1/3 h-1 ${step >= 1 ? "bg-red-500" : "bg-gray-700"} rounded-full`}></div>
-            <div className={`w-1/3 h-1 ${step >= 2 ? "bg-red-500" : "bg-gray-700"} rounded-full`}></div>
-            <div className={`w-1/3 h-1 ${step >= 3 ? "bg-red-500" : "bg-gray-700"} rounded-full`}></div>
+            <div className={`w-1/3 h-1 ${step >= 1 ? "bg-yellow-400" : "bg-gray-700"} rounded-full`}></div>
+            <div className={`w-1/3 h-1 ${step >= 2 ? "bg-yellow-400" : "bg-gray-700"} rounded-full`}></div>
+            <div className={`w-1/3 h-1 ${step >= 3 ? "bg-yellow-400" : "bg-gray-700"} rounded-full`}></div>
           </div>
-          <h2 className="text-xl font-bold">
+          <h2 className="text-xl font-bold text-white">
             {step === 1 ? "Upload Your Selfie" : step === 2 ? "Enter Your Crime" : "Payment & Confirmation"}
           </h2>
         </div>
-
         {/* Error message */}
         {error && (
-          <div className="bg-red-900/50 text-white p-3 rounded-md mb-4 flex items-start">
-            <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
+          <div className="bg-red-900/70 text-white p-3 rounded-md mb-4 flex items-start border border-red-700">
+            <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-red-400" />
             <p className="text-sm">{error}</p>
           </div>
         )}
-
         <form onSubmit={handleSubmit}>
           {step === 1 && (
             <div className="space-y-6">
-              <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center">
+              <div className="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center bg-gray-800">
                 {formData.imagePreview ? (
                   <div className="relative w-full h-64 mx-auto">
                     <Image
                       src={formData.imagePreview || "/placeholder.svg"}
                       alt="Preview"
                       fill
-                      className="object-contain"
+                      className="object-contain rounded-lg border border-gray-700 bg-gray-900"
                     />
                     <div className="absolute bottom-2 right-2 flex space-x-2">
                       <button
                         type="button"
                         onClick={() => setShowCropper(true)}
-                        className="bg-gray-800 text-white rounded-full p-2"
+                        className="bg-gray-900 text-white rounded-full p-2 border border-gray-700"
                         title="Edit crop"
                       >
                         <svg
@@ -326,7 +322,7 @@ export default function GetArrestedPage() {
                       <button
                         type="button"
                         onClick={() => setFormData({ ...formData, imageFile: null, imagePreview: "" })}
-                        className="bg-red-500 text-white rounded-full p-2"
+                        className="bg-red-500 text-white rounded-full p-2 border border-red-700"
                         title="Remove image"
                       >
                         <svg
@@ -349,13 +345,12 @@ export default function GetArrestedPage() {
                 ) : (
                   <div className="py-12">
                     <div className="flex justify-center mb-4">
-                      <Upload className="h-12 w-12 text-gray-500" />
+                      <Upload className="h-12 w-12 text-yellow-400" />
                     </div>
                     <p className="text-gray-300 mb-2">Drag and drop your selfie here, or click to browse</p>
                     <p className="text-gray-500 text-sm">JPG, PNG or GIF (max. 5MB)</p>
                   </div>
                 )}
-
                 <input
                   type="file"
                   id="imageFile"
@@ -371,14 +366,13 @@ export default function GetArrestedPage() {
                     className="border-gray-700 text-white"
                     onClick={triggerFileInput}
                   >
-                    <Upload className="mr-2 h-4 w-4" /> Upload Photo
+                    <Upload className="mr-2 h-4 w-4 text-yellow-400" /> Upload Photo
                   </Button>
                 </div>
               </div>
-
               <Button
                 type="button"
-                className="w-full py-6 bg-red-500 hover:bg-red-600 text-white text-xl"
+                className="w-full py-6 bg-yellow-400 hover:bg-yellow-500 text-black text-xl font-bold"
                 onClick={() => {
                   if (!formData.imagePreview) {
                     setError("Please upload and crop an image before continuing")
@@ -393,7 +387,6 @@ export default function GetArrestedPage() {
               </Button>
             </div>
           )}
-
           {step === 2 && (
             <div className="space-y-6">
               <div className="space-y-4">
@@ -425,7 +418,6 @@ export default function GetArrestedPage() {
                   />
                   <p className="text-xs text-gray-400">Only letters and spaces allowed (max 50 characters)</p>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="crime" className="text-white">
                     Your Crime
@@ -441,7 +433,6 @@ export default function GetArrestedPage() {
                   />
                   <p className="text-xs text-gray-400">This will appear on your mugshot sign</p>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="note" className="text-white">
                     Handwritten Note
@@ -457,7 +448,6 @@ export default function GetArrestedPage() {
                   />
                   <p className="text-xs text-gray-400">This will appear as a handwritten note below your mugshot</p>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="productUrl" className="text-white">
                     Product URL
@@ -472,7 +462,6 @@ export default function GetArrestedPage() {
                     required
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="twitterHandle" className="text-white">
                     X/Twitter Handle
@@ -488,7 +477,6 @@ export default function GetArrestedPage() {
                   />
                 </div>
               </div>
-
               <div className="flex gap-4">
                 <Button
                   type="button"
@@ -500,7 +488,7 @@ export default function GetArrestedPage() {
                 </Button>
                 <Button
                   type="button"
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+                  className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-bold"
                   onClick={() => {
                     // Check if all fields are filled
                     if (
@@ -522,45 +510,41 @@ export default function GetArrestedPage() {
               </div>
             </div>
           )}
-
           {step === 3 && (
             <div className="space-y-6">
-              <div className="bg-gray-900 p-4 rounded-lg">
-                <h3 className="font-bold mb-4 text-center">Your Mugshot Preview</h3>
-
-                <div className="relative w-full h-64 mx-auto border border-gray-700 mb-4">
+              <div className="bg-gray-900 p-4 rounded-xl border border-gray-800 shadow-md">
+                <h3 className="font-bold mb-4 text-center text-white">Your Mugshot Preview</h3>
+                <div className="relative w-full h-64 mx-auto border border-gray-700 mb-4 rounded-lg bg-gray-800">
                   {formData.imagePreview ? (
                     <Image
                       src={formData.imagePreview || "/placeholder.svg"}
                       alt="Preview"
                       fill
-                      className="object-contain"
+                      className="object-contain rounded-lg"
                     />
                   ) : (
-                    <div className="flex items-center justify-center h-full bg-gray-800">
+                    <div className="flex items-center justify-center h-full bg-gray-800 rounded-lg">
                       <p className="text-gray-500">No image uploaded</p>
                     </div>
                   )}
                 </div>
-
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-400">Name:</span>
-                    <span>{formData.name}</span>
+                    <span className="text-white">{formData.name}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Crime:</span>
-                    <span>{formData.crime}</span>
+                    <span className="text-white">{formData.crime}</span>
                   </div>
                   {formData.note && (
                     <div className="flex justify-between">
                       <span className="text-gray-400">Note:</span>
-                      <span>{formData.note}</span>
+                      <span className="text-white">{formData.note}</span>
                     </div>
                   )}
                 </div>
               </div>
-
               <div className="flex gap-4">
                 <Button
                   type="button"
@@ -571,7 +555,7 @@ export default function GetArrestedPage() {
                 >
                   Back
                 </Button>
-                <Button type="submit" className="flex-1 bg-red-500 hover:bg-red-600 text-white" disabled={loading}>
+                <Button type="submit" className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black font-bold" disabled={loading}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

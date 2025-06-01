@@ -386,522 +386,524 @@ export default function SubmitLaunchForm() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Submit a Launch</h1>
-        <p className="text-gray-400">Add your product to the Heist Board</p>
-      </div>
-
-      {/* Progress Steps */}
-      <div className="mb-8">
-        <div className="flex justify-between mb-2">
-          <div className={`w-1/3 h-1 ${step >= 1 ? "bg-red-500" : "bg-gray-700"} rounded-full`}></div>
-          <div className={`w-1/3 h-1 ${step >= 2 ? "bg-red-500" : "bg-gray-700"} rounded-full`}></div>
-          <div className={`w-1/3 h-1 ${step >= 3 ? "bg-red-500" : "bg-gray-700"} rounded-full`}></div>
+    <div className="min-h-screen max-w-4xl mx-auto bg-gray-900 rounded-xl border border-gray-800 shadow-lg">
+      <div className="p-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2 text-white">Submit a Launch</h1>
+          <p className="text-gray-400">Add your product to the Heist Board</p>
         </div>
-        <div className="flex justify-between text-sm">
-          <div className={step >= 1 ? "text-white" : "text-gray-500"}>Basic Info</div>
-          <div className={step >= 2 ? "text-white" : "text-gray-500"}>Case File Details</div>
-          <div className={step >= 3 ? "text-white" : "text-gray-500"}>Timeline & Review</div>
+
+        {/* Progress Steps */}
+        <div className="mb-8">
+          <div className="flex justify-between mb-2">
+            <div className={`w-1/3 h-1 ${step >= 1 ? "bg-yellow-400" : "bg-gray-700"} rounded-full`}></div>
+            <div className={`w-1/3 h-1 ${step >= 2 ? "bg-yellow-400" : "bg-gray-700"} rounded-full`}></div>
+            <div className={`w-1/3 h-1 ${step >= 3 ? "bg-yellow-400" : "bg-gray-700"} rounded-full`}></div>
+          </div>
+          <div className="flex justify-between text-sm">
+            <div className={step >= 1 ? "text-white" : "text-gray-500"}>Basic Info</div>
+            <div className={step >= 2 ? "text-white" : "text-gray-500"}>Case File Details</div>
+            <div className={step >= 3 ? "text-white" : "text-gray-500"}>Timeline & Review</div>
+          </div>
         </div>
-      </div>
 
-      {/* Error message */}
-      {error && (
-        <div className="bg-red-900/50 text-white p-3 rounded-md mb-4 flex items-start">
-          <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5" />
-          <p className="text-sm">{error}</p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        {/* Step 1: Basic Info */}
-        {step === 1 && (
-          <div className="space-y-6">
-            <Card className="bg-gray-800 border-gray-700">
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-                <CardDescription className="text-gray-400">Tell us about your product</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Product Name</Label>
-                  <Input
-                    id="title"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Awesome SaaS"
-                    className="bg-gray-700 border-gray-600"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Product Logo</Label>
-                    <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center bg-gray-700">
-                      {formData.logoPreview ? (
-                        <div className="relative w-32 h-32 mx-auto">
-                          <Image
-                            src={formData.logoPreview || "/placeholder.svg"}
-                            alt="Logo preview"
-                            fill
-                            className="object-contain"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setFormData({ ...formData, logoFile: null, logoPreview: "" })}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex justify-center mb-2">
-                            <ImageIcon className="h-10 w-10 text-gray-400" />
-                          </div>
-                          <p className="text-gray-300 text-sm mb-2">Upload your product logo</p>
-                          <p className="text-gray-400 text-xs">PNG, JPG or SVG (max. 2MB)</p>
-                          <input
-                            type="file"
-                            id="logoFile"
-                            ref={logoInputRef}
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleLogoChange}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="mt-2 border-gray-600 bg-gray-700 hover:bg-gray-600"
-                            onClick={() => logoInputRef.current?.click()}
-                          >
-                            <Upload className="mr-2 h-4 w-4" /> Upload Logo
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Product Screenshot</Label>
-                    <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center bg-gray-700">
-                      {formData.screenshotPreview ? (
-                        <div className="relative w-full h-32 mx-auto">
-                          <Image
-                            src={formData.screenshotPreview || "/placeholder.svg"}
-                            alt="Screenshot preview"
-                            fill
-                            className="object-contain"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setFormData({ ...formData, screenshotFile: null, screenshotPreview: "" })}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="flex justify-center mb-2">
-                            <FileText className="h-10 w-10 text-gray-400" />
-                          </div>
-                          <p className="text-gray-300 text-sm mb-2">Upload a screenshot</p>
-                          <p className="text-gray-400 text-xs">PNG or JPG (max. 5MB)</p>
-                          <input
-                            type="file"
-                            id="screenshotFile"
-                            ref={screenshotInputRef}
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleScreenshotChange}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            className="mt-2 border-gray-600 bg-gray-700 hover:bg-gray-600"
-                            onClick={() => screenshotInputRef.current?.click()}
-                          >
-                            <Upload className="mr-2 h-4 w-4" /> Upload Screenshot
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
-                      <SelectTrigger className="bg-gray-700 border-gray-600">
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {PRODUCT_CATEGORIES.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
-                      <SelectTrigger className="bg-gray-700 border-gray-600">
-                        <SelectValue placeholder="Select a status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {PRODUCT_STATUSES.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Tags (up to 5)</Label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {formData.tags.map((tag) => (
-                      <div
-                        key={tag}
-                        className="bg-gray-700 text-white px-2 py-1 rounded-full text-sm flex items-center"
-                      >
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={() => removeTag(tag)}
-                          className="ml-1 text-gray-400 hover:text-white"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex">
-                    <Input
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      placeholder="Add a tag"
-                      className="bg-gray-700 border-gray-600 rounded-r-none"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault()
-                          addTag()
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      onClick={addTag}
-                      className="rounded-l-none bg-red-500 hover:bg-red-600"
-                      disabled={!tagInput.trim() || formData.tags.length >= 5}
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-400">Press Enter to add a tag</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="launchDate">Launch Date</Label>
-                  <div className="relative">
-                    <Input
-                      id="launchDate"
-                      name="launchDate"
-                      type="date"
-                      value={new Date().toISOString().split("T")[0]}
-                      disabled
-                      className="bg-gray-700 border-gray-600 pl-10 opacity-70"
-                    />
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  </div>
-                  <p className="text-xs text-gray-400">Products are automatically launched today at 12:00 PM UTC.</p>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-end">
-                <Button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="bg-red-500 hover:bg-red-600"
-                  disabled={
-                    !formData.title ||
-                    !formData.logoFile ||
-                    !formData.screenshotFile ||
-                    !formData.category ||
-                    formData.tags.length === 0
-                  }
-                >
-                  Next <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
+        {/* Error message */}
+        {error && (
+          <div className="bg-red-900/70 text-white p-3 rounded-md mb-4 flex items-start border border-red-700">
+            <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0 mt-0.5 text-red-400" />
+            <p className="text-sm">{error}</p>
           </div>
         )}
 
-        {/* Step 2: Details */}
-        {step === 2 && (
-          <div className="space-y-6">
-            <Card className="bg-gray-800 border-gray-700">
-              <CardHeader>
-                <CardTitle>Case File Details</CardTitle>
-                <CardDescription className="text-gray-400">Provide more information about your product</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="summary">Evidence Summary (Bullets)</Label>
-                  {formData.summary.map((bullet, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Input
-                        value={bullet}
-                        onChange={(e) => handleSummaryChange(index, e.target.value)}
-                        placeholder={`e.g., ${index === 0 ? "What's the product" : index === 1 ? "Who's it for" : "Key feature"}`}
-                        className="bg-gray-700 border-gray-600"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeSummaryBullet(index)}
-                        className="text-gray-400 hover:text-white"
-                        disabled={formData.summary.length <= 1}
-                      >
-                        <Trash className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                  {formData.summary.length < 5 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full border-dashed border-gray-600 bg-gray-700 hover:bg-gray-600"
-                      onClick={addSummaryBullet}
-                    >
-                      <Plus className="mr-2 h-4 w-4" /> Add Bullet Point
-                    </Button>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Full Description</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    placeholder="Describe your product in detail..."
-                    className="bg-gray-700 border-gray-600 min-h-32"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="productUrl">Product URL</Label>
-                  <div className="relative">
-                    <Input
-                      id="productUrl"
-                      name="productUrl"
-                      value={formData.productUrl}
-                      onChange={handleInputChange}
-                      placeholder="https://example.com"
-                      className="bg-gray-700 border-gray-600 pl-10"
-                    />
-                    <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Social Links (Optional)</Label>
+        <form onSubmit={handleSubmit}>
+          {/* Step 1: Basic Info */}
+          {step === 1 && (
+            <div className="space-y-6">
+              <Card className="bg-gray-900 border border-gray-800 shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-white">Basic Information</CardTitle>
+                  <CardDescription className="text-gray-400">Tell us about your product</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <div className="relative">
-                      <Input
-                        value={formData.socialLinks.twitter || ""}
-                        onChange={(e) => handleSocialLinkChange("twitter", e.target.value)}
-                        placeholder="Twitter/X URL"
-                        className="bg-gray-700 border-gray-600 pl-10"
-                      />
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">𝕏</span>
+                    <Label htmlFor="title">Product Name</Label>
+                    <Input
+                      id="title"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      placeholder="e.g., Awesome SaaS"
+                      className="bg-gray-800 border-gray-700"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Product Logo</Label>
+                      <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center bg-gray-800">
+                        {formData.logoPreview ? (
+                          <div className="relative w-32 h-32 mx-auto">
+                            <Image
+                              src={formData.logoPreview || "/placeholder.svg"}
+                              alt="Logo preview"
+                              fill
+                              className="object-contain"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, logoFile: null, logoPreview: "" })}
+                              className="absolute -top-2 -right-2 bg-yellow-400 text-white rounded-full p-1"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex justify-center mb-2">
+                              <ImageIcon className="h-10 w-10 text-gray-400" />
+                            </div>
+                            <p className="text-gray-300 text-sm mb-2">Upload your product logo</p>
+                            <p className="text-gray-400 text-xs">PNG, JPG or SVG (max. 2MB)</p>
+                            <input
+                              type="file"
+                              id="logoFile"
+                              ref={logoInputRef}
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleLogoChange}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="mt-2 border-gray-700 bg-gray-800 hover:bg-gray-700"
+                              onClick={() => logoInputRef.current?.click()}
+                            >
+                              <Upload className="mr-2 h-4 w-4" /> Upload Logo
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="relative">
-                      <Input
-                        value={formData.socialLinks.github || ""}
-                        onChange={(e) => handleSocialLinkChange("github", e.target.value)}
-                        placeholder="GitHub URL"
-                        className="bg-gray-700 border-gray-600 pl-10"
-                      />
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">GH</span>
+                    <div className="space-y-2">
+                      <Label>Product Screenshot</Label>
+                      <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center bg-gray-800">
+                        {formData.screenshotPreview ? (
+                          <div className="relative w-full h-32 mx-auto">
+                            <Image
+                              src={formData.screenshotPreview || "/placeholder.svg"}
+                              alt="Screenshot preview"
+                              fill
+                              className="object-contain"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setFormData({ ...formData, screenshotFile: null, screenshotPreview: "" })}
+                              className="absolute -top-2 -right-2 bg-yellow-400 text-white rounded-full p-1"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex justify-center mb-2">
+                              <FileText className="h-10 w-10 text-gray-400" />
+                            </div>
+                            <p className="text-gray-300 text-sm mb-2">Upload a screenshot</p>
+                            <p className="text-gray-400 text-xs">PNG or JPG (max. 5MB)</p>
+                            <input
+                              type="file"
+                              id="screenshotFile"
+                              ref={screenshotInputRef}
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleScreenshotChange}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="mt-2 border-gray-700 bg-gray-800 hover:bg-gray-700"
+                              onClick={() => screenshotInputRef.current?.click()}
+                            >
+                              <Upload className="mr-2 h-4 w-4" /> Upload Screenshot
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Select value={formData.category} onValueChange={(value) => handleSelectChange("category", value)}>
+                        <SelectTrigger className="bg-gray-800 border-gray-700">
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PRODUCT_CATEGORIES.map((category) => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
+                    <div className="space-y-2">
+                      <Label htmlFor="status">Status</Label>
+                      <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
+                        <SelectTrigger className="bg-gray-800 border-gray-700">
+                          <SelectValue placeholder="Select a status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PRODUCT_STATUSES.map((status) => (
+                            <SelectItem key={status} value={status}>
+                              {status}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="tags">Tags (up to 5)</Label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {formData.tags.map((tag) => (
+                        <div
+                          key={tag}
+                          className="bg-gray-800 text-white px-2 py-1 rounded-full text-sm flex items-center"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(tag)}
+                            className="ml-1 text-gray-400 hover:text-white"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex">
+                      <Input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        placeholder="Add a tag"
+                        className="bg-gray-800 border-gray-700 rounded-r-none"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault()
+                            addTag()
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={addTag}
+                        className="rounded-l-none bg-yellow-400 hover:bg-yellow-500"
+                        disabled={!tagInput.trim() || formData.tags.length >= 5}
+                      >
+                        Add
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-400">Press Enter to add a tag</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="launchDate">Launch Date</Label>
                     <div className="relative">
                       <Input
-                        value={formData.socialLinks.other || ""}
-                        onChange={(e) => handleSocialLinkChange("other", e.target.value)}
-                        placeholder="Other URL (Discord, Product Hunt, etc.)"
-                        className="bg-gray-700 border-gray-600 pl-10"
+                        id="launchDate"
+                        name="launchDate"
+                        type="date"
+                        value={new Date().toISOString().split("T")[0]}
+                        disabled
+                        className="bg-gray-800 border-gray-700 pl-10 opacity-70"
+                      />
+                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    </div>
+                    <p className="text-xs text-gray-400">Products are automatically launched today at 12:00 PM UTC.</p>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <Button
+                    type="button"
+                    onClick={() => setStep(2)}
+                    className="bg-yellow-400 hover:bg-yellow-500"
+                    disabled={
+                      !formData.title ||
+                      !formData.logoFile ||
+                      !formData.screenshotFile ||
+                      !formData.category ||
+                      formData.tags.length === 0
+                    }
+                  >
+                    Next <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          )}
+
+          {/* Step 2: Details */}
+          {step === 2 && (
+            <div className="space-y-6">
+              <Card className="bg-gray-900 border border-gray-800 shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-white">Case File Details</CardTitle>
+                  <CardDescription className="text-gray-400">Provide more information about your product</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="summary">Evidence Summary (Bullets)</Label>
+                    {formData.summary.map((bullet, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <Input
+                          value={bullet}
+                          onChange={(e) => handleSummaryChange(index, e.target.value)}
+                          placeholder={`e.g., ${index === 0 ? "What's the product" : index === 1 ? "Who's it for" : "Key feature"}`}
+                          className="bg-gray-800 border-gray-700"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeSummaryBullet(index)}
+                          className="text-gray-400 hover:text-white"
+                          disabled={formData.summary.length <= 1}
+                        >
+                          <Trash className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {formData.summary.length < 5 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full border-dashed border-gray-700 bg-gray-800 hover:bg-gray-700"
+                        onClick={addSummaryBullet}
+                      >
+                        <Plus className="mr-2 h-4 w-4" /> Add Bullet Point
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Full Description</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      placeholder="Describe your product in detail..."
+                      className="bg-gray-800 border-gray-700 min-h-32"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="productUrl">Product URL</Label>
+                    <div className="relative">
+                      <Input
+                        id="productUrl"
+                        name="productUrl"
+                        value={formData.productUrl}
+                        onChange={handleInputChange}
+                        placeholder="https://example.com"
+                        className="bg-gray-800 border-gray-700 pl-10"
                       />
                       <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     </div>
                   </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="border-gray-600 bg-gray-700 hover:bg-gray-600"
-                  onClick={() => setStep(1)}
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => setStep(3)}
-                  className="bg-red-500 hover:bg-red-600"
-                  disabled={!formData.summary[0] || !formData.productUrl}
-                >
-                  Next <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        )}
 
-        {/* Step 3: Timeline & Review */}
-        {step === 3 && (
-          <div className="space-y-6">
-            <Card className="bg-gray-800 border-gray-700">
-              <CardHeader>
-                <CardTitle>Timeline & Review</CardTitle>
-                <CardDescription className="text-gray-400">Review your submission</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Initial Timeline Entry</Label>
-                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                      <p className="text-sm font-medium">{new Date().toLocaleDateString()}</p>
-                    </div>
-                    <Input
-                      value={formData.initialTimelineEntry?.headline || ""}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          initialTimelineEntry: {
-                            ...formData.initialTimelineEntry!,
-                            headline: e.target.value,
-                          },
-                        })
-                      }
-                      placeholder="Headline"
-                      className="bg-gray-600 border-gray-500 mb-2"
-                    />
-                    <Textarea
-                      value={formData.initialTimelineEntry?.description || ""}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          initialTimelineEntry: {
-                            ...formData.initialTimelineEntry!,
-                            description: e.target.value,
-                          },
-                        })
-                      }
-                      placeholder="Description"
-                      className="bg-gray-600 border-gray-500"
-                    />
-                  </div>
-                  <p className="text-xs text-gray-400">
-                    You can add more timeline entries after your product is published.
-                  </p>
-                </div>
-
-                <div className="border-t border-gray-700 pt-4">
-                  <h3 className="font-medium mb-4">Review Your Submission</h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-gray-700 p-4 rounded-lg">
-                      <h4 className="font-medium mb-2">Basic Information</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Product Name:</span>
-                          <span>{formData.title}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Category:</span>
-                          <span>{formData.category}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Status:</span>
-                          <span>{formData.status}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Launch Date:</span>
-                          <span>{new Date(formData.launchDate).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {formData.tags.map((tag) => (
-                            <span key={tag} className="bg-gray-600 text-xs px-2 py-0.5 rounded-full">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
+                  <div className="space-y-2">
+                    <Label>Social Links (Optional)</Label>
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <Input
+                          value={formData.socialLinks.twitter || ""}
+                          onChange={(e) => handleSocialLinkChange("twitter", e.target.value)}
+                          placeholder="Twitter/X URL"
+                          className="bg-gray-800 border-gray-700 pl-10"
+                        />
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">𝕏</span>
                       </div>
-                    </div>
 
-                    <div className="bg-gray-700 p-4 rounded-lg">
-                      <h4 className="font-medium mb-2">Case File Details</h4>
-                      <div className="space-y-2 text-sm">
-                        <div>
-                          <span className="text-gray-400">Summary:</span>
-                          <ul className="list-disc list-inside mt-1 space-y-1">
-                            {formData.summary
-                              .filter((s) => s.trim())
-                              .map((bullet, index) => (
-                                <li key={index}>{bullet}</li>
-                              ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <span className="text-gray-400">Product URL:</span>
-                          <div className="truncate">{formData.productUrl}</div>
-                        </div>
+                      <div className="relative">
+                        <Input
+                          value={formData.socialLinks.github || ""}
+                          onChange={(e) => handleSocialLinkChange("github", e.target.value)}
+                          placeholder="GitHub URL"
+                          className="bg-gray-800 border-gray-700 pl-10"
+                        />
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">GH</span>
+                      </div>
+
+                      <div className="relative">
+                        <Input
+                          value={formData.socialLinks.other || ""}
+                          onChange={(e) => handleSocialLinkChange("other", e.target.value)}
+                          placeholder="Other URL (Discord, Product Hunt, etc.)"
+                          className="bg-gray-800 border-gray-700 pl-10"
+                        />
+                        <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-between">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="border-gray-600 bg-gray-700 hover:bg-gray-600"
-                  onClick={() => setStep(2)}
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                </Button>
-                <Button type="submit" disabled={isSubmitting} className="bg-red-500 hover:bg-red-600">
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {uploadProgress < 100 ? `Uploading ${uploadProgress}%` : "Processing"}
-                    </>
-                  ) : (
-                    <>
-                      <Check className="mr-2 h-4 w-4" /> Submit Launch
-                    </>
-                  )}
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        )}
-      </form>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-gray-700 bg-gray-800 hover:bg-gray-700"
+                    onClick={() => setStep(1)}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setStep(3)}
+                    className="bg-yellow-400 hover:bg-yellow-500"
+                    disabled={!formData.summary[0] || !formData.productUrl}
+                  >
+                    Next <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          )}
+
+          {/* Step 3: Timeline & Review */}
+          {step === 3 && (
+            <div className="space-y-6">
+              <Card className="bg-gray-900 border border-gray-800 shadow-md">
+                <CardHeader>
+                  <CardTitle className="text-white">Timeline & Review</CardTitle>
+                  <CardDescription className="text-gray-400">Review your submission</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Initial Timeline Entry</Label>
+                    <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <p className="text-sm font-medium">{new Date().toLocaleDateString()}</p>
+                      </div>
+                      <Input
+                        value={formData.initialTimelineEntry?.headline || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            initialTimelineEntry: {
+                              ...formData.initialTimelineEntry!,
+                              headline: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Headline"
+                        className="bg-gray-700 border-gray-600 mb-2"
+                      />
+                      <Textarea
+                        value={formData.initialTimelineEntry?.description || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            initialTimelineEntry: {
+                              ...formData.initialTimelineEntry!,
+                              description: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Description"
+                        className="bg-gray-700 border-gray-600"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      You can add more timeline entries after your product is published.
+                    </p>
+                  </div>
+
+                  <div className="border-t border-gray-700 pt-4">
+                    <h3 className="font-medium mb-4">Review Your Submission</h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gray-800 p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Basic Information</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Product Name:</span>
+                            <span>{formData.title}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Category:</span>
+                            <span>{formData.category}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Status:</span>
+                            <span>{formData.status}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Launch Date:</span>
+                            <span>{new Date(formData.launchDate).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {formData.tags.map((tag) => (
+                              <span key={tag} className="bg-gray-700 text-xs px-2 py-0.5 rounded-full">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-gray-800 p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Case File Details</h4>
+                        <div className="space-y-2 text-sm">
+                          <div>
+                            <span className="text-gray-400">Summary:</span>
+                            <ul className="list-disc list-inside mt-1 space-y-1">
+                              {formData.summary
+                                .filter((s) => s.trim())
+                                .map((bullet, index) => (
+                                  <li key={index}>{bullet}</li>
+                                ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <span className="text-gray-400">Product URL:</span>
+                            <div className="truncate">{formData.productUrl}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-gray-700 bg-gray-800 hover:bg-gray-700"
+                    onClick={() => setStep(2)}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting} className="bg-yellow-400 hover:bg-yellow-500">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {uploadProgress < 100 ? `Uploading ${uploadProgress}%` : "Processing"}
+                      </>
+                    ) : (
+                      <>
+                        <Check className="mr-2 h-4 w-4" /> Submit Launch
+                      </>
+                    )}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          )}
+        </form>
+      </div>
     </div>
   )
 }
