@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Share2 } from 'lucide-react';
+import { Share2, X as CloseIcon, Copy as CopyIcon } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
-const EMOJI_LIST = ['❤️', '🔥', '👍', '🎉', '🚀', '🙌'];
+const EMOJI_LIST = ['❤️', '🔥', '👍', '🎉', '🤯'];
 
 interface PinCardProps {
   id: string;
@@ -43,6 +43,8 @@ export function PinCard({
   currentUserId
 }: PinCardProps) {
   const [localReactions, setLocalReactions] = useState(reactions);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const supabase = createClient();
 
   // Add a random rotation for sticky note effect (memoized per card)
@@ -112,8 +114,20 @@ export function PinCard({
     }
   };
 
-  const handleShare = async () => {
-    // TODO: Implement share functionality
+  const shortId = id.slice(0, 8);
+  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://founderswall.com'}/logs?pin=${shortId}`;
+  const ogImageUrl = `/api/og/pin/${shortId}`;
+  const tweetText = encodeURIComponent(
+    `🚨 New build update on #founderswall by @${user.username} 🚀\n📌 ${content.slice(0, 80)}\n🔗 ${shareUrl}\n#buildinpublic #startuplife`
+  );
+  const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
+
+  const handleShare = () => setShareOpen(true);
+  const handleClose = () => setShareOpen(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
@@ -184,11 +198,61 @@ export function PinCard({
             size="sm"
             onClick={handleShare}
             className="ml-auto"
+            aria-label="Share this pin"
           >
             <Share2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
+      {/* Share Modal */}
+      {shareOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full relative text-black flex flex-col items-center">
+            <button
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+              onClick={handleClose}
+              aria-label="Close share modal"
+            >
+              <CloseIcon className="h-6 w-6" />
+            </button>
+            <div className="mb-4 w-full flex flex-col items-center">
+              <img
+                src={ogImageUrl}
+                alt="OG Card Preview"
+                className="rounded-lg border border-gray-200 shadow-md w-full max-w-xs mb-4"
+                style={{ background: '#fffbe6' }}
+                width={400}
+                height={210}
+              />
+              <div className="flex flex-col gap-2 w-full">
+                <Button
+                  asChild
+                  className="w-full bg-[#1da1f2] hover:bg-[#1a8cd8] text-white font-bold"
+                >
+                  <a
+                    href={tweetUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Share to X (Twitter)
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={handleCopy}
+                >
+                  <CopyIcon className="h-4 w-4" />
+                  {copied ? 'Copied!' : 'Copy Link'}
+                </Button>
+                <div className="text-xs text-gray-500 text-center mt-2">
+                  Anyone clicking this link will see your pin highlighted on the wall.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
