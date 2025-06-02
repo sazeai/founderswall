@@ -823,7 +823,7 @@ export default function Home() {
     // Here you might want to trigger a re-fetch of pins in PinWall
     // This depends on how PinWall handles data fetching and updates
     // For now, we can just log it or perhaps PinWall's realtime subscription handles it.
-    console.log('A new log has been posted, PinWall should update.')
+    console.log("A new log has been posted, PinWall should update.")
   }
 
   // Show loading state
@@ -928,7 +928,7 @@ export default function Home() {
       <PublicHeader />
 
       {/* New Hero Section */}
-      <section className="relative bg-gradient-to-br from-red-600 via-red-700 top-16-custom to-red-800 min-h-screen overflow-hidden">
+      <section className="relative top-16-custom  min-h-screen overflow-hidden">
         {/* Playful Background Doodles and Text */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {/* Background Pattern */}
@@ -936,10 +936,10 @@ export default function Home() {
             className="absolute inset-0 opacity-5"
             style={{
               backgroundImage: `
-          radial-gradient(circle at 25% 25%, #fbbf24 2px, transparent 2px),
+          radial-gradient(circle at 25% 25%,rgb(219, 191, 122) 2px, transparent 2px),
           radial-gradient(circle at 75% 75%, #fbbf24 1px, transparent 1px)
         `,
-              backgroundSize: "80px 80px",
+              backgroundSize: "50px 50px",
             }}
           />
 
@@ -959,7 +959,7 @@ export default function Home() {
           <div className="absolute bottom-32 left-16 text-yellow-300 opacity-20 transform rotate-45">
             <div className="text-5xl">⚡</div>
           </div>
-          <div className="absolute bottom-20 right-16 text-white opacity-15 transform -rotate-12 font-mono text-sm">
+          <div className="absolute bottom-20 right-16 text-white opacity-50 transform -rotate-12 font-mono text-sm">
             BUILT IN PUBLIC
           </div>
         </div>
@@ -973,7 +973,7 @@ export default function Home() {
                 <h1
                   className="text-6xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-[7rem] font-black text-yellow-400 leading-none"
                   style={{
-                    textShadow: "4px 4px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000",
+                    textShadow: "4px 4px 0px #bb1919, -2px -2px 0px #bb1919, 2px -2px 0px #bb1919, -2px 2px 0px #000",
                     fontFamily: "'Arial Black', sans-serif",
                   }}
                 >
@@ -1014,7 +1014,7 @@ export default function Home() {
                   className="group bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                 >
                   <span className="mr-2">🔍</span>
-                  View Suspects
+                  Meet Suspects
                   <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
                 </button>
               </div>
@@ -1026,21 +1026,19 @@ export default function Home() {
             </div>
 
             {/* Right Side - Hero Visual */}
-            <div className="flex flex-col justify-center lg:justify-end order-1 lg:order-2">
-              <div className="relative flex flex-col justify-center">
-                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-3xl opacity-30 scale-110"></div>
-                <div className="absolute inset-0 bg-red-400 rounded-full blur-2xl opacity-20 scale-125"></div>
-
-                <div className="relative flex justify-center">
+            <div className="flex flex-col justify-center order-1 lg:order-2">
+              <div className="relative flex flex-col justify-center items-center">
+                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-3xl opacity-20 scale-110"></div>
+                <div className="absolute inset-0 bg-red-400 rounded-full blur-2xl opacity-10 scale-125"></div>
+                <div className="relative flex justify-center items-center">
                   <Image
                     src="/wallimg.png"
                     alt="Founders shipping like hell"
-                    width={600}
-                    height={540}
-                    className="w-64 h-64 sm:w-72 sm:h-72 lg:w-[380px] lg:h-[380px] xl:w-[450px] xl:h-[450px] object-contain drop-shadow-2xl"
+                    width={350}
+                    height={350}
+                    className="w-48 h-48 sm:w-60 sm:h-60 lg:w-[300px] lg:h-[300px] xl:w-[350px] xl:h-[350px] object-contain drop-shadow-2xl max-w-xs sm:max-w-sm lg:max-w-md"
                     priority
                   />
-
                   {/* Floating Achievement Badges */}
                   <div className="absolute -top-4 -left-4 bg-green-500 text-white px-2 py-1 text-xs font-bold transform -rotate-12 shadow-lg">
                     $10K MRR
@@ -1055,30 +1053,27 @@ export default function Home() {
                     LEGEND
                   </div>
                 </div>
-
-                {/* THIS WEEK'S LEADERBOARD - Only show on desktop, below the image */}
-                <div className="hidden max-w-md mx-auto w-full lg:block">
+                {/* THIS WEEK'S LEADERBOARD - Show below the image, inside hero, with margin */}
+                <div className="hidden lg:block w-full max-w-md">
                   <LeaderboardComponent />
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Bottom Quote Section - Replaced ticker with motivational quotes */}
-        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white backdrop-blur-sm py-3 overflow-hidden">
-          <div className="flex items-center justify-center text-center px-4">
-            <Quote className="h-5 w-5 text-yellow-400 mr-3 flex-shrink-0" />
-            <p className="text-white text-sm md:text-base font-medium transition-opacity duration-500">
-              {currentQuote}
-            </p>
-            <Quote className="h-5 w-5 text-yellow-400 ml-3 flex-shrink-0 transform rotate-180" />
-          </div>
-        </div>
       </section>
 
-      {/* Yellow Caution Stripe */}
-      <div className="h-8 w-full bg-yellow-400 relative overflow-hidden">
+      {/* Quote Section - Always visible above the caution strip */}
+      <div className="bg-black/80 text-white backdrop-blur-sm py-3 overflow-hidden z-20 relative border-t border-gray-800">
+        <div className="flex items-center justify-center text-center px-4">
+          <Quote className="h-5 w-5 text-yellow-400 mr-3 flex-shrink-0" />
+          <p className="text-white text-sm md:text-base font-medium transition-opacity duration-500">{currentQuote}</p>
+          <Quote className="h-5 w-5 text-yellow-400 ml-3 flex-shrink-0 transform rotate-180" />
+        </div>
+      </div>
+
+      {/* Caution Stripe Separator - Clear separation between sections */}
+      <div className="h-8 w-full bg-yellow-400 relative overflow-hidden z-10">
         <div
           className="absolute inset-0"
           style={{
@@ -1088,11 +1083,11 @@ export default function Home() {
         ></div>
       </div>
 
-      {/* Investigation Board Section - Removed px-6 padding to make it full-width */}
       <section
         id="corkboard-section"
         className={`flex-1 overflow-x-hidden ${isFullscreen ? "fixed inset-0 z-50 bg-black" : ""}`}
       >
+        {/* Caution Stripe Separator */}
         {/* Connection error notification */}
         {connectionError && (
           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 text-white px-4 py-2 rounded-md z-50 flex items-center">
@@ -1292,7 +1287,7 @@ export default function Home() {
               <div className="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
               <span className="text-white">{mugshots.length} Founders</span>
             </div>
-          
+
             {featuredMugshots.length > 0 && (
               <>
                 <span className="text-gray-500">|</span>
@@ -1306,16 +1301,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Bottom Caution Stripe */}
-      <div className="h-8 w-full bg-yellow-400 relative overflow-hidden mt-auto">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "repeating-linear-gradient(45deg, #000 0, #000 10px, #f6e05e 10px, #f6e05e 20px)",
-            backgroundSize: "28px 28px",
-          }}
-        ></div>
-      </div>
       <PublicFooter />
 
       {/* PinWall component, floating button, and AddLogModal have been moved to app/logs/page.tsx */}

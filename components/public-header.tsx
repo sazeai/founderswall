@@ -106,7 +106,7 @@ export function PublicHeader() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <img src="/founderwall-logo.png" alt="FoundersWall" className="h-8 md:h-10" />
+            <img src="/founderwall-logo.png" alt="FoundersWall" className="h-12" />
           </Link>
 
           {/* Desktop Navigation */}
