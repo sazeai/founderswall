@@ -115,7 +115,7 @@ export function PinCard({
   };
 
   const shortId = id.slice(0, 8);
-  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://founderswall.com'}/logs?pin=${shortId}`;
+  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://founderswall.com'}/logs/pin/${shortId}`;
   const ogImageUrl = `/api/og/pin/${shortId}`;
   const tweetText = encodeURIComponent(
     `🚨 New build update on #founderswall by @${user.username} 🚀\n📌 ${content.slice(0, 80)}\n🔗 ${shareUrl}\n#buildinpublic #startuplife`

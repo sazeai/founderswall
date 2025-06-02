@@ -74,15 +74,12 @@ export async function GET(req: NextRequest) {
     </svg>
   );
 
-  // Paper texture SVG as data URI (subtle noise)
-  const paperTexture = 'data:image/svg+xml;utf8,<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg"><filter id="n" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="t"/><feColorMatrix type="saturate" values="0.2"/><feComponentTransfer><feFuncA type="linear" slope="0.04"/></feComponentTransfer></filter><rect width="1200" height="630" fill="white" opacity="0"/><rect width="1200" height="630" filter="url(%23n)"/></svg>';
-
   // Floating sticky notes with dopamine text
   const floatingNotes = [
     { x: 80, y: 90, rot: -8, color: '#fffbe6', pin: true, text: '#BuildInPublic' },
-    { x: 1000, y: 120, rot: 6, color: '#ffe066', pin: false, text: 'Shipped 🚀' },
+    { x: 1000, y: 120, rot: 6, color: '#fffbe6', pin: false, text: 'Shipped 🚀' },
     { x: 200, y: 500, rot: 4, color: '#fffbe6', pin: true, text: 'Indie Win!' },
-    { x: 950, y: 500, rot: -5, color: '#ffe066', pin: false, text: 'Maker Streak' },
+    { x: 950, y: 500, rot: -5, color: '#fffbe6', pin: false, text: 'Maker Streak' },
   ];
 
   try {
@@ -96,19 +93,11 @@ export async function GET(req: NextRequest) {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            background: '#18181b',
+            background: `#18181b url(${req.nextUrl.origin}/paper-texture.png) center/cover no-repeat`,
             position: 'relative',
             overflow: 'hidden',
           }}
         >
-          {/* Paper texture overlay */}
-          <img
-            src={paperTexture}
-            width={1200}
-            height={630}
-            style={{ position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', opacity: 0.18, zIndex: 1 }}
-            alt="paper texture"
-          />
           {/* Floating sticky notes with dopamine text */}
           {floatingNotes.map((note, i) => (
             <div
