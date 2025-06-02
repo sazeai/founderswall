@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
     { x: 200, y: 500, rot: 4, color: '#fffbe6', pin: true, text: 'Indie Win!' },
     { x: 950, y: 500, rot: -5, color: '#fffbe6', pin: false, text: 'Maker Streak' },
   ];
-
+  
   try {
     const imageResponse = new ImageResponse(
       (

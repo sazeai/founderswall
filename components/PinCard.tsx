@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Share2, X as CloseIcon, Copy as CopyIcon } from 'lucide-react';
+import { Share2, X as CloseIcon, Copy as CopyIcon, Download as DownloadIcon, Twitter as TwitterIcon } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
 const EMOJI_LIST = ['❤️', '🔥', '👍', '🎉', '🤯'];
@@ -19,6 +19,7 @@ interface PinCardProps {
     id: string;
     username: string;
     avatarUrl: string;
+    twitterHandle?: string;
   };
   product?: {
     id: string;
@@ -115,12 +116,12 @@ export function PinCard({
   };
 
   const shortId = id.slice(0, 8);
-  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://founderswall.com'}/logs/pin/${shortId}`;
+  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://founderswall.com'}/logs?pin=${shortId}`;
   const ogImageUrl = `/api/og/pin/${shortId}`;
   const tweetText = encodeURIComponent(
-    `🚨 New build update on #founderswall by @${user.username} 🚀\n📌 ${content.slice(0, 80)}\n🔗 ${shareUrl}\n#buildinpublic #startuplife`
+    `🚨 Logging Every step of my build journey. This one went up on #FoundersWall New build update on #founderswall by 🚀\n📌 ${content.slice(0, 80)}\n🔗 ${shareUrl}\n#buildinpublic #startuplife`
   );
-  const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
+  const tweetUrl = `https://x.com/intent/tweet?text=${tweetText}`;
 
   const handleShare = () => setShareOpen(true);
   const handleClose = () => setShareOpen(false);
@@ -128,6 +129,14 @@ export function PinCard({
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  };
+  const handleDownload = () => {
+    const link = document.createElement('a');
+    link.href = ogImageUrl;
+    link.download = `founderswall-pin-${shortId}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -160,7 +169,16 @@ export function PinCard({
           <span className="font-bold text-gray-800 text-base sticky-note-font" style={{ fontFamily: 'inherit' }}>{user.username}</span>
         </div>
         <div className="flex-1 flex flex-col">
-          <div className="mb-2 text-lg font-bold text-gray-900 leading-snug" style={{ fontFamily: 'Inter, \"Comic Sans MS\", \"Comic Sans\", cursive' }}>{content}</div>
+          <div
+            className="mb-2 text-lg font-bold text-gray-900 leading-snug break-words whitespace-pre-line"
+            style={{
+              fontFamily: 'Inter, "Comic Sans MS", "Comic Sans", cursive',
+              wordBreak: 'break-word',
+              overflowWrap: 'anywhere',
+            }}
+          >
+            {content}
+          </div>
           <div className="flex items-center gap-2 mt-2">
             <span className="text-xs text-gray-500 font-mono">{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</span>
             {product && (
@@ -207,47 +225,58 @@ export function PinCard({
       {/* Share Modal */}
       {shareOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div className="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full relative text-black flex flex-col items-center">
+          <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6 max-w-xs sm:max-w-md w-full relative text-black flex flex-col items-center" style={{ minWidth: 0 }}>
             <button
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
               onClick={handleClose}
               aria-label="Close share modal"
             >
               <CloseIcon className="h-6 w-6" />
             </button>
-            <div className="mb-4 w-full flex flex-col items-center">
+            <div className="mb-2 w-full flex flex-col items-center">
               <img
                 src={ogImageUrl}
                 alt="OG Card Preview"
-                className="rounded-lg border border-gray-200 shadow-md w-full max-w-xs mb-4"
-                style={{ background: '#fffbe6' }}
-                width={400}
-                height={210}
+                className="rounded-lg border border-gray-200 shadow-md w-full max-w-xs mb-2"
+                style={{ background: '#fffbe6', maxWidth: '320px', width: '100%', height: 'auto' }}
+                width={320}
+                height={168}
               />
-              <div className="flex flex-col gap-2 w-full">
+              <div className="flex gap-2 w-full justify-center mt-2">
+                <Button
+                  className="p-2 h-10 w-10 flex items-center justify-center"
+                  onClick={handleDownload}
+                  title="Download Image"
+                  aria-label="Download Image"
+                >
+                  <DownloadIcon className="h-5 w-5" />
+                </Button>
                 <Button
                   asChild
-                  className="w-full bg-[#1da1f2] hover:bg-[#1a8cd8] text-white font-bold"
+                  className="p-2 h-10 w-10 flex items-center justify-center bg-[#1da1f2] hover:bg-[#1a8cd8] text-white"
+                  title="Share to X (Twitter)"
+                  aria-label="Share to X (Twitter)"
                 >
                   <a
                     href={tweetUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Share to X (Twitter)
+                    <TwitterIcon className="h-5 w-5" />
                   </a>
                 </Button>
                 <Button
                   variant="outline"
-                  className="w-full flex items-center justify-center gap-2"
+                  className="p-2 h-10 w-10 flex items-center justify-center"
                   onClick={handleCopy}
+                  title="Copy Link"
+                  aria-label="Copy Link"
                 >
-                  <CopyIcon className="h-4 w-4" />
-                  {copied ? 'Copied!' : 'Copy Link'}
+                  <CopyIcon className="h-5 w-5" />
                 </Button>
-                <div className="text-xs text-gray-500 text-center mt-2">
-                  Anyone clicking this link will see your pin highlighted on the wall.
-                </div>
+              </div>
+              <div className="text-xs text-gray-500 text-center mt-2">
+                <span>Download the image above and upload it to your tweet.</span>
               </div>
             </div>
           </div>
