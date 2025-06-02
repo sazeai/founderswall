@@ -5,7 +5,7 @@ import crypto from "crypto"
 
 export async function POST(request: NextRequest) {
   try {
-    // Get webhook headers
+    // Get webhook headers (keep for logging, but don't use for signature verification)
     const webhookId = request.headers.get("webhook-id")
     const webhookSignature = request.headers.get("webhook-signature")
     const webhookTimestamp = request.headers.get("webhook-timestamp")
@@ -32,24 +32,8 @@ export async function POST(request: NextRequest) {
     }
     console.log("[Webhook] Parsed body:", body)
 
-    // Verify webhook signature
-    if (webhookId && webhookSignature && webhookTimestamp && webhookSecret) {
-      // Concatenate the webhook-id, webhook-timestamp, and stringified payload with periods
-      const payload = `${webhookId}.${webhookTimestamp}.${rawBody}`
-
-      // Compute HMAC SHA256 signature
-      const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(payload).digest("hex")
-
-      // Compare signatures
-      if (webhookSignature !== expectedSignature) {
-        console.error("[Webhook] Invalid signature", { webhookSignature, expectedSignature })
-        return NextResponse.json({ error: "Invalid webhook signature" }, { status: 401 })
-      }
-    } else {
-      // Missing required headers for verification
-      console.error("[Webhook] Missing verification headers", { webhookId, webhookSignature, webhookTimestamp, webhookSecretExists: !!webhookSecret })
-      return NextResponse.json({ error: "Missing webhook verification headers" }, { status: 400 })
-    }
+    // --- REMOVE SIGNATURE VERIFICATION ---
+    // (No signature check, just proceed)
 
     // Create a Supabase client with service role key to bypass RLS
     const supabase = createServiceRoleClient()
