@@ -111,18 +111,14 @@ const StarRating = ({ points }: { points: number }) => {
 
 export default function Home() {
   const [selectedCriminal, setSelectedCriminal] = useState<Mugshot | null>(null)
-  const [mode, setMode] = useState<"view" | "connect" | "investigate">("view")
-  const [selectedCriminals, setSelectedCriminals] = useState<string[]>([])
+  const [mode, setMode] = useState<"view" | "investigate">("view")
   const [connections, setConnections] = useState<Connection[]>([])
   const [mugshots, setMugshots] = useState<Mugshot[]>([])
-  const [showConnectionModal, setShowConnectionModal] = useState(false)
-  const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null)
   const [zoomLevel, setZoomLevel] = useState(1)
   const [hoveredCriminal, setHoveredCriminal] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [connectionError, setConnectionError] = useState<string | null>(null)
   const [isUpvoting, setIsUpvoting] = useState(false)
   // New state for connection type filter
   const [connectionTypeFilter, setConnectionTypeFilter] = useState<string>("all")
@@ -151,6 +147,7 @@ export default function Home() {
   const boardRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const filterDropdownRef = useRef<HTMLDivElement>(null)
+  const dragOccurredRef = useRef(false); // Added for robust drag detection
 
   // Separate featured and regular mugshots
   const featuredMugshots = useMemo(() => mugshots.filter((mugshot) => mugshot.featured), [mugshots])
@@ -426,33 +423,20 @@ export default function Home() {
   }
 
   const handleCriminalClick = (criminal: Mugshot) => {
-    if (isPanning) return
+    if (isPanning) return // Keep this as a quick check
+    if (dragOccurredRef.current) { // If a drag/pan just happened, don't treat as click
+      dragOccurredRef.current = false; // Reset for next interaction
+      return;
+    }
     openCriminalModal(criminal)
   }
 
   const resetMode = () => {
     setMode("view")
-    setSelectedCriminals([])
     setIsFiltered(false)
     setInvestigatingCriminal(null)
     setConnectionTypeFilter("all")
     setPulsingConnections([])
-  }
-
-  const handleConnectionClick = (connection: Connection) => {
-    // Don't trigger clicks if we're panning
-    if (isPanning) return
-
-    setSelectedConnection(connection)
-  }
-
-  const closeConnectionDetail = () => {
-    setSelectedConnection(null)
-  }
-
-  const handleUpvoteConnection = async (connectionId: string) => {
-    // Upvoting is disabled for now
-    closeConnectionDetail()
   }
 
   // Get color for connection type
@@ -603,7 +587,8 @@ export default function Home() {
   // Pan/slide handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     // Only start panning with left mouse button
-    if (e.button !== 0) return
+    if (e.button !== 0) return;
+    dragOccurredRef.current = false; // Reset for mouse too
 
     // Set panning flag
     setIsPanning(true)
@@ -616,7 +601,9 @@ export default function Home() {
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isPanning) return
+    if (!isPanning) return;
+
+    dragOccurredRef.current = true; // If mouse moves while button is down, it's a drag
 
     // Calculate new pan position
     const newPanX = e.clientX - startPanPosition.x
@@ -636,7 +623,8 @@ export default function Home() {
 
   // Touch event handlers for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length !== 1) return
+    if (e.touches.length !== 1) return;
+    dragOccurredRef.current = false; // Reset on new touch start
 
     // Set panning flag
     setIsPanning(true)
@@ -649,11 +637,13 @@ export default function Home() {
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isPanning || e.touches.length !== 1) return
+    if (!isPanning || e.touches.length !== 1) return;
+
+    dragOccurredRef.current = true; // If move occurs, it's a drag
 
     // Calculate new pan position
     const newPanX = e.touches[0].clientX - startPanPosition.x
-    const newPanY = e.touches[0].clientY - panPosition.y
+    const newPanY = e.touches[0].clientY - startPanPosition.y
 
     // Update pan position
     setPanPosition({ x: newPanX, y: newPanY })
@@ -1087,15 +1077,6 @@ export default function Home() {
         id="corkboard-section"
         className={`flex-1 overflow-x-hidden ${isFullscreen ? "fixed inset-0 z-50 bg-black" : ""}`}
       >
-        {/* Caution Stripe Separator */}
-        {/* Connection error notification */}
-        {connectionError && (
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 text-white px-4 py-2 rounded-md z-50 flex items-center">
-            <AlertCircle className="h-4 w-4 mr-2" />
-            <span className="text-sm">{connectionError}</span>
-          </div>
-        )}
-
         {/* Board - Now with cork board background and torn paper effect */}
         <div
           ref={boardRef}
@@ -1111,6 +1092,7 @@ export default function Home() {
             `,
             backgroundSize: "20px 20px",
             border: "2px solid #374151",
+            touchAction: 'none', // Prevent default browser touch actions
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -1174,7 +1156,6 @@ export default function Home() {
             {mugshots.map((mugshot, index) => {
               const position = getGridPosition(index)
               const rotation = getRandomRotation() // Random rotation between -7 and 7 degrees
-              const isSelected = selectedCriminals.includes(mugshot.id)
               const isHovered = hoveredCriminal === mugshot.id
 
               // Get random pin position
@@ -1186,8 +1167,7 @@ export default function Home() {
               return (
                 <div
                   key={mugshot.id}
-                  className={`absolute cursor-pointer transition-all duration-300
-                    ${isSelected ? "ring-4 ring-red-500" : ""}`}
+                  className={`absolute cursor-pointer transition-all duration-300`}
                   style={{
                     top: position.top,
                     left: position.left,
