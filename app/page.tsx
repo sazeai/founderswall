@@ -5,18 +5,14 @@ import type React from "react"
 import { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { X, ZoomIn, ZoomOut, RefreshCw, Maximize, Minimize, AlertCircle, Star, Crown, Quote } from "lucide-react"
-import { getMugshots, getConnections } from "@/lib/mugshot-service-client"
+import { X, ZoomIn, ZoomOut, RefreshCw, Maximize, Minimize, Star, Crown, Quote } from "lucide-react"
+import { getMugshots } from "@/lib/mugshot-service-client"
 import CriminalModal from "@/components/criminal-modal"
 import type { Mugshot } from "@/lib/types"
-import type { Connection } from "@/lib/types"
 import { PublicHeader } from "@/components/public-header"
 import PublicFooter from "@/components/public-footer"
 import LoadingMugshotWall from "@/components/loading-mugshot-wall"
 import { getRandomRotation, getPinPosition } from "@/utils/crimeBoardEffects"
-
-// Define connection types for filter
-const connectionTypes = ["all", "collaborator", "competitor", "same-tech", "mentor", "inspired-by"]
 
 // Motivational quotes for indie makers
 const motivationalQuotes = [
@@ -111,29 +107,14 @@ const StarRating = ({ points }: { points: number }) => {
 
 export default function Home() {
   const [selectedCriminal, setSelectedCriminal] = useState<Mugshot | null>(null)
-  const [mode, setMode] = useState<"view" | "investigate">("view")
-  const [connections, setConnections] = useState<Connection[]>([])
   const [mugshots, setMugshots] = useState<Mugshot[]>([])
   const [zoomLevel, setZoomLevel] = useState(1)
   const [hoveredCriminal, setHoveredCriminal] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isUpvoting, setIsUpvoting] = useState(false)
-  // New state for connection type filter
-  const [connectionTypeFilter, setConnectionTypeFilter] = useState<string>("all")
-  // State for filter dropdown
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false)
-  // New state to track pulsing connections
-  const [pulsingConnections, setPulsingConnections] = useState<string[]>([])
-  // New state for investigating criminal
-  const [investigatingCriminal, setInvestigatingCriminal] = useState<string | null>(null)
-  // New state for filtered flag
-  const [isFiltered, setIsFiltered] = useState(false)
-  // State for current quote
-  const [currentQuote, setCurrentQuote] = useState(motivationalQuotes[0])
-  // Add this state after the other useState declarations
   const [productCounts, setProductCounts] = useState<Record<string, number>>({})
+  const [currentQuote, setCurrentQuote] = useState<string>(motivationalQuotes[0])
 
   // New state for panning
   const [panPosition, setPanPosition] = useState({ x: 0, y: 0 })
@@ -146,8 +127,7 @@ export default function Home() {
 
   const boardRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const filterDropdownRef = useRef<HTMLDivElement>(null)
-  const dragOccurredRef = useRef(false); // Added for robust drag detection
+  const dragOccurredRef = useRef(false) // Added for robust drag detection
 
   // Separate featured and regular mugshots
   const featuredMugshots = useMemo(() => mugshots.filter((mugshot) => mugshot.featured), [mugshots])
@@ -297,34 +277,20 @@ export default function Home() {
     }
   }, [isLoading])
 
-  // Load mugshots, connections, and product counts from database
+  // Load mugshots, and product counts from database
   const loadData = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
     try {
-      // Replace this:
-      // const [mugshotsData, connectionsData, productsData] = await Promise.all([
-      //   getMugshots(),
-      //   getConnections(),
-      //   getProducts(1000), // Get a large number to count all products
-      // ])
+      const mugshotsData = await getMugshots()
 
-      // With this (back to the original working version):
-      const [mugshotsData, connectionsData] = await Promise.all([getMugshots(), getConnections()])
-
-      console.log("Loaded mugshots:", mugshotsData.length)
-      console.log("Loaded connections:", connectionsData.length)
 
       // Fetch products directly from API
       const productsResponse = await fetch("/api/products?limit=1000")
       const productsData = await productsResponse.json()
 
-      console.log("Products API response:", productsData)
-      console.log("Products count:", Array.isArray(productsData) ? productsData.length : 0)
-
       setMugshots(mugshotsData)
-      setConnections(connectionsData)
 
       // Calculate product counts per founder (mugshot.id)
       const counts: Record<string, number> = {}
@@ -334,17 +300,11 @@ export default function Home() {
           // product.founderId should be the mugshots.id
           if (product.founderId) {
             counts[product.founderId] = (counts[product.founderId] || 0) + 1
-            console.log("Counting product for founder:", product.founderId, "new count:", counts[product.founderId])
           }
         })
       }
 
-      // Debug logging to see what we're getting
-      console.log("Final product counts:", counts)
-      console.log(
-        "Mugshots IDs:",
-        mugshotsData.map((m) => m.id),
-      )
+  
 
       setProductCounts(counts)
     } catch (err) {
@@ -360,61 +320,9 @@ export default function Home() {
     loadData()
   }, [loadData])
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
-        setIsFilterDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
-
-  // Effect to handle pulsing animation
-  useEffect(() => {
-    // If in investigate mode and there's an investigating criminal, pulse the connections
-    if (mode === "investigate" && investigatingCriminal) {
-      // Get all connections for the investigating criminal
-      const criminalConnections = connections
-        .filter((conn) => {
-          // Only include connections that match the current filter
-          if (connectionTypeFilter !== "all" && conn.connectionType !== connectionTypeFilter) {
-            return false
-          }
-          return conn.fromCriminalId === investigatingCriminal || conn.toCriminalId === investigatingCriminal
-        })
-        .map((conn) => conn.id)
-
-      // Set pulsing connections
-      setPulsingConnections(criminalConnections)
-    } else {
-      // Clear pulsing connections
-      setPulsingConnections([])
-    }
-  }, [mode, connections, connectionTypeFilter])
-
-  // Handle responsive layout
-  useEffect(() => {
-    const handleResize = () => {
-      // Force re-render without creating new array reference
-      setZoomLevel((prev) => prev) // Trigger re-render without changing state
-    }
-
-    window.addEventListener("resize", handleResize)
-    return () => {
-      window.removeEventListener("resize", handleResize)
-    }
-  }, [])
-
   const openCriminalModal = (criminal: Mugshot) => {
-    if (mode === "view") {
-      setSelectedCriminal(criminal)
-      document.body.style.overflow = "hidden"
-    }
+    setSelectedCriminal(criminal)
+    document.body.style.overflow = "hidden"
   }
 
   const closeCriminalModal = () => {
@@ -424,66 +332,15 @@ export default function Home() {
 
   const handleCriminalClick = (criminal: Mugshot) => {
     if (isPanning) return // Keep this as a quick check
-    if (dragOccurredRef.current) { // If a drag/pan just happened, don't treat as click
-      dragOccurredRef.current = false; // Reset for next interaction
-      return;
+    if (dragOccurredRef.current) {
+      // If a drag/pan just happened, don't treat as click
+      dragOccurredRef.current = false // Reset for next interaction
+      return
     }
     openCriminalModal(criminal)
   }
 
-  const resetMode = () => {
-    setMode("view")
-    setIsFiltered(false)
-    setInvestigatingCriminal(null)
-    setConnectionTypeFilter("all")
-    setPulsingConnections([])
-  }
-
-  // Get color for connection type
-  const getConnectionColor = (type: string) => {
-    switch (type) {
-      case "collaborator":
-        return "#ef4444" // red-500
-      case "competitor":
-        return "#3b82f6" // blue-500
-      case "same-tech":
-        return "#22c55e" // green-500
-      case "mentor":
-        return "#a855f7" // purple-500
-      case "inspired-by":
-        return "#f97316" // orange-500
-      default:
-        return "#ef4444" // red-500
-    }
-  }
-
-  // Get connections for a criminal
-  const getCriminalConnections = (criminalId: string) => {
-    return connections.filter((conn) => {
-      // Check connection type filter
-      if (connectionTypeFilter !== "all" && conn.connectionType !== connectionTypeFilter) {
-        return false
-      }
-      return conn.fromCriminalId === criminalId || conn.toCriminalId === criminalId
-    })
-  }
-
-  // Get connected criminals for a criminal
-  const getConnectedCriminals = (criminalId: string) => {
-    const criminalConnections = getCriminalConnections(criminalId)
-    return criminalConnections
-      .map((conn) => {
-        const connectedId = conn.fromCriminalId === criminalId ? conn.toCriminalId : conn.fromCriminalId
-        const connectedCriminal = mugshots.find((m) => m.id === connectedId)
-        return {
-          criminal: connectedCriminal,
-          connection: conn,
-        }
-      })
-      .filter((item) => item.criminal) // Filter out any undefined criminals
-  }
-
-  // Generate grid positions for the polaroids
+  // Get grid positions for the polaroids
   const getGridPosition = (index: number) => {
     // Check if we're on mobile
     const isMobile = typeof window !== "undefined" && window.innerWidth < 768
@@ -587,8 +444,8 @@ export default function Home() {
   // Pan/slide handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     // Only start panning with left mouse button
-    if (e.button !== 0) return;
-    dragOccurredRef.current = false; // Reset for mouse too
+    if (e.button !== 0) return
+    dragOccurredRef.current = false // Reset for mouse too
 
     // Set panning flag
     setIsPanning(true)
@@ -601,9 +458,9 @@ export default function Home() {
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isPanning) return;
+    if (!isPanning) return
 
-    dragOccurredRef.current = true; // If mouse moves while button is down, it's a drag
+    dragOccurredRef.current = true // If mouse moves while button is down, it's a drag
 
     // Calculate new pan position
     const newPanX = e.clientX - startPanPosition.x
@@ -623,8 +480,8 @@ export default function Home() {
 
   // Touch event handlers for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length !== 1) return;
-    dragOccurredRef.current = false; // Reset on new touch start
+    if (e.touches.length !== 1) return
+    dragOccurredRef.current = false // Reset on new touch start
 
     // Set panning flag
     setIsPanning(true)
@@ -637,9 +494,9 @@ export default function Home() {
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isPanning || e.touches.length !== 1) return;
+    if (!isPanning || e.touches.length !== 1) return
 
-    dragOccurredRef.current = true; // If move occurs, it's a drag
+    dragOccurredRef.current = true // If move occurs, it's a drag
 
     // Calculate new pan position
     const newPanX = e.touches[0].clientX - startPanPosition.x
@@ -688,32 +545,6 @@ export default function Home() {
             console.error(`Error attempting to exit fullscreen: ${err.message}`)
           })
       }
-    }
-  }
-
-  // Handle connection type filter change
-  const handleConnectionTypeFilter = (type: string) => {
-    setConnectionTypeFilter(type)
-    setIsFilterDropdownOpen(false)
-  }
-
-  // Get connection type display name
-  const getConnectionTypeDisplayName = (type: string) => {
-    switch (type) {
-      case "all":
-        return "All Connections"
-      case "collaborator":
-        return "Collaborators"
-      case "competitor":
-        return "Competitors"
-      case "same-tech":
-        return "Same Tech"
-      case "mentor":
-        return "Mentor/Mentee"
-      case "inspired-by":
-        return "Inspired By"
-      default:
-        return type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, " ")
     }
   }
 
@@ -807,14 +638,6 @@ export default function Home() {
   }
 
   const [isAddLogModalOpen, setIsAddLogModalOpen] = useState(false)
-
-  // Optional: Callback to refresh pins after a new log is posted
-  const handleLogPosted = () => {
-    // Here you might want to trigger a re-fetch of pins in PinWall
-    // This depends on how PinWall handles data fetching and updates
-    // For now, we can just log it or perhaps PinWall's realtime subscription handles it.
-    console.log("A new log has been posted, PinWall should update.")
-  }
 
   // Show loading state
   if (isLoading) {
@@ -918,7 +741,7 @@ export default function Home() {
       <PublicHeader />
 
       {/* New Hero Section */}
-      <section className="relative top-16-custom  min-h-screen overflow-hidden">
+      <section className="relative top-16-custom overflow-hidden min-h-screen lg:min-h-screen">
         {/* Playful Background Doodles and Text */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           {/* Background Pattern */}
@@ -955,7 +778,7 @@ export default function Home() {
         </div>
 
         {/* Main Content */}
-        <div className="relative z-10 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 py-8">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 items-center w-full">
             {/* Left Side - Typography */}
             <div className="text-center lg:text-left order-2 lg:order-1">
@@ -987,7 +810,7 @@ export default function Home() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6">
                 <Link
                   href="/station"
                   className="group bg-yellow-400 hover:bg-yellow-500 text-black px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center justify-center"
@@ -1009,8 +832,8 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* THIS WEEK'S LEADERBOARD - Only show on mobile */}
-              <div className="mt-4 lg:hidden">
+              {/* THIS WEEK'S LEADERBOARD - Show on mobile with proper spacing */}
+              <div className="lg:hidden mb-8">
                 <LeaderboardComponent />
               </div>
             </div>
@@ -1043,8 +866,8 @@ export default function Home() {
                     LEGEND
                   </div>
                 </div>
-                {/* THIS WEEK'S LEADERBOARD - Show below the image, inside hero, with margin */}
-                <div className="hidden lg:block w-full max-w-md">
+                {/* THIS WEEK'S LEADERBOARD - Show below the image on desktop */}
+                <div className="hidden lg:block w-full max-w-md mt-6">
                   <LeaderboardComponent />
                 </div>
               </div>
@@ -1092,7 +915,7 @@ export default function Home() {
             `,
             backgroundSize: "20px 20px",
             border: "2px solid #374151",
-            touchAction: 'none', // Prevent default browser touch actions
+            touchAction: "none", // Prevent default browser touch actions
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
@@ -1257,7 +1080,6 @@ export default function Home() {
         </div>
 
         {/* Modals - Rendered inside the corkboard section for fullscreen compatibility */}
-        {/* Criminal Modal */}
         {selectedCriminal && <CriminalModal criminal={selectedCriminal} onClose={closeCriminalModal} />}
 
         {/* Stats - Added mx-4 to maintain some spacing */}

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/utils/supabase/server"
-import { upvoteProduct } from "@/lib/product-service"
+import { upvoteProduct, productBySlugCache } from "@/lib/product-service"
 
 export async function POST(request: Request, { params }: { params: { slug: string } }) {
   const supabase = await createClient()
@@ -29,9 +29,13 @@ export async function POST(request: Request, { params }: { params: { slug: strin
 
     const { success, error } = await upvoteProduct(product.id, user.id)
 
-    if (error) {
-      return NextResponse.json({ error }, { status: 500 })
+    if (error || !success) {
+      return NextResponse.json({ error: error || "Failed to upvote" }, { status: 500 })
     }
+
+    // Invalidate the cache for this product slug
+    productBySlugCache.delete(slug);
+    console.log(`Cache invalidated for product slug: ${slug}`);
 
     // Get the updated upvote count
     const { count } = await supabase

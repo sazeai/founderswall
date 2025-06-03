@@ -157,11 +157,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
                     : undefined,
                 },
                 aggregateRating:
-                  product.upvotes > 0
+                  (product.upvotes || 0) > 0
                     ? {
                         "@type": "AggregateRating",
-                        ratingValue: Math.min(5, Math.max(1, Math.round((product.upvotes / 10) * 4) + 1)),
-                        ratingCount: product.upvotes,
+                        ratingValue: Math.min(5, Math.max(1, Math.round(((product.upvotes || 0) / 10) * 4) + 1)),
+                        ratingCount: product.upvotes || 0,
                         bestRating: 5,
                         worstRating: 1,
                       }
@@ -237,13 +237,13 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 },
               })) || []),
               // Review schema if there are upvotes
-              ...(product.upvotes > 0
+              ...((product.upvotes || 0) > 0
                 ? [
                     {
                       "@type": "Review",
                       reviewRating: {
                         "@type": "Rating",
-                        ratingValue: Math.min(5, Math.max(1, Math.round((product.upvotes / 10) * 4) + 1)),
+                        ratingValue: Math.min(5, Math.max(1, Math.round(((product.upvotes || 0) / 10) * 4) + 1)),
                         bestRating: 5,
                         worstRating: 1,
                       },
@@ -251,7 +251,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                         "@type": "Organization",
                         name: "FoundersWall Community",
                       },
-                      reviewBody: `The FoundersWall community has given ${product.title} ${product.upvotes} upvotes, recognizing it as a standout build by ${product.founderName || "an indie maker"}.`,
+                      reviewBody: `The FoundersWall community has given ${product.title} ${product.upvotes || 0} upvotes, recognizing it as a standout build by ${product.founderName || "an indie maker"}.`,
                       itemReviewed: {
                         "@id": `https://founderswall.com/launch/${product.slug}#software`,
                       },

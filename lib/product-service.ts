@@ -1,5 +1,10 @@
 import { createClient } from "@/utils/supabase/server"
-import type { Product } from "@/types/product"
+import type { Product } from "@/lib/types"
+
+// Cache for getProductBySlug
+// Export the cache to allow invalidation from other modules
+export const productBySlugCache = new Map<string, { timestamp: number; data: { product: Product | null; error: string | null } }>();
+const PRODUCT_CACHE_DURATION = 30000; // 30 seconds, adjust as needed
 
 export async function getProducts(limit = 10, offset = 0) {
   try {
@@ -111,6 +116,14 @@ export async function getProducts(limit = 10, offset = 0) {
 }
 
 export async function getProductBySlug(slug: string) {
+  // Check cache first
+  const cachedEntry = productBySlugCache.get(slug);
+  if (cachedEntry && Date.now() - cachedEntry.timestamp < PRODUCT_CACHE_DURATION) {
+    console.log(`Cache HIT for product slug: ${slug}`);
+    return cachedEntry.data;
+  }
+  console.log(`Cache MISS for product slug: ${slug}`);
+
   try {
     const supabase = await createClient()
 
@@ -187,12 +200,18 @@ export async function getProductBySlug(slug: string) {
       updatedAt: product.updated_at,
     }
 
-    return { product: formattedProduct, error: null }
+    // Store in cache before returning
+    const result = { product: formattedProduct, error: null };
+    productBySlugCache.set(slug, { timestamp: Date.now(), data: result });
+    return result;
   } catch (error) {
-    return {
+    const errorResult = {
       product: null,
       error: error instanceof Error ? error.message : "An unknown error occurred",
-    }
+    };
+    // Optionally, cache error responses too, or not, depending on desired behavior
+    // productBySlugCache.set(slug, { timestamp: Date.now(), data: errorResult }); 
+    return errorResult;
   }
 }
 

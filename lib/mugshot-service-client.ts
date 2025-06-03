@@ -1,4 +1,4 @@
-import type { Mugshot, Connection } from "./types"
+import type { Mugshot } from "./types"
 
 // Client-side functions for fetching data
 export async function getMugshots() {
@@ -16,19 +16,6 @@ export async function getMugshots() {
   }
 }
 
-export async function getConnections() {
-  try {
-    const response = await fetch("/api/connections")
-    if (!response.ok) {
-      throw new Error("Failed to fetch connections")
-    }
-    const data = await response.json()
-    return data as Connection[]
-  } catch (error) {
-    console.error("Error fetching connections:", error)
-    return []
-  }
-}
 
 export async function createMugshot(mugshotData: Omit<Mugshot, "id" | "createdAt" | "likes">) {
   try {
@@ -57,37 +44,6 @@ export async function createMugshot(mugshotData: Omit<Mugshot, "id" | "createdAt
     console.error("Error creating mugshot:", error)
     return {
       mugshot: null,
-      error: "An unexpected error occurred. Please try again.",
-    }
-  }
-}
-
-export async function createConnection(connection: Omit<Connection, "id" | "createdAt">) {
-  try {
-    const response = await fetch("/api/connections", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(connection),
-    })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      return {
-        connection: null,
-        error: data.error || "Failed to create connection",
-      }
-    }
-
-    return {
-      connection: data,
-      error: null,
-    }
-  } catch (error) {
-    return {
-      connection: null,
       error: "An unexpected error occurred. Please try again.",
     }
   }

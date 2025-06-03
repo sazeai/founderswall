@@ -3,6 +3,14 @@ import { createClient } from "@/utils/supabase/server"
 
 export const dynamic = "force-dynamic"
 
+// Cache for GET timeline entries
+interface CachedTimeline {
+  timestamp: number;
+  data: any[]; // Replace with specific TimelineEntry type if available
+}
+const timelineCache = new Map<string, CachedTimeline>();
+const TIMELINE_CACHE_DURATION = 30000; // 30 seconds
+
 export async function POST(request: Request, { params }: { params: { slug: string } }) {
   const supabase = await createClient()
   const slug = params.slug
@@ -89,6 +97,11 @@ export async function POST(request: Request, { params }: { params: { slug: strin
       return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
+    // Invalidate timeline cache for this slug
+    const cacheKey = `timeline-${slug}`;
+    timelineCache.delete(cacheKey);
+    console.log(`Cache invalidated for timeline: ${cacheKey}`);
+
     return NextResponse.json(entry)
   } catch (error) {
     return NextResponse.json({ error: "An unexpected error occurred. Please try again." }, { status: 500 })
@@ -100,15 +113,25 @@ export async function GET(request: Request, { params }: { params: { slug: string
   const supabase = await createClient()
   const slug = params.slug
 
+  const cacheKey = `timeline-${slug}`;
+  const cachedEntry = timelineCache.get(cacheKey);
+  if (cachedEntry && Date.now() - cachedEntry.timestamp < TIMELINE_CACHE_DURATION) {
+    console.log(`Cache HIT for timeline: ${slug}`);
+    return NextResponse.json(cachedEntry.data);
+  }
+  console.log(`Cache MISS for timeline: ${slug}`);
+
   try {
     // Get the product
     const { data: product, error: fetchError } = await supabase.from("products").select("id").eq("slug", slug).single()
 
     if (fetchError) {
+      // Optionally cache error for a short period if desired, or just return
       return NextResponse.json({ error: fetchError.message }, { status: 500 })
     }
 
     if (!product) {
+      timelineCache.set(cacheKey, { timestamp: Date.now(), data: [] }); // Cache empty result for not found product
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
     }
 
@@ -120,11 +143,15 @@ export async function GET(request: Request, { params }: { params: { slug: string
       .order("date", { ascending: false })
 
     if (entriesError) {
+      // Optionally cache error for a short period
       return NextResponse.json({ error: entriesError.message }, { status: 500 })
     }
 
-    return NextResponse.json(entries || [])
+    const dataToCache = entries || [];
+    timelineCache.set(cacheKey, { timestamp: Date.now(), data: dataToCache });
+    return NextResponse.json(dataToCache)
   } catch (error) {
+    // Avoid caching general errors
     return NextResponse.json({ error: "An unexpected error occurred. Please try again." }, { status: 500 })
   }
 }

@@ -5,13 +5,31 @@ import { generateSlug } from "@/lib/utils"
 // Add dynamic config to this API route
 export const dynamic = "force-dynamic"
 
+// Define a type for our cached data (optional but good practice)
+interface CachedProductsData {
+  timestamp: number;
+  data: any[]; // Replace 'any[]' with your actual formatted product type if available
+}
+
+// In-memory cache store
+const productsCache = new Map<string, CachedProductsData>();
+const PRODUCTS_CACHE_DURATION = 60000; // 60 seconds, adjust as needed
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const limit = Number.parseInt(searchParams.get("limit") || "10")
   const offset = Number.parseInt(searchParams.get("offset") || "0")
   const filter = searchParams.get("filter") as "trending" | "newest" | "most-wanted" | undefined
 
-  console.log("API: Getting products with limit:", limit, "offset:", offset)
+  // Create a cache key based on request parameters
+  const cacheKey = `products-limit:${limit}-offset:${offset}-filter:${filter || 'none'}`;
+
+  // Check cache first
+  const cachedEntry = productsCache.get(cacheKey);
+  if (cachedEntry && Date.now() - cachedEntry.timestamp < PRODUCTS_CACHE_DURATION) {
+    return NextResponse.json(cachedEntry.data);
+  }
+
 
   try {
     const supabase = await createClient()
@@ -31,7 +49,6 @@ export async function GET(request: Request) {
       .limit(limit)
       .range(offset, offset + limit - 1)
 
-    console.log("API: Raw query result:", { productsCount: products?.length || 0, error })
 
     if (error) {
       console.error("API: Products query error:", error)
@@ -39,14 +56,12 @@ export async function GET(request: Request) {
     }
 
     if (!products) {
-      console.log("API: No products returned from query")
+      productsCache.set(cacheKey, { timestamp: Date.now(), data: [] }); // Cache empty result
       return NextResponse.json([])
     }
 
-    console.log("API: Found", products.length, "products")
-
     // Get upvote counts for each product individually
-    const upvoteCounts = new Map()
+    const upvoteCounts = new Map<string, number>()
 
     // Count upvotes for each product individually
     for (const product of products) {
@@ -56,7 +71,9 @@ export async function GET(request: Request) {
         .eq("product_id", product.id)
 
       if (!countError) {
-        upvoteCounts.set(product.id, count || 0)
+        upvoteCounts.set(String(product.id), count || 0)
+      } else {
+        upvoteCounts.set(String(product.id), 0) // Default to 0 if error
       }
     }
 
@@ -86,13 +103,15 @@ export async function GET(request: Request) {
         productUrl: product.product_url,
         socialLinks: product.social_links,
         launchDate: launchDate,
-        upvotes: upvoteCounts.get(product.id) || 0,
+        upvotes: upvoteCounts.get(String(product.id)) || 0,
         createdAt: product.created_at,
         updatedAt: product.updated_at,
       }
     })
 
-    console.log("API: Returning", formattedProducts.length, "formatted products")
+    // Store in cache
+    productsCache.set(cacheKey, { timestamp: Date.now(), data: formattedProducts });
+
     return NextResponse.json(formattedProducts)
   } catch (error) {
     console.error("API: Unexpected error:", error)
@@ -117,7 +136,7 @@ async function generateUniqueCaseId(supabase: any, maxRetries = 5): Promise<stri
         // Fallback to random if there's an error
         return `L${Math.floor(Math.random() * 10000)
           .toString()
-          .padStart(3, 0)}`
+          .padStart(3, "0")}`
       }
 
       let nextNumber = 1
