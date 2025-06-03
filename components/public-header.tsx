@@ -119,7 +119,7 @@ export function PublicHeader() {
             />
             <NavLink
               href="/logs"
-              label="Pin Wall"
+              label="Build Logs"
               active={pathname === "/logs"}
             />
 
@@ -207,7 +207,7 @@ export function PublicHeader() {
                   />
                   <MobileNavLink
                     href="/logs"
-                    label="Pin Wall"
+                    label="Build Logs"
                     active={pathname === "/logs"}
                   />
 

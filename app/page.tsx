@@ -783,21 +783,22 @@ export default function Home() {
             {/* Left Side - Typography */}
             <div className="text-center lg:text-left order-2 lg:order-1">
               <div className="mb-6 lg:mb-8 relative">
+              <div className="absolute -bottom-4 left-0 lg:relative lg:bottom-auto lg:left-auto lg:inline-block lg:ml-4 lg:mt-2">
+                  <div className="bg-yellow-400 text-black px-3 py-1 text-xs lg:text-sm font-bold transform rotate-[-12deg] shadow-lg border-2 border-black">
+                    WANTED
+                  </div>
+                </div>
                 <h1
                   className="text-6xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-[7rem] font-black text-yellow-400 leading-none"
                   style={{
-                    textShadow: "4px 4px 0px #bb1919, -2px -2px 0px #bb1919, 2px -2px 0px #bb1919, -2px 2px 0px #000",
+                    textShadow: "3px 3px 0px #bb1919, -2px -2px 0px #bb1919, 2px -2px 0px #bb1919, -2px 2px 0px #000",
                     fontFamily: "'Arial Black', sans-serif",
                   }}
                 >
                   <span className="block">FOUNDERS</span>
                   <span className="block -mt-2 lg:-mt-4">WALL</span>
                 </h1>
-                <div className="absolute -bottom-4 left-0 lg:relative lg:bottom-auto lg:left-auto lg:inline-block lg:ml-4 lg:mt-2">
-                  <div className="bg-yellow-400 text-black px-3 py-1 text-xs lg:text-sm font-bold transform rotate-12 shadow-lg border-2 border-black">
-                    WANTED
-                  </div>
-                </div>
+               
               </div>
 
               <div className="mb-6 lg:mb-8">
