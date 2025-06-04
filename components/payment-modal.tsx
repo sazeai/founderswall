@@ -56,39 +56,16 @@ export default function PaymentModal({ isOpen, onClose, onSuccess }: PaymentModa
         </DialogHeader>
 
         <div className="space-y-6">
-          <div className="text-center">
-            <div className="text-4xl font-bold text-red-500 mb-2">$3.00</div>
-            <div className="text-sm text-gray-400 line-through mb-1">$5.00</div>
-            <p className="text-gray-300">One-time payment for lifetime access</p>
-            <div className="text-sm text-yellow-400 mt-1">🚨 OG EARLY BIRD PRICE 🚨</div>
-            <div className="text-xs text-red-400 mt-1">Everyone else joins the waitlist of regret</div>
-          </div>
+         
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span className="text-gray-300">Create and display your mugshot</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span className="text-gray-300">Appear on the founder wall</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span className="text-gray-300">Unlimited product launches</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span className="text-gray-300">Full platform access forever</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span className="text-gray-300 text-sm">2 SEO backlinks when your tool is Live (ai-q.in, geekdroid.in)</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-500" />
-              <span className="text-gray-300 text-sm">A YouTube short for extra reach (@_AI-Q_)</span>
-            </div>
+          <div className="my-4 px-2 text-center">
+            <h3 className="text-lg font-bold text-yellow-400 mb-2">JOIN THE INNER CIRCLE. BUILD YOUR LEGACY.
+            </h3>
+            <p className="text-gray-300 text-sm mb-1">Join the circle of makers who don't just talk they ship.</p>
+            <p className="text-gray-300 text-sm mb-1">Show your face, launch your tools, build your tribe.</p>
+            <p className="text-gray-300 text-sm mb-3">This isn't just a platform it's your legacy in the making.</p>
+            <p className="text-red-400 font-semibold text-sm mb-1">Miss this, and you'll be watching from the sidelines.</p>
+            <p className="text-green-400 font-semibold text-sm">Get in. Get seen. Get real.</p>
           </div>
 
           {error && (

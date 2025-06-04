@@ -997,7 +997,7 @@ export default function Home() {
                     left: position.left,
                     transform: `rotate(${rotation}deg)`,
                     zIndex: 10,
-                    width: typeof window !== "undefined" && window.innerWidth < 768 ? "90px" : "120px", // Smaller on mobile
+                    width: typeof window !== "undefined" && window.innerWidth < 768 ? "70px" : "90px", // Smaller on mobile
                     // Add margin to create more space between cards
                     margin: "10px",
                   }}

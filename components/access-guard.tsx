@@ -79,50 +79,62 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
     <>
       <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
         <div className="max-w-md mx-auto text-center p-8">
-          <div className="bg-gray-800 border-4 border-red-500 p-8 rounded-md transform -rotate-1 relative">
+          <div className="bg-gray-800 border-4 border-red-500 p-6 rounded-md transform -rotate-1 relative">
             {/* Police badge decoration */}
             <div className="absolute -top-4 -right-4 bg-yellow-400 text-black text-xs px-3 py-2 rotate-12 font-bold rounded-md">
               RESTRICTED
             </div>
 
-            <Lock className="h-16 w-16 mx-auto text-red-500 mb-6" />
-            <h2 className="text-2xl font-bold text-red-500 mb-4" style={{ fontFamily: "Impact, sans-serif" }}>
+            <Lock className="h-12 w-12 mx-auto text-red-500 mb-2" />
+            <h2 className="text-2xl font-bold text-red-500 mb-2" style={{ fontFamily: "Impact, sans-serif" }}>
               ACCESS REQUIRES A FOUNDER KEYCARD
             </h2>
-            <p className="text-gray-300 mb-6">
-              You need a Founder Keycard to enter this zone. OGs get lifetime access for just $3.
+            <p className="text-gray-300 mb-4">
+            This isn’t for looky-loos. It’s for builders who want to be seen, launch like pros, and actually grow. Grab your Founder Keycard lifetime access for $3.
             </p>
 
-            <div className="space-y-3 mb-6 text-left">
-              <div className="flex items-center gap-3">
+            <div className="space-y-2 mb-4 text-left">
+              <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300">Create your mugshot profile</span>
+                <span className="text-gray-300 text-sm">Create your mugshot profile</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300">Launch unlimited products</span>
+                <span className="text-gray-300 text-sm">Launch unlimited products</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300">Appear on the founder wall</span>
+                <span className="text-gray-300 text-sm">Appear on the founder wall</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300">Full platform access forever</span>
+                <span className="text-gray-300 text-sm">Full platform access forever</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300 text-sm">2 SEO backlinks when your tool is Live (ai-q.in, geekdroid.in)</span>
+                <span className="text-gray-300 text-sm">2 SEO backlinks when your product is Live (ai-q.in, geekdroid.in)</span>
               </div>
-              <div className="flex items-center gap-3">
-                <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300 text-sm">A YouTube short for extra reach (@_AI-Q_)</span>
-              </div>
+              <div className="flex items-center gap-2">
+  <Check className="h-5 w-5 text-green-500" />
+  <span className="text-gray-300 text-sm">
+    A YouTube short for extra reach{' '}
+    <a
+      href="https://www.youtube.com/@_AI-Q_"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-yellow-400 hover:underline"
+    >
+      (@_AI-Q_)
+    </a>
+  </span>
+</div>
+
+
             </div>
 
             <div className="text-center mb-4">
-              <div className="text-yellow-400 text-sm font-bold">🚨 OG EARLY BIRD PRICE 🚨</div>
-              <div className="text-red-400 text-xs mt-1">Everyone else joins the waitlist of regret</div>
+              <div className="text-yellow-400 text-sm font-bold">CLASSIFIED BRIEFING: LIFETIME ACCESS - $3</div>
+              <div className="text-green-400 text-xs mt-1">JOIN THE INNER CIRCLE. BUILD YOUR LEGACY.</div>
             </div>
 
             {!user ? (
@@ -143,7 +155,7 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
                   onClick={() => setShowPaymentModal(true)}
                   className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 text-lg"
                 >
-                  🚨 Get Your Founder Keycard - $3 🚨
+                  🚨 Get Your Founder Keycard 🚨
                 </Button>
                 <p className="text-xs text-gray-500">One-time payment • Lifetime access • No subscriptions</p>
               </div>
