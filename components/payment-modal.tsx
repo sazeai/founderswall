@@ -51,7 +51,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess }: PaymentModa
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-white">
             <CreditCard className="h-5 w-5 text-red-500" />
-            Get Your Detective Badge
+            Get Your Founder Keycard
           </DialogTitle>
         </DialogHeader>
 
@@ -80,6 +80,14 @@ export default function PaymentModal({ isOpen, onClose, onSuccess }: PaymentModa
             <div className="flex items-center gap-3">
               <Check className="h-5 w-5 text-green-500" />
               <span className="text-gray-300">Full platform access forever</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="h-5 w-5 text-green-500" />
+              <span className="text-gray-300 text-sm">2 SEO backlinks when your tool is Live (ai-q.in, geekdroid.in)</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Check className="h-5 w-5 text-green-500" />
+              <span className="text-gray-300 text-sm">A YouTube short for extra reach (@_AI-Q_)</span>
             </div>
           </div>
 

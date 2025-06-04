@@ -4,11 +4,12 @@ import type React from "react"
 
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Check, Loader2, X, Users, Send } from "lucide-react"
+import { Check, Loader2, X, Users, Send, CheckCircle2, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { motion } from "framer-motion"
 
 export default function PaymentSuccessPage() {
   const router = useRouter()
@@ -117,9 +118,14 @@ export default function PaymentSuccessPage() {
             {status === "loading" && (
               <>
                 <div className="text-center mb-6">
-                  <Loader2 className="h-16 w-16 animate-spin mx-auto text-yellow-400 mb-4" />
+                  <div className="w-16 h-16">
+                    {/* Placeholder for a cool animated SVG checkmark or badge icon */}
+                    {!showNomination && <Loader2 className="w-16 h-16 text-yellow-400 animate-spin" />}
+                    {showNomination && !nominationSubmitted && <XCircle className="w-16 h-16 text-red-500" />}
+                    {showNomination && nominationSubmitted && <CheckCircle2 className="w-16 h-16 text-green-500" />}
+                  </div>
                   <h1 className="text-2xl font-bold text-white mb-2">PROCESSING PAYMENT</h1>
-                  <p className="text-gray-300">Verifying your detective badge...</p>
+                  <p className="text-gray-300">Verifying your Founder Keycard...</p>
                 </div>
               </>
             )}
@@ -133,7 +139,7 @@ export default function PaymentSuccessPage() {
                       <span className="text-black text-xs font-bold">✓</span>
                     </div>
                   </div>
-                  <h1 className="text-2xl font-bold text-white mb-2">DETECTIVE BADGE ACQUIRED!</h1>
+                  <h1 className="text-2xl font-bold text-white mb-2">FOUNDER KEYCARD ACQUIRED!</h1>
                   <p className="text-gray-300 mb-6">{message}</p>
                 </div>
 

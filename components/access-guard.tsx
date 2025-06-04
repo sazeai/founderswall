@@ -87,12 +87,10 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
 
             <Lock className="h-16 w-16 mx-auto text-red-500 mb-6" />
             <h2 className="text-2xl font-bold text-red-500 mb-4" style={{ fontFamily: "Impact, sans-serif" }}>
-              STATION ACCESS DENIED
+              ACCESS REQUIRES A FOUNDER KEYCARD
             </h2>
             <p className="text-gray-300 mb-6">
-              {!user
-                ? "You need to be logged in and have a detective badge to enter the station. OGs get lifetime access for just $3!"
-                : "You need a detective badge to enter the station. OGs get lifetime access for just $3!"}
+              You need a Founder Keycard to enter this zone. OGs get lifetime access for just $3.
             </p>
 
             <div className="space-y-3 mb-6 text-left">
@@ -111,6 +109,14 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
               <div className="flex items-center gap-3">
                 <Check className="h-5 w-5 text-green-500" />
                 <span className="text-gray-300">Full platform access forever</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-500" />
+                <span className="text-gray-300 text-sm">2 SEO backlinks when your tool is Live (ai-q.in, geekdroid.in)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-500" />
+                <span className="text-gray-300 text-sm">A YouTube short for extra reach (@_AI-Q_)</span>
               </div>
             </div>
 
@@ -137,7 +143,7 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
                   onClick={() => setShowPaymentModal(true)}
                   className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 text-lg"
                 >
-                  🚨 Get Your Badge - $3 🚨
+                  🚨 Get Your Founder Keycard - $3 🚨
                 </Button>
                 <p className="text-xs text-gray-500">One-time payment • Lifetime access • No subscriptions</p>
               </div>
