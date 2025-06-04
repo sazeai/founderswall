@@ -118,12 +118,8 @@ export default function PaymentSuccessPage() {
             {status === "loading" && (
               <>
                 <div className="text-center mb-6">
-                  <div className="w-16 h-16">
-                    {/* Placeholder for a cool animated SVG checkmark or badge icon */}
-                    {!showNomination && <Loader2 className="w-16 h-16 text-yellow-400 animate-spin" />}
-                    {showNomination && !nominationSubmitted && <XCircle className="w-16 h-16 text-red-500" />}
-                    {showNomination && nominationSubmitted && <CheckCircle2 className="w-16 h-16 text-green-500" />}
-                  </div>
+                  {/* Simplified loader icon */}
+                  <Loader2 className="w-16 h-16 text-yellow-400 animate-spin mx-auto mb-4" />
                   <h1 className="text-2xl font-bold text-white mb-2">PROCESSING PAYMENT</h1>
                   <p className="text-gray-300">Verifying your Founder Keycard...</p>
                 </div>
