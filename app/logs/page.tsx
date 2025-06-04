@@ -23,7 +23,7 @@ export async function generateMetadata(
     if (pin) {
       const shortId = pin.id.slice(0, 8);
       return {
-        title: `New startup update on FoundersWall`,
+        title: `Shipping My MVP in Public - Build Log`,
         description: pin.content?.slice(0, 120) || 'See the latest build log on FoundersWall.',
         openGraph: {
           type: 'website',
@@ -59,7 +59,7 @@ export async function generateMetadata(
       description: 'Follow the real-time progress of indie makers building in public.',
       images: [
         {
-          url: 'https://founderswall.com/og-default.png',
+          url: 'https://founderswall.com/screenshot.png',
           width: 1200,
           height: 630,
           alt: 'FoundersWall',
@@ -70,7 +70,7 @@ export async function generateMetadata(
       card: 'summary_large_image',
       title: "The Founders' Log | FoundersWall",
       description: 'Follow the real-time progress of indie makers building in public.',
-      images: ['https://founderswall.com/og-default.png'],
+      images: ['https://founderswall.com/screenshot.png'],
     },
   };
 }

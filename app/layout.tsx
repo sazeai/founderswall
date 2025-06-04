@@ -9,11 +9,11 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   metadataBase: new URL("https://founderswall.com"),
   title: {
-    default: "FoundersWall – A Public Log of Legendary Builders",
+    default: "Build in Public. Get Seen by Founders. Found by Customers.",
     template: "%s | FoundersWall",
   },
   description:
-    "Discover and explore top indie makers. FoundersWall is where the most consistent, creative, and relentless builders get tracked, logged, and celebrated.",
+    "FoundersWall is your public space to build in public, log your progress, and launch your product. Get a timeline, product page, SEO boost, and visibility from both founders and customers.",
   keywords: [
     "indie makers",
     "startup builders",
@@ -45,9 +45,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://founderswall.com",
     siteName: "FoundersWall",
-    title: "FoundersWall – A Public Log of Legendary Builders",
+    title: "Your Product. Your Timeline. Founders See It. Google Finds It.",
     description:
-      "Discover and explore top indie makers. FoundersWall is where the most consistent, creative, and relentless builders get tracked, logged, and celebrated.",
+      " Not another startup graveyard. FoundersWall is your public board to log updates, launch products, and get seen by humans and Google.",
     images: [
       {
         url: "/screenshot.png",
@@ -59,12 +59,12 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FoundersWall – A Public Log of Legendary Builders",
+    title: "Your Product. Your Timeline. Founders See It. Google Finds It.",
     description:
-      "Discover and explore top indie makers. FoundersWall is where the most consistent, creative, and relentless builders get tracked, logged, and celebrated.",
-    images: ["/screenshot.png"],
-    creator: "@founderswall",
-    site: "@founderswall",
+    " Not another startup graveyard. FoundersWall is your public board to log updates, launch products, and get seen by humans and Google.",
+   images: ["/screenshot.png"],
+    creator: "@AINotSoSmart",
+    site: "https://founderswall.com",
   },
   verification: {
     google: "your-google-verification-code",
@@ -74,8 +74,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://founderswall.com",
   },
-  category: "technology",
-    generator: 'v0.dev'
+ 
 }
 
 // Sitewide JSON-LD Schema
@@ -87,7 +86,7 @@ const siteSchema = {
       "@id": "https://founderswall.com/#website",
       url: "https://founderswall.com",
       name: "FoundersWall",
-      description: "A Public Log of Legendary Builders - Discover and explore top indie makers",
+      description:     "FoundersWall is your public space to build in public, log your progress, and launch your product. Get a timeline, product page, SEO boost, and visibility from both founders and customers.",
       publisher: {
         "@id": "https://founderswall.com/#organization",
       },
@@ -112,8 +111,8 @@ const siteSchema = {
         "@type": "ImageObject",
         inLanguage: "en-US",
         "@id": "https://founderswall.com/#/schema/logo/image/",
-        url: "https://founderswall.com/founderswalllogo.png",
-        contentUrl: "https://founderswall.com/founderswalllogo.png",
+        url: "https://founderswall.com/founderswall-logo.png",
+        contentUrl: "https://founderswall.com/founderswal-llogo.png",
         width: 400,
         height: 100,
         caption: "FoundersWall",
@@ -121,10 +120,10 @@ const siteSchema = {
       image: {
         "@id": "https://founderswall.com/#/schema/logo/image/",
       },
-      description: "A Public Log of Legendary Builders - Discover and explore top indie makers",
-      sameAs: ["https://twitter.com/founderswall", "https://github.com/founderswall"],
+      description:     "FoundersWall is your public space to build in public, log your progress, and launch your product. Get a timeline, product page, SEO boost, and visibility from both founders and customers.",
+      sameAs: ["https://x.com/AINotSoSmart"],
       foundingDate: "2024",
-      slogan: "Where Legendary Builders Get Tracked, Logged, and Celebrated",
+      slogan: "Build in Public. Be Seen. Be Found. | FoundersWall",
     },
   ],
 }
