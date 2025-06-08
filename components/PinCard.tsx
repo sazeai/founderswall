@@ -170,7 +170,7 @@ export function PinCard({
         </div>
         <div className="flex-1 flex flex-col">
           <div
-            className="mb-2 text-lg font-bold text-gray-900 leading-snug break-words whitespace-pre-line"
+            className="mb-2 text-md font-semibold text-gray-900 leading-snug break-words whitespace-pre-line"
             style={{
               fontFamily: 'Inter, "Comic Sans MS", "Comic Sans", cursive',
               wordBreak: 'break-word',

@@ -17,13 +17,13 @@ interface ProductCaseFileProps {
     caseId: string
     title: string
     founderName?: string
-    logoUrl?: string
+    logoUrl?: string | null
     category?: string
     status?: string
     summary: string[]
     launchDate: string
     productUrl?: string
-    upvotes: number
+    upvotes?: number
   }
   isMostWanted?: boolean
 }
@@ -32,7 +32,7 @@ export function ProductCaseFile({ product, isMostWanted = false }: ProductCaseFi
   const [rotation, setRotation] = useState(0)
   const [pinPosition, setPinPosition] = useState({ x: 50, y: 15 })
   const [stainPosition, setStainPosition] = useState({ x: 70, y: 60, opacity: 0.1, scale: 0.5, rotation: 0 })
-  const [upvotes, setUpvotes] = useState(product.upvotes)
+  const [upvotes, setUpvotes] = useState(product.upvotes || 0)
   const [isUpvoting, setIsUpvoting] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -105,7 +105,7 @@ export function ProductCaseFile({ product, isMostWanted = false }: ProductCaseFi
 
       if (response.ok) {
         const data = await response.json()
-        setUpvotes(data.upvotes)
+        setUpvotes(data.upvotes || 0)
       }
     } catch (error) {
     } finally {

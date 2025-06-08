@@ -23,7 +23,7 @@ export function StationHeaderClient({}: StationHeaderClientProps) {
     <>
       <Button onClick={() => setIsAddLogModalOpen(true)} className="flex items-center gap-2">
         <PlusCircle className="h-5 w-5" />
-        Add New Log
+        Pin Your Chaos
       </Button>
 
       <AddLogModal 

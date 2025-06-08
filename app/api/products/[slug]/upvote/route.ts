@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/utils/supabase/server"
 import { upvoteProduct, productBySlugCache } from "@/lib/product-service"
+import { revalidatePath } from "next/cache"
 
 export async function POST(request: Request, { params }: { params: { slug: string } }) {
   const supabase = await createClient()
-  const slug = params.slug
+  const awaitedParams = await params
+  const { slug } = awaitedParams
 
   try {
     // Get the current user

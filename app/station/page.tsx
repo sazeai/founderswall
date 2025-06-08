@@ -1,7 +1,7 @@
 import type React from "react"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/server"
-import { Camera, FileText, Users, Eye, Edit, Crown, Star } from "lucide-react"
+import { Camera, FileText, Users, Eye, Edit, Crown, Star, PlusCircle } from "lucide-react"
 import { StationHeaderClient } from '@/components/StationHeaderClient';
 import { YourLogsWall } from '@/components/YourLogsWall';
 
@@ -52,6 +52,12 @@ export default async function StationDashboard() {
     .select("*", { count: "exact", head: true })
     .eq("created_by", user.email)
 
+  // Get user's support requests (launches) count
+  const { count: supportRequestsCount } = await supabase
+    .from("launches")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+
   // Get user profile for badge type
   const { data: userProfile } = await supabase
     .from("user_profiles")
@@ -61,6 +67,12 @@ export default async function StationDashboard() {
 
   const badgeType = userProfile?.badge_type || "wanted"
 
+  // Get user's pins count
+  const { count: pinsCount } = await supabase
+    .from("pins")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+
   return (
     <div className="container mx-auto py-8 px-4">
       <header className="mb-8 flex justify-between items-center">
@@ -68,16 +80,6 @@ export default async function StationDashboard() {
         <StationHeaderClient />
       </header>
       
-      {/* 
-        Placeholder for "Your Logs" section 
-        Here you would list the user's past pins with stats (views, reactions, etc.)
-        And options to manage/edit their logs.
-      */}
-      <section className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Your Logs</h2>
-        <YourLogsWall />
-      </section>
-
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 text-red-500 stamped-text">DETECTIVE STATION</h1>
@@ -127,7 +129,7 @@ export default async function StationDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <CriminalStatCard
           title="Your Mugshot"
           value={mugshotsCount || 0}
@@ -138,7 +140,7 @@ export default async function StationDashboard() {
         />
 
         <CriminalStatCard
-          title="Build Log"
+          title="All Submissions"
           value={productsCount}
           icon={<FileText className="w-8 h-8 text-blue-400" />}
           linkText="Submit Product"
@@ -146,28 +148,38 @@ export default async function StationDashboard() {
           status="normal"
         />
 
-  
-
         <CriminalStatCard
-          title="Connections Found"
-          value={connectionsCount || 0}
-          icon={<Users className="w-8 h-8 text-yellow-400" />}
-          linkText="Investigate"
-          linkHref="/"
+          title="Request Support"
+          value={supportRequestsCount || 0}
+          icon={<Users className="w-8 h-8 text-red-400" />}
+          linkText="Request Support"
+          linkHref="/station/show-up"
           status="normal"
         />
+
+        <div className="relative">
+          <CriminalStatCard
+            title="Build Logs"
+            value={pinsCount || 0}
+            icon={<FileText className="w-8 h-8 text-green-400" />}
+            linkText="View & Edit Logs"
+            linkHref="/station/logs"
+            status="normal"
+          />
+          
+        </div>
       </div>
 
       {/* Action Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Criminal Operations */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg relative">
-          <h2 className="text-xl font-bold mb-4 text-white">CRIMINAL OPERATIONS</h2>
+          <h2 className="text-xl font-bold mb-4 text-white">FOUNCER ACTIVITIES</h2>
           <div className="space-y-4">
             {!userMugshot ? (
               <CriminalActionCard
                 title="Get Arrested"
-                description="Create your criminal mugshot and join the wall"
+                description="Create your suspect mugshot and join the wall"
                 icon={<Camera className="w-6 h-6" />}
                 href="/station/get-arrested"
                 priority="high"
@@ -175,7 +187,7 @@ export default async function StationDashboard() {
             ) : (
               <CriminalActionCard
                 title="Edit Your Mugshot"
-                description="Update your criminal profile and details"
+                description="Update your founder profile and details"
                 icon={<Edit className="w-6 h-6" />}
                 href="/station/edit-mugshot"
                 priority="normal"
@@ -186,7 +198,7 @@ export default async function StationDashboard() {
               title="Submit Product Evidence"
               description="Add your product to the Heist Board"
               icon={<FileText className="w-6 h-6" />}
-              href="/station/submit-launch"
+              href="/station/show-up"
               priority="normal"
             />
 

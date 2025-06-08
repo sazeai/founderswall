@@ -6,40 +6,21 @@ import { ArrowLeft, ExternalLink, Calendar, Tag, Clock, Award, MapPin, User } fr
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-
-interface Mugshot {
-  id: string
-  name: string
-  crime: string
-  imageUrl?: string
-  note?: string
-  productUrl?: string
-  twitterHandle?: string
-}
-
-interface Product {
-  id: string
-  slug: string
-  caseId: string
-  title: string
-  description: string
-  imageUrl: string
-  upvotes: number
-  launchDate: string
-  summary: string[]
-  category?: string
-  status?: string
-  productUrl?: string
-  logoUrl?: string
-}
+import type { Mugshot, Product, Launch } from "@/lib/types"
 
 interface MakerProfileClientProps {
   username: string
   mugshot: Mugshot
   products: Product[]
+  launches: Launch[]
 }
 
-export default function MakerProfileClient({ username, mugshot, products }: MakerProfileClientProps) {
+export default function MakerProfileClient({
+  username,
+  mugshot,
+  products,
+  launches,
+}: MakerProfileClientProps) {
   // Calculate some stats
   const totalUpvotes = products.reduce((sum, product) => sum + (product.upvotes || 0), 0)
   const firstLaunchDate = products.length > 0 ? new Date(products[0].launchDate) : null

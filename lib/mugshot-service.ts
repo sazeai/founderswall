@@ -333,6 +333,40 @@ export async function getMugshotsByIds(ids: string[]): Promise<Mugshot[]> {
   }))
 }
 
+export async function getMugshotsByUserIds(userIds: string[]): Promise<Mugshot[]> {
+  if (!userIds.length) return []
+
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.from("mugshots").select("*").in("user_id", userIds)
+
+  if (error) {
+    console.error("Error fetching mugshots by user IDs:", error)
+    return []
+  }
+
+  // Get badge types for all users
+  const badgeMap = await getBadgeTypesForUsers(userIds)
+
+  return data.map((mugshot) => ({
+    id: mugshot.id,
+    name: mugshot.name,
+    crime: mugshot.crime,
+    note: mugshot.note,
+    imageUrl: mugshot.image_url,
+    mugshotUrl: mugshot.mugshot_url,
+    productUrl: mugshot.product_url,
+    twitterHandle: mugshot.twitter_handle,
+    userId: mugshot.user_id,
+    createdAt: mugshot.created_at,
+    likes: mugshot.likes || 0,
+    badgeType: badgeMap[mugshot.user_id || ""] || "wanted",
+    featured: mugshot.featured || false,
+    accessType: mugshot.access_type,
+    paymentStatus: mugshot.payment_status,
+  }))
+}
+
 export async function getMugshotByUsername(username: string): Promise<Mugshot | null> {
   const supabase = await createClient()
 

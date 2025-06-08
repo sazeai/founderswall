@@ -2,13 +2,13 @@ export interface Mugshot {
   id: string
   name: string
   crime: string
-  note: string | null
-  imageUrl: string | null
+  note?: string | null
+  imageUrl?: string | null
   mugshotUrl: string | null
   productUrl: string | null
   twitterHandle: string | null
   likes: number
-  createdAt: string
+  createdAt: string // To fix missing property error
   userId?: string | null
   isApproved?: boolean
   isVisible?: boolean
@@ -16,6 +16,22 @@ export interface Mugshot {
   accessType?: "paid" | "community_pick"
   badgeType?: "wanted" | "community_pick" | "startup_saviour"
   featured?: boolean
+  isLaunching?: boolean
+}
+
+export interface Launch {
+  id: string
+  user_id: string
+  product_name: string
+  description?: string
+  launch_date: string
+  launch_links?: any
+  support_types?: any[]
+  image_url?: string
+  status?: "LAUNCHING" | "LAUNCHED"
+  created_at: string
+  mugshot?: Mugshot
+  supporters: any[]
 }
 
 export interface Connection {
@@ -50,13 +66,13 @@ export interface Product {
   title: string
   founderId: string
   founderName?: string
-  logoUrl: string | null
+  logoUrl?: string | null
   screenshotUrl: string | null
   category: string
   status: string
   summary: string[]
   tags: string[]
-  description: string | null
+  description: string // To match component prop: string
   productUrl: string
   socialLinks: {
     twitter?: string
@@ -70,6 +86,7 @@ export interface Product {
   updatedAt: string
   upvotes?: number
   timelineEntries?: TimelineEntry[]
+  imageUrl: string // To fix missing property error
 }
 
 export interface TimelineEntry {

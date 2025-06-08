@@ -5,17 +5,13 @@ import type { Metadata } from "next"
 import MakerProfileClient from "./MakerProfileClient"
 import { PublicHeader } from "@/components/public-header"
 import { createClient } from "@/utils/supabase/server"
+import type { Launch } from "@/lib/types"
 
 export const dynamic = "force-dynamic"
 
-interface PageProps {
-  params: {
-    username: string
-  }
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { username } = params
+export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
+  const awaitedParams = await params
+  const { username } = awaitedParams
   const mugshot = await getMugshotByUsername(username)
 
   if (!mugshot) {
@@ -71,6 +67,34 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
+type PersonSchema = {
+  "@context": string
+  "@type": string
+  "@id": string
+  name: any
+  description: string
+  url: string
+  image: {
+    "@type": string
+    url: any
+    width: number
+    height: number
+  }
+  sameAs: any[]
+  jobTitle: string
+  worksFor: {
+    "@type": string
+    name: string
+  }
+  knowsAbout: string[]
+  hasCredential: {
+    "@type": string
+    name: string
+    description: string
+  }
+  hasCreated?: any[]
+}
+
 async function generateMakerSchema(mugshot: any, products: any[], username: string) {
   const supabase = await createClient()
 
@@ -84,7 +108,7 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
     sameAs.push(`https://twitter.com/${mugshot.twitterHandle.replace("@", "")}`)
   }
 
-  const personSchema = {
+  const personSchema: PersonSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
     "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}#person`,
@@ -180,8 +204,9 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
   return [personSchema, profilePageSchema]
 }
 
-export default async function MakerProfilePage({ params }: PageProps) {
-  const { username } = params
+export default async function MakerProfilePage({ params }: { params: { username: string } }) {
+  const awaitedParams = await params
+  const { username } = awaitedParams
   const mugshot = await getMugshotByUsername(username)
 
   if (!mugshot) {
@@ -206,6 +231,20 @@ export default async function MakerProfilePage({ params }: PageProps) {
     }),
   )
 
+  const { data: launchesData } = await supabase
+    .from("launches")
+    .select(
+      `
+    *,
+    mugshot:user_id(id, name, username, imageUrl),
+    supporters:launch_supports(id, user_id, mugshot:user_id(id, name, username, imageUrl))
+  `,
+    )
+    .eq("user_id", mugshot.id)
+    .order("created_at", { ascending: false })
+
+  const launches: Launch[] = launchesData || []
+
   // Generate schema
   const schemas = await generateMakerSchema(mugshot, productsWithUpvotes, username)
 
@@ -218,7 +257,12 @@ export default async function MakerProfilePage({ params }: PageProps) {
         }}
       />
       <PublicHeader />
-      <MakerProfileClient username={username} mugshot={mugshot} products={productsWithUpvotes} />
+      <MakerProfileClient
+        username={username}
+        mugshot={mugshot}
+        products={productsWithUpvotes}
+        launches={launches}
+      />
     </>
   )
 }

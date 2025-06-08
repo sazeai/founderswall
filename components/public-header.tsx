@@ -122,6 +122,11 @@ export function PublicHeader() {
               label="Build Logs"
               active={pathname === "/logs"}
             />
+            <NavLink
+              href="/uplift"
+              label="Uplift"
+              active={pathname === "/uplift"}
+            />
 
             {/* Show loading state while checking auth */}
             {isLoading ? (
@@ -209,6 +214,11 @@ export function PublicHeader() {
                     href="/logs"
                     label="Build Logs"
                     active={pathname === "/logs"}
+                  />
+                  <MobileNavLink
+                    href="/uplift"
+                    label="Uplift"
+                    active={pathname === "/uplift"}
                   />
 
                   {isLoading ? (

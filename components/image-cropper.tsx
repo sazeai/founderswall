@@ -20,12 +20,25 @@ export default function ImageCropper({ imageUrl, onCropComplete, onCancel }: Ima
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 })
+  const [cropSize, setCropSize] = useState(400) // Responsive crop size
 
   const containerRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
 
-  // Fixed crop dimensions
-  const CROP_SIZE = 400
+  // Responsive crop size based on container width
+  useEffect(() => {
+    function updateCropSize() {
+      if (containerRef.current) {
+        const width = containerRef.current.offsetWidth
+        setCropSize(Math.min(400, width))
+      } else {
+        setCropSize(Math.min(400, window.innerWidth - 32)) // fallback
+      }
+    }
+    updateCropSize()
+    window.addEventListener("resize", updateCropSize)
+    return () => window.removeEventListener("resize", updateCropSize)
+  }, [])
 
   // When the image loads, get its natural dimensions
   const onImageLoad = () => {
@@ -105,24 +118,24 @@ export default function ImageCropper({ imageUrl, onCropComplete, onCancel }: Ima
     if (!ctx) return
 
     // Set canvas size to our desired output size
-    canvas.width = CROP_SIZE
-    canvas.height = CROP_SIZE
+    canvas.width = cropSize
+    canvas.height = cropSize
 
     // Get the container dimensions and position
     const containerRect = containerRef.current.getBoundingClientRect()
 
     // Calculate the visible portion of the image within the crop area
-    const cropAreaLeft = containerRect.width / 2 - CROP_SIZE / 2
-    const cropAreaTop = containerRect.height / 2 - CROP_SIZE / 2
+    const cropAreaLeft = containerRect.width / 2 - cropSize / 2
+    const cropAreaTop = containerRect.height / 2 - cropSize / 2
 
     // Calculate the source coordinates in the original image
     const sourceX = (cropAreaLeft - position.x) / scale
     const sourceY = (cropAreaTop - position.y) / scale
-    const sourceWidth = CROP_SIZE / scale
-    const sourceHeight = CROP_SIZE / scale
+    const sourceWidth = cropSize / scale
+    const sourceHeight = cropSize / scale
 
     // Draw the cropped portion to the canvas
-    ctx.drawImage(imageRef.current, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, CROP_SIZE, CROP_SIZE)
+    ctx.drawImage(imageRef.current, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, cropSize, cropSize)
 
     // Convert the canvas to a Blob
     canvas.toBlob(
@@ -158,11 +171,14 @@ export default function ImageCropper({ imageUrl, onCropComplete, onCancel }: Ima
       <h2 className="text-xl font-bold text-white mb-4">Position Your Mugshot</h2>
       <p className="text-gray-300 mb-4">Move and zoom your photo to fit within the square frame.</p>
 
-      {/* Crop container with fixed dimensions */}
-      <div className="relative mx-auto mb-6" style={{ width: "100%", maxWidth: "500px", height: "500px" }}>
+      {/* Crop container with responsive dimensions */}
+      <div
+        className="relative mx-auto mb-6 w-full"
+        ref={containerRef}
+        style={{ maxWidth: "95vw", width: "100%", height: `${cropSize}px`, minHeight: `${cropSize}px` }}
+      >
         {/* Container for the draggable image - this handles all interactions */}
         <div
-          ref={containerRef}
           className="absolute inset-0 overflow-hidden"
           onMouseDown={handleDragStart}
           onMouseMove={handleDragMove}
@@ -197,9 +213,9 @@ export default function ImageCropper({ imageUrl, onCropComplete, onCancel }: Ima
             <div
               className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
               style={{
-                width: `${CROP_SIZE}px`,
-                height: `${CROP_SIZE}px`,
-                boxShadow: `0 0 0 9999px rgba(0, 0, 0, 0.5)`, // Creates the overlay effect
+                width: `${cropSize}px`,
+                height: `${cropSize}px`,
+                boxShadow: `0 0 0 9999px rgba(0, 0, 0, 0.5)`,
               }}
             ></div>
           </div>
@@ -207,7 +223,7 @@ export default function ImageCropper({ imageUrl, onCropComplete, onCancel }: Ima
           {/* Crop area border - visible but not interactive */}
           <div
             className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 border-2 border-white rounded-sm"
-            style={{ width: `${CROP_SIZE}px`, height: `${CROP_SIZE}px` }}
+            style={{ width: `${cropSize}px`, height: `${cropSize}px` }}
           >
             {/* Corner indicators for better UX */}
             <div className="absolute -top-1 -left-1 w-4 h-4 border-l-2 border-t-2 border-white"></div>

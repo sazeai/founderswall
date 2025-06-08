@@ -75,6 +75,18 @@ export default function StationHeader({ user }: StationHeaderProps) {
                   All Launches
                 </span>
               </Link>
+              <Link href="/uplift" className="px-3 py-2 text-gray-300 hover:text-white transition-colors">
+                <span className="flex items-center">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Uplift
+                </span>
+              </Link>
+              <Link href="/station/show-up" className="px-3 py-2 text-gray-300 hover:text-white transition-colors">
+                <span className="flex items-center">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Request Support
+                </span>
+              </Link>
             </nav>
           </div>
 
@@ -148,6 +160,14 @@ export default function StationHeader({ user }: StationHeaderProps) {
           <Link href="/launch" className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors">
             <FileText className="w-5 h-5 mx-auto" />
             <span className="text-xs">All Products</span>
+          </Link>
+          <Link href="/uplift" className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors">
+            <FileText className="w-5 h-5 mx-auto" />
+            <span className="text-xs">Uplift</span>
+          </Link>
+          <Link href="/station/show-up" className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors">
+            <FileText className="w-5 h-5 mx-auto" />
+            <span className="text-xs">Request</span>
           </Link>
         </div>
       </div>
