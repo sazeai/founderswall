@@ -20,7 +20,7 @@ export default function PublicFooter() {
                 FOUNDERS WALL
               </span>
             </div>
-            <p className="text-xs text-gray-300 mt-1 italic font-handwriting">
+            <p className="text-sm text-gray-300 mt-1 italic font-handwriting">
               For indie makers running from the law, building in the shadows
             </p>
           </div>
@@ -56,7 +56,7 @@ export default function PublicFooter() {
           <p className="font-handwriting">
             © {new Date().getFullYear()} Founders Wall. All rights swiped.
           </p>
-          <p className="mt-1 font-bold text-red-500 [text-shadow:_1px_1px_2px_rgba(0,0,0,0.8)]">
+          <p className="mt-1 text-sm font-bold text-red-500 [text-shadow:_1px_1px_2px_rgba(0,0,0,0.8)]">
             Crafted in the underground by Indie Maker 🚨
           </p>
         </div>

@@ -728,6 +728,45 @@ export default function Home() {
     </div>
   )
 
+  // Add this above the return statement in your Home component:
+  const wallCards = [
+    {
+      title: '🔧 Build Logs',
+      color: 'text-red-400',
+      desc: 'Raw updates. No filters. Like digital graffiti. Just ship and log it.',
+      stamp: 'EVIDENCE',
+      stain: true,
+    },
+    {
+      title: '📢 Uplifts',
+      color: 'text-yellow-400',
+      desc: 'Boost the builders who show up. No likes. Just recognition from the real ones.',
+      stamp: '',
+      stain: false,
+    },
+    {
+      title: '🧠 Mental Logs',
+      color: 'text-blue-400',
+      desc: 'Rants, wins, burnout. Track the chaos behind the code.',
+      stamp: 'CONFIDENTIAL',
+      stain: true,
+    },
+    {
+      title: '📸 Product Drops',
+      color: 'text-pink-400',
+      desc: "What you've launched. No leaderboard. Just receipts.",
+      stamp: '',
+      stain: false,
+    },
+    {
+      title: '🧷 Pins & Threads',
+      color: 'text-green-400',
+      desc: 'Connect your chaos. Thread your logs into a timeline.',
+      stamp: '',
+      stain: true,
+    },
+  ];
+
   return (
     <main className="min-h-screen flex flex-col bg-black overflow-x-hidden">
       {/* JSON-LD Schema for Homepage */}
@@ -806,7 +845,7 @@ export default function Home() {
                 Where the shipping never stops, and the dopamine never hits.
                 </h2>
                 <p className="text-yellow-200 text-base font-handwriting sm:text-lg lg:text-xl">
-                Built for the ones who ship quietly, fail publicly, and don’t stop.
+                Built for the ones who ship quietly, fail publicly, and don't stop.
 
                 </p>
               </div>
@@ -1154,7 +1193,74 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <section className="relative py-16 px-4 sm:px-8 lg:px-16 bg-[#18181b] text-white overflow-hidden">
+        {/* Dirty texture overlay */}
+        <div className="absolute inset-0 pointer-events-none z-0" style={{
+          backgroundImage: "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
+          backgroundSize: 'cover',
+          opacity: 0.18,
+          mixBlendMode: 'luminosity',
+        }} />
+        <div className="max-w-5xl mx-auto relative z-10">
+          {/* Pinned Heading */}
+          <div className="flex items-center justify-center mb-10 relative">
+            <div className="absolute left-1/2 -top-6 z-20" style={{ transform: 'translateX(-50%)' }}>
+              <div className="w-6 h-6 bg-red-500 rounded-full shadow-lg border-2 border-red-700" />
+            </div>
+            <h2 className="text-yellow-200 text-2xl sm:text-3xl tracking-wider font-handwriting font-extrabold uppercase px-8 py-2 bg-[#232326] border-2 border-yellow-400 rounded-lg shadow-md relative" style={{ transform: 'rotate(-3deg)', boxShadow: '4px 4px 0 #000', letterSpacing: '2px', textShadow: '2px 2px 0 #000' }}>
+              ✦ WHAT HAPPENS ON THE WALL ✦
+            </h2>
+          </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {wallCards.map((card, i) => (
+              <div
+                key={card.title}
+                className="relative bg-yellow-100 border-2 border-yellow-400 border-dashed rounded-lg shadow-lg p-4 flex flex-col items-stretch font-mono min-h-[120px]"
+                style={{
+                  transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (2 + Math.random() * 2)}deg)`,
+                  boxShadow: '4px 4px 0 #000',
+                }}
+              >
+                {/* Pin */}
+                <div className="absolute left-1/2 -top-4 z-20" style={{ transform: 'translateX(-50%)' }}>
+                  <div className="w-4 h-4 bg-red-500 rounded-full shadow border-2 border-red-700" />
+                </div>
+                {/* Dirty paper texture overlay */}
+                <div className="absolute inset-0 pointer-events-none rounded-lg" style={{
+                  backgroundImage: "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
+                  backgroundSize: 'cover',
+                  opacity: 0.18,
+                  mixBlendMode: 'luminosity',
+                  zIndex: 10,
+                }} />
+                {/* Stamp */}
+                {card.stamp && (
+                  <div className="absolute top-3 right-3 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded rotate-[-8deg] shadow z-30 tracking-widest opacity-80" style={{ letterSpacing: '2px' }}>{card.stamp}</div>
+                )}
+                {/* Coffee stain */}
+              
+                <div className="flex-1 w-full">
+                  <h3 className={`${card.color} text-lg font-handwriting font-bold z-20 relative`} style={{letterSpacing:'1px',textShadow:'1px 1px 0 #000',marginBottom:'0'}}>{card.title}</h3>
+                  <p className="text-yellow-900 text-xs z-20 relative font-mono mt-2 leading-snug" style={{marginTop:'0',marginBottom:'0'}}>{card.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-yellow-300 mb-4 font-mono text-sm">
+              Got a startup? A mess?<br />
+              Cool. That's all you need to show up here.
+            </p>
+            <Link href="/login" passHref legacyBehavior>
+              <a className="bg-red-700 hover:bg-red-800 text-yellow-100 py-3 px-8 rounded-full font-extrabold text-lg shadow-lg border-2 border-yellow-400 tracking-wider font-handwriting inline-block" style={{ letterSpacing: '2px', boxShadow: '4px 4px 0 #000', textShadow: '1px 1px 0 #000' }}>
+                Get on the Wall
+              </a>
+            </Link>
+          </div>
+        </div>
+      </section>
       <PublicFooter />
 
       {/* PinWall component, floating button, and AddLogModal have been moved to app/logs/page.tsx */}
