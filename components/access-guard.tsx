@@ -89,7 +89,7 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
             <h2 className="text-2xl font-bold text-red-500 mb-2" style={{ fontFamily: "Impact, sans-serif" }}>
               ACCESS REQUIRES A FOUNDER KEYCARD
             </h2>
-            <p className="text-gray-300 mb-4">
+            <p className="text-gray-300 font-handwriting mb-4">
             This isn’t for looky-loos. It’s for builders who want to be seen, launch like pros, and actually grow. Grab your Founder Keycard lifetime access for $3.
             </p>
 
@@ -100,7 +100,7 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300 text-sm">Launch unlimited products</span>
+                <span className="text-gray-300 text-sm">Submit unlimited products</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
@@ -112,28 +112,15 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300 text-sm">2 SEO backlinks when your product is Live (ai-q.in, geekdroid.in)</span>
+                <span className="text-gray-300 text-sm">SEO backlinks when your product is Live (ai-q.in, geekdroid.in)</span>
               </div>
-              <div className="flex items-center gap-2">
-  <Check className="h-5 w-5 text-green-500" />
-  <span className="text-gray-300 text-sm">
-    A YouTube short for extra reach{' '}
-    <a
-      href="https://www.youtube.com/@_AI-Q_"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-yellow-400 hover:underline"
-    >
-      (@_AI-Q_)
-    </a>
-  </span>
-</div>
+              
 
 
             </div>
 
             <div className="text-center mb-4">
-              <div className="text-yellow-400 text-sm font-bold">CLASSIFIED BRIEFING: LIFETIME ACCESS - $3</div>
+              <div className="text-yellow-400 text-sm font-bold">LIFETIME ACCESS - $3</div>
               <div className="text-green-400 text-xs mt-1">JOIN THE INNER CIRCLE. BUILD YOUR LEGACY.</div>
             </div>
 

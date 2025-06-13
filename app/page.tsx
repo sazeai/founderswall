@@ -805,7 +805,7 @@ export default function Home() {
                 <h2 className="text-white text-xl sm:text-2xl lg:text-3xl font-bold mb-2 lg:mb-3">
                 Where the shipping never stops, and the dopamine never hits.
                 </h2>
-                <p className="text-yellow-200 text-base sm:text-lg lg:text-xl">
+                <p className="text-yellow-200 text-base font-handwriting sm:text-lg lg:text-xl">
                 Built for the ones who ship quietly, fail publicly, and don’t stop.
 
                 </p>
@@ -875,7 +875,7 @@ export default function Home() {
                     <rect x="2" y="2" width="96" height="96" fill="none" stroke="black" strokeDasharray="6,4" strokeWidth="2"/>
                   </svg>
                   {/* Body */}
-                  <div className="relative z-40 text-black text-base whitespace-pre-line leading-snug">
+                  <div className="relative z-40 text-black font-handwriting font-medium  whitespace-pre-line leading-snug">
                     FoundersWall is where indie hackers log their <span className="text-red-600 font-bold">chaos</span>.<br/>
                     Not polished posts. Not follower farming.<br/>
                     Just proof that you're <span className="text-green-700 font-bold">alive</span> and building.<br/><br/>

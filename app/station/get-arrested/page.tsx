@@ -265,6 +265,8 @@ export default function GetArrestedPage() {
 
   return (
     <div className="min-h-screen max-w-4xl mx-auto bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
+      {/* $3 Sticky Note Block */}
+
       {/* Form Steps */}
       <div className="p-4">
         <div className="mb-6">
