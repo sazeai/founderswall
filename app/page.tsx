@@ -803,10 +803,11 @@ export default function Home() {
 
               <div className="mb-6 lg:mb-8">
                 <h2 className="text-white text-xl sm:text-2xl lg:text-3xl font-bold mb-2 lg:mb-3">
-                  Where Legendary Builders Get Tracked
+                Where the shipping never stops, and the dopamine never hits.
                 </h2>
                 <p className="text-yellow-200 text-base sm:text-lg lg:text-xl">
-                  The most consistent, creative, and relentless indie hackers.
+                Built for the ones who ship quietly, fail publicly, and don’t stop.
+
                 </p>
               </div>
 
@@ -831,6 +832,56 @@ export default function Home() {
                   Meet Suspects
                   <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
                 </button>
+              </div>
+
+              {/* Graffiti/Sticker Context Block */}
+              <div className="flex items-center mb-8 w-full min-h-[140px]">
+                <div
+                  className="relative bg-yellow-200 border-2 border-black rounded-lg shadow-2xl px-6 py-5 max-w-md w-full text-center"
+                  style={{
+                    fontFamily: "'Permanent Marker', Marker Felt, Arial, sans-serif",
+                    transform: "rotate(-4deg)",
+                    transformOrigin: "50% 0%",
+                    boxShadow: "8px 8px 0px #222, 0 2px 16px rgba(0,0,0,0.18)",
+                    position: "relative",
+                    zIndex: 10,
+                    animation: "popIn 0.7s cubic-bezier(.68,-0.55,.27,1.55)",
+                  }}
+                >
+                  {/* Hanging Pin */}
+                  <div
+                    className="absolute left-1/2 -top-4 z-30"
+                    style={{
+                      transform: "translateX(-50%)",
+                    }}
+                  >
+                    <div className="w-5 h-5 bg-red-500 rounded-full shadow-lg border-2 border-red-700" />
+                    {/* Pin shadow for realism */}
+                    <div className="w-2 h-2 bg-black opacity-30 rounded-full absolute left-1/2 top-5 -translate-x-1/2 blur-sm" />
+                  </div>
+                  {/* Dirty paper texture overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none rounded-lg"
+                    style={{
+                      backgroundImage: "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
+                      backgroundSize: "cover",
+                      opacity: 0.18,
+                      mixBlendMode: "luminosity",
+                      zIndex: 20,
+                    }}
+                  />
+                  {/* Hand-drawn border (SVG) */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <rect x="2" y="2" width="96" height="96" fill="none" stroke="black" strokeDasharray="6,4" strokeWidth="2"/>
+                  </svg>
+                  {/* Body */}
+                  <div className="relative z-40 text-black text-base whitespace-pre-line leading-snug">
+                    FoundersWall is where indie hackers log their <span className="text-red-600 font-bold">chaos</span>.<br/>
+                    Not polished posts. Not follower farming.<br/>
+                    Just proof that you're <span className="text-green-700 font-bold">alive</span> and building.<br/><br/>
+                    <span className="text-yellow-700 font-bold">It's gritty. It's public. It's real.</span>
+                  </div>
+                </div>
               </div>
 
               {/* THIS WEEK'S LEADERBOARD - Show on mobile with proper spacing */}
