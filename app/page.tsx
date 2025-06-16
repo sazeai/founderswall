@@ -732,35 +732,35 @@ export default function Home() {
   const wallCards = [
     {
       title: '🔧 Build Logs',
-      color: 'text-red-400',
+      color: 'text-red-600',
       desc: 'Raw updates. No filters. Like digital graffiti. Just ship and log it.',
       stamp: 'EVIDENCE',
       stain: true,
     },
     {
       title: '📢 Uplifts',
-      color: 'text-yellow-400',
+      color: 'text-yellow-600',
       desc: 'Boost the builders who show up. No likes. Just recognition from the real ones.',
       stamp: '',
       stain: false,
     },
     {
       title: '🧠 Mental Logs',
-      color: 'text-blue-400',
+      color: 'text-blue-600',
       desc: 'Rants, wins, burnout. Track the chaos behind the code.',
       stamp: 'CONFIDENTIAL',
       stain: true,
     },
     {
       title: '📸 Product Drops',
-      color: 'text-pink-400',
+      color: 'text-pink-600',
       desc: "What you've launched. No leaderboard. Just receipts.",
       stamp: '',
       stain: false,
     },
     {
       title: '🧷 Pins & Threads',
-      color: 'text-green-400',
+      color: 'text-green-600',
       desc: 'Connect your chaos. Thread your logs into a timeline.',
       stamp: '',
       stain: true,
@@ -1202,24 +1202,26 @@ export default function Home() {
           mixBlendMode: 'luminosity',
         }} />
         <div className="max-w-5xl mx-auto relative z-10">
-          {/* Pinned Heading */}
-          <div className="flex items-center justify-center mb-10 relative">
-            <div className="absolute left-1/2 -top-6 z-20" style={{ transform: 'translateX(-50%)' }}>
-              <div className="w-6 h-6 bg-red-500 rounded-full shadow-lg border-2 border-red-700" />
-            </div>
-            <h2 className="text-yellow-200 text-2xl sm:text-3xl tracking-wider font-handwriting font-extrabold uppercase px-8 py-2 bg-[#232326] border-2 border-yellow-400 rounded-lg shadow-md relative" style={{ transform: 'rotate(-3deg)', boxShadow: '4px 4px 0 #000', letterSpacing: '2px', textShadow: '2px 2px 0 #000' }}>
+          {/* Torn Sticky Note Heading */}
+          <div className="flex items-center justify-center mb-12 relative">
+           
+            <div className="font-handwriting text-2xl sm:text-3xl font-bold uppercase" style={{ transform: 'rotate(-3deg)', letterSpacing: '2px', textShadow: '1px 1px 0 #fff', border: 'none' }}>
               ✦ WHAT HAPPENS ON THE WALL ✦
-            </h2>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {wallCards.map((card, i) => (
               <div
                 key={card.title}
-                className="relative bg-yellow-100 border-2 border-yellow-400 border-dashed rounded-lg shadow-lg p-4 flex flex-col items-stretch font-mono min-h-[120px]"
+                className="relative bg-yellow-200 px-4 pt-4 pb-6 font-handwriting text-black"
                 style={{
-                  transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (2 + Math.random() * 2)}deg)`,
-                  boxShadow: '4px 4px 0 #000',
+                  transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (3 + Math.random() * 3)}deg) translateY(${Math.random() * 8 - 4}px)`,
+                  minHeight: '90px',
+                  boxShadow: '2px 2px 0 #000',
+                  border: 'none',
+                  marginTop: i % 2 === 0 ? '0px' : '16px',
+                  marginBottom: i % 2 === 1 ? '0px' : '8px',
                 }}
               >
                 {/* Pin */}
@@ -1239,11 +1241,11 @@ export default function Home() {
                   <div className="absolute top-3 right-3 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded rotate-[-8deg] shadow z-30 tracking-widest opacity-80" style={{ letterSpacing: '2px' }}>{card.stamp}</div>
                 )}
                 {/* Coffee stain */}
-              
-                <div className="flex-1 w-full">
-                  <h3 className={`${card.color} text-lg font-handwriting font-bold z-20 relative`} style={{letterSpacing:'1px',textShadow:'1px 1px 0 #000',marginBottom:'0'}}>{card.title}</h3>
-                  <p className="text-yellow-900 text-xs z-20 relative font-mono mt-2 leading-snug" style={{marginTop:'0',marginBottom:'0'}}>{card.desc}</p>
-                </div>
+                {card.stain && (
+                  <svg className="absolute left-6 bottom-3 z-30 opacity-30" width="48" height="48" viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="20" ry="8" fill="none" stroke="#222" strokeWidth="2" strokeDasharray="4 4" /></svg>
+                )}
+                <h3 className={`${card.color} text-lg font-handwriting font-bold z-20 relative`} style={{letterSpacing:'1px',textShadow:'1px 1px 0 #fff',marginBottom:'0'}}>{card.title}</h3>
+                <p className="text-black text-sm font-medium z-20 relative font-mono leading-snug" style={{marginTop:'0',marginBottom:'0'}}>{card.desc}</p>
               </div>
             ))}
           </div>
