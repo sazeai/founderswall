@@ -29,13 +29,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     console.log(`🎭 REACTION API - Processing ${emoji} for story ${storyId} by user ${user.id}`)
 
-    // Check if user already reacted with this emoji
+    // Check if user has ANY existing reaction for this story
     const { data: existingReaction, error: checkError } = await supabase
       .from("build_story_reactions")
-      .select("id")
+      .select("id, emoji")
       .eq("story_id", storyId)
       .eq("user_id", user.id)
-      .eq("emoji", emoji)
       .maybeSingle()
 
     if (checkError) {
@@ -43,25 +42,40 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: "Database error" }, { status: 500 })
     }
 
-    let reacted = false
+    let userReaction = null
 
     if (existingReaction) {
-      // Remove reaction
-      console.log("🗑️ REACTION API - Removing existing reaction")
-      const { error: deleteError } = await supabase
-        .from("build_story_reactions")
-        .delete()
-        .eq("story_id", storyId)
-        .eq("user_id", user.id)
-        .eq("emoji", emoji)
+      if (existingReaction.emoji === emoji) {
+        // User clicked the same emoji - remove reaction
+        console.log("🗑️ REACTION API - Removing existing reaction")
+        const { error: deleteError } = await supabase
+          .from("build_story_reactions")
+          .delete()
+          .eq("story_id", storyId)
+          .eq("user_id", user.id)
 
-      if (deleteError) {
-        console.error("❌ REACTION API - Error deleting reaction:", deleteError)
-        return NextResponse.json({ error: "Failed to remove reaction" }, { status: 500 })
+        if (deleteError) {
+          console.error("❌ REACTION API - Error deleting reaction:", deleteError)
+          return NextResponse.json({ error: "Failed to remove reaction" }, { status: 500 })
+        }
+        userReaction = null
+      } else {
+        // User clicked different emoji - update existing reaction
+        console.log(`🔄 REACTION API - Updating reaction from ${existingReaction.emoji} to ${emoji}`)
+        const { error: updateError } = await supabase
+          .from("build_story_reactions")
+          .update({ emoji: emoji })
+          .eq("story_id", storyId)
+          .eq("user_id", user.id)
+
+        if (updateError) {
+          console.error("❌ REACTION API - Error updating reaction:", updateError)
+          return NextResponse.json({ error: "Failed to update reaction" }, { status: 500 })
+        }
+        userReaction = emoji
       }
-      reacted = false
     } else {
-      // Add reaction
+      // No existing reaction - create new one
       console.log("➕ REACTION API - Adding new reaction")
       const { error: insertError } = await supabase.from("build_story_reactions").insert({
         story_id: storyId,
@@ -73,7 +87,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         console.error("❌ REACTION API - Error inserting reaction:", insertError)
         return NextResponse.json({ error: "Failed to add reaction" }, { status: 500 })
       }
-      reacted = true
+      userReaction = emoji
     }
 
     // Get updated reaction counts for this story
@@ -110,7 +124,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     console.log("✅ REACTION API - Reaction toggle completed successfully")
 
     return NextResponse.json({
-      reacted,
+      userReaction, // null if removed, emoji string if added/updated
       reactions: reactionCounts,
     })
   } catch (error) {
