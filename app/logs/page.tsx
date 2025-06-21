@@ -83,7 +83,7 @@ export default function PinWallPage() {
       <div className="container mx-auto py-24 px-4 flex-grow relative">
 
       {/* Header */}
-      <section className="pt-24 px-6 pb-4 text-center">
+      <section className="py-4 px-6 text-center">
         <h1
           className="text-white text-3xl sm:text-5xl font-bold tracking-wider mb-4 glitch-text"
           data-text="THE HEIST BOARD"
@@ -91,11 +91,10 @@ export default function PinWallPage() {
           THE BUILD LOGS
         </h1>
         <h2 className="text-white text-2xl sm:text-4xl font-bold tracking-wider mb-4" data-text="Alt Text">
-          FOLLOW THE REAL-TIME PROGRESS OF INDIE MAKERS BUILDING IN PUBLIC.
+        EVERY COMMIT, DROP, AND MELTDOWN LOGGED IN PUBLIC.
         </h2>
         <p className="text-gray-200 max-w-2xl mx-auto font-semibold">
-          Every commit, drop, and meltdown logged in public.
-        </p>
+Follow the real-time progress of indie makers building in public.        </p>
       </section>
 
       {/* Yellow Caution Stripe with Crime Scene Text */}
