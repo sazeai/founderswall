@@ -114,7 +114,11 @@ export default async function LaunchPage() {
             "@type": "SoftwareApplication",
             "@id": `https://founderswall.com/launch/${product.slug}`,
             name: product.title,
-            description: product.description || `${product.title} - A product by ${product.founderName}`,
+            description: product.description
+              ? product.description.length > 300
+                ? product.description.substring(0, 297) + "..."
+                : product.description
+              : `${product.title} - A product by ${product.founderName}`,
             url: `https://founderswall.com/launch/${product.slug}`,
             applicationCategory: product.category || "BusinessApplication",
             operatingSystem: "Web",
