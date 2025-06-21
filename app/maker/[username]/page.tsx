@@ -95,6 +95,38 @@ type PersonSchema = {
   hasCreated?: any[]
 }
 
+type ProfilePageSchema = {
+  "@context": string
+  "@type": string
+  "@id": string
+  name: string
+  description: string
+  url: string
+  image: {
+    "@type": string
+    url: string
+    width: number
+    height: number
+  }
+  sameAs: any[]
+}
+
+const profilePageSchema: ProfilePageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker`,
+  name: "Maker Profile Page",
+  description: "Page displaying profiles of legendary builders on FoundersWall",
+  url: `${process.env.NEXT_PUBLIC_APP_URL}/maker`,
+  image: {
+    "@type": "ImageObject",
+    url: "/placeholder.svg?height=400&width=400&text=Maker+Profiles",
+    width: 400,
+    height: 400,
+  },
+  sameAs: [],
+}
+
 async function generateMakerSchema(mugshot: any, products: any[], username: string) {
   const supabase = await createClient()
 
@@ -135,73 +167,34 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
     },
   }
 
-  // Add products as CreativeWork
-  if (products.length > 0) {
-    personSchema["hasCreated"] = products.map((product) => ({
-      "@type": "SoftwareApplication",
-      "@id": `${process.env.NEXT_PUBLIC_APP_URL}/launch/${product.slug}#software`,
-      name: product.title,
-      description: product.description,
-      url: product.productUrl,
-      creator: {
-        "@type": "Person",
-        "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}#person`,
-      },
-      datePublished: product.launchDate,
-      aggregateRating:
-        product.upvotes > 0
-          ? {
-              "@type": "AggregateRating",
-              ratingValue: Math.min(5, Math.max(1, product.upvotes / 10 + 3)),
-              ratingCount: product.upvotes,
-              bestRating: 5,
-              worstRating: 1,
-            }
-          : undefined,
-    }))
-  }
-
-  // ProfilePage schema
-  const profilePageSchema = {
-    "@context": "https://schema.org",
-    "@type": "ProfilePage",
-    "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
-    mainEntity: {
+  // Create separate SoftwareApplication schemas
+  const softwareSchemas = products.map((product) => ({
+    "@type": "SoftwareApplication",
+    "@id": `${process.env.NEXT_PUBLIC_APP_URL}/launch/${product.slug}#software`,
+    name: product.title,
+    description:
+      product.description && product.description.length > 300
+        ? product.description.substring(0, 297) + "..."
+        : product.description,
+    url: product.productUrl,
+    creator: {
+      "@type": "Person",
       "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}#person`,
     },
-    name: `${mugshot.name} - Legendary Builder Profile`,
-    description: `Discover ${mugshot.name}'s maker journey, products, and achievements on FoundersWall`,
-    url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
-    isPartOf: {
-      "@type": "WebSite",
-      "@id": `${process.env.NEXT_PUBLIC_APP_URL}#website`,
-    },
-    breadcrumb: {
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "FoundersWall",
-          item: process.env.NEXT_PUBLIC_APP_URL,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Makers",
-          item: `${process.env.NEXT_PUBLIC_APP_URL}/launch`,
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: mugshot.name,
-          item: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
-        },
-      ],
-    },
-  }
+    datePublished: product.launchDate,
+    aggregateRating:
+      product.upvotes > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: Math.min(5, Math.max(1, product.upvotes / 10 + 3)),
+            ratingCount: product.upvotes,
+            bestRating: 5,
+            worstRating: 1,
+          }
+        : undefined,
+  }))
 
-  return [personSchema, profilePageSchema]
+  return [personSchema, profilePageSchema, ...softwareSchemas]
 }
 
 export default async function MakerProfilePage({ params }: { params: { username: string } }) {
@@ -257,12 +250,7 @@ export default async function MakerProfilePage({ params }: { params: { username:
         }}
       />
       <PublicHeader />
-      <MakerProfileClient
-        username={username}
-        mugshot={mugshot}
-        products={productsWithUpvotes}
-        launches={launches}
-      />
+      <MakerProfileClient username={username} mugshot={mugshot} products={productsWithUpvotes} launches={launches} />
     </>
   )
 }

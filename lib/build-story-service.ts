@@ -3,68 +3,36 @@ export class BuildStoryService {
 
   async getAllBuildStories() {
     try {
-      console.log("🔍 BUILD STORY SERVICE - Fetching all build stories")
+      console.log("🔍 BUILD STORY SERVICE - Fetching all build stories with authors")
 
-      // First, get all stories
-      const { data: stories, error: storiesError } = await this.supabase
+      const { data: stories, error } = await this.supabase
         .from("build_stories")
         .select(`
-          id,
-          slug,
-          title,
-          content,
-          created_at,
-          updated_at,
-          category,
-          user_id,
-          upvotes,
-          emoji_reactions
-        `)
+        id,
+        slug,
+        title,
+        content,
+        created_at,
+        updated_at,
+        category,
+        upvotes,
+        emoji_reactions,
+        mugshots!build_stories_user_id_fkey (
+          name,
+          image_url
+        )
+      `)
         .order("created_at", { ascending: false })
 
-      if (storiesError) {
-        console.error("❌ BUILD STORY SERVICE - Error fetching stories:", storiesError)
+      if (error) {
+        console.error("❌ BUILD STORY SERVICE - Error:", error)
         return []
       }
 
       console.log("✅ BUILD STORY SERVICE - Stories fetched:", stories?.length || 0)
 
-      if (!stories || stories.length === 0) {
-        return []
-      }
-
-      // Get unique user IDs
-      const userIds = [...new Set(stories.map((story) => story.user_id))]
-      console.log("👥 BUILD STORY SERVICE - Fetching authors for user IDs:", userIds)
-
-      // Fetch author info separately
-      const { data: authors, error: authorsError } = await this.supabase
-        .from("mugshots")
-        .select("user_id, name, image_url")
-        .in("user_id", userIds)
-
-      if (authorsError) {
-        console.error("❌ BUILD STORY SERVICE - Error fetching authors:", authorsError)
-        // Continue without authors rather than failing completely
-      }
-
-      console.log("👥 BUILD STORY SERVICE - Authors fetched:", authors?.length || 0)
-
-      // Create a map of user_id to author info
-      const authorMap = new Map()
-      if (authors) {
-        authors.forEach((author) => {
-          authorMap.set(author.user_id, {
-            name: author.name,
-            image_url: author.image_url,
-          })
-        })
-      }
-
-      // Transform the data to match the expected structure
-      const transformedStories = stories.map((story: any) => {
-        const author = authorMap.get(story.user_id)
-        return {
+      return (
+        stories?.map((story: any) => ({
           id: story.id,
           slug: story.slug,
           title: story.title,
@@ -75,16 +43,13 @@ export class BuildStoryService {
           upvotes: story.upvotes || 0,
           emoji_reactions: story.emoji_reactions || {},
           author: {
-            name: author?.name || "Anonymous",
-            image_url: author?.image_url || null,
+            name: story.mugshots?.name || "Anonymous",
+            image_url: story.mugshots?.image_url || null,
           },
-        }
-      })
-
-      console.log("✅ BUILD STORY SERVICE - Transformed stories:", transformedStories.length)
-      return transformedStories
+        })) || []
+      )
     } catch (error) {
-      console.error("💥 BUILD STORY SERVICE - Error in getAllBuildStories:", error)
+      console.error("💥 BUILD STORY SERVICE - Error:", error)
       return []
     }
   }
@@ -93,51 +58,32 @@ export class BuildStoryService {
     try {
       console.log("🔍 BUILD STORY SERVICE - Fetching story by slug:", slug)
 
-      // Get the story
-      const { data: story, error: storyError } = await this.supabase
+      const { data: story, error } = await this.supabase
         .from("build_stories")
         .select(`
-          id,
-          slug,
-          title,
-          content,
-          created_at,
-          updated_at,
-          category,
-          user_id,
-          upvotes,
-          emoji_reactions
-        `)
+        id,
+        slug,
+        title,
+        content,
+        created_at,
+        updated_at,
+        category,
+        upvotes,
+        emoji_reactions,
+        mugshots!build_stories_user_id_fkey (
+          name,
+          image_url
+        )
+      `)
         .eq("slug", slug)
         .single()
 
-      if (storyError) {
-        console.error("❌ BUILD STORY SERVICE - Error fetching story:", storyError)
-        throw new Error(`Story not found: ${storyError.message}`)
-      }
-
-      if (!story) {
+      if (error) {
+        console.error("❌ BUILD STORY SERVICE - Error:", error)
         throw new Error("Story not found")
       }
 
-      console.log("✅ BUILD STORY SERVICE - Story fetched:", story.id)
-
-      // Get author info separately
-      const { data: author, error: authorError } = await this.supabase
-        .from("mugshots")
-        .select("name, image_url")
-        .eq("user_id", story.user_id)
-        .single()
-
-      if (authorError) {
-        console.error("❌ BUILD STORY SERVICE - Error fetching author:", authorError)
-        // Continue without author info rather than failing
-      }
-
-      console.log("👤 BUILD STORY SERVICE - Author fetched:", author?.name || "Anonymous")
-
-      // Transform the data
-      const transformedStory = {
+      return {
         id: story.id,
         slug: story.slug,
         title: story.title,
@@ -148,15 +94,12 @@ export class BuildStoryService {
         upvotes: story.upvotes || 0,
         emoji_reactions: story.emoji_reactions || {},
         author: {
-          name: author?.name || "Anonymous",
-          image_url: author?.image_url || null,
+          name: story.mugshots?.name || "Anonymous",
+          image_url: story.mugshots?.image_url || null,
         },
       }
-
-      console.log("✅ BUILD STORY SERVICE - Story transformed successfully")
-      return transformedStory
     } catch (error) {
-      console.error("💥 BUILD STORY SERVICE - Error in getBuildStoryBySlug:", error)
+      console.error("💥 BUILD STORY SERVICE - Error:", error)
       throw error
     }
   }
@@ -225,12 +168,15 @@ export class BuildStoryService {
       return []
     }
   }
+
+  async getBuildStories() {
+    return this.getAllBuildStories()
+  }
 }
 
-// Named export for compatibility
 export const getBuildStories = async () => {
   const { createClient } = await import("@/utils/supabase/server")
-  const supabase = createClient()
+  const supabase = await createClient()
   const service = new BuildStoryService(supabase)
   return service.getAllBuildStories()
 }
