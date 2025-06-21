@@ -59,14 +59,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   try {
-    // Get dynamic content
-    const [mugshots, products, stories] = await Promise.all([getMugshots(), getProducts(), getBuildStories()])
+    // Get dynamic content with better error handling
+    const [mugshotsResult, productsResult, storiesResult] = await Promise.allSettled([
+      getMugshots(),
+      getProducts(),
+      getBuildStories(),
+    ])
+
+    // Extract successful results
+    const mugshots = mugshotsResult.status === "fulfilled" ? mugshotsResult.value : []
+    const products = productsResult.status === "fulfilled" ? productsResult.value : []
+    const stories = storiesResult.status === "fulfilled" ? storiesResult.value : []
+
+    console.log(
+      `Sitemap generation: ${mugshots.length} mugshots, ${products.length} products, ${stories.length} stories`,
+    )
 
     // Founder/Maker pages
     const founderPages: MetadataRoute.Sitemap = mugshots.map((mugshot) => {
-      // Normalize username for URL
+      // Create username slug from name
       const username = mugshot.name
         .toLowerCase()
+        .trim()
         .split(" ")
         .slice(0, 2) // Only first two words
         .join("-")
@@ -76,7 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
       return {
         url: `${baseUrl}/maker/${username}`,
-        lastModified: new Date(mugshot.updatedAt || mugshot.createdAt),
+        lastModified: new Date(mugshot.updated_at || mugshot.created_at || new Date()),
         changeFrequency: "weekly" as const,
         priority: mugshot.featured ? 0.9 : 0.7,
       }
@@ -85,7 +99,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Product launch pages
     const productPages: MetadataRoute.Sitemap = products.map((product) => ({
       url: `${baseUrl}/launch/${product.slug}`,
-      lastModified: new Date(product.updatedAt || product.launchDate),
+      lastModified: new Date(product.updated_at || product.launch_date || product.created_at || new Date()),
       changeFrequency: "weekly" as const,
       priority: 0.8,
     }))
@@ -93,10 +107,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Story pages
     const storyPages: MetadataRoute.Sitemap = stories.map((story) => ({
       url: `${baseUrl}/stories/${story.slug}`,
-      lastModified: new Date(story.updatedAt || story.createdAt),
+      lastModified: new Date(story.updated_at || story.created_at || new Date()),
       changeFrequency: "monthly" as const,
       priority: 0.6,
     }))
+
+    // Log the counts for debugging
+    console.log(`Sitemap URLs generated:`)
+    console.log(`- Static pages: ${staticPages.length}`)
+    console.log(`- Founder pages: ${founderPages.length}`)
+    console.log(`- Product pages: ${productPages.length}`)
+    console.log(`- Story pages: ${storyPages.length}`)
+    console.log(`- Total: ${staticPages.length + founderPages.length + productPages.length + storyPages.length}`)
 
     // Combine all pages
     return [...staticPages, ...founderPages, ...productPages, ...storyPages]

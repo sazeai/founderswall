@@ -67,69 +67,7 @@ export async function generateMetadata({ params }: { params: { username: string 
   }
 }
 
-type PersonSchema = {
-  "@context": string
-  "@type": string
-  "@id": string
-  name: any
-  description: string
-  url: string
-  image: {
-    "@type": string
-    url: any
-    width: number
-    height: number
-  }
-  sameAs: any[]
-  jobTitle: string
-  worksFor: {
-    "@type": string
-    name: string
-  }
-  knowsAbout: string[]
-  hasCredential: {
-    "@type": string
-    name: string
-    description: string
-  }
-  hasCreated?: any[]
-}
-
-type ProfilePageSchema = {
-  "@context": string
-  "@type": string
-  "@id": string
-  name: string
-  description: string
-  url: string
-  image: {
-    "@type": string
-    url: string
-    width: number
-    height: number
-  }
-  sameAs: any[]
-}
-
-const profilePageSchema: ProfilePageSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker`,
-  name: "Maker Profile Page",
-  description: "Page displaying profiles of legendary builders on FoundersWall",
-  url: `${process.env.NEXT_PUBLIC_APP_URL}/maker`,
-  image: {
-    "@type": "ImageObject",
-    url: "/placeholder.svg?height=400&width=400&text=Maker+Profiles",
-    width: 400,
-    height: 400,
-  },
-  sameAs: [],
-}
-
 async function generateMakerSchema(mugshot: any, products: any[], username: string) {
-  const supabase = await createClient()
-
   // Calculate total upvotes
   const totalUpvotes = products.reduce((sum, product) => sum + (product.upvotes || 0), 0)
 
@@ -140,7 +78,8 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
     sameAs.push(`https://twitter.com/${mugshot.twitterHandle.replace("@", "")}`)
   }
 
-  const personSchema: PersonSchema = {
+  // Person Schema
+  const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
     "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}#person`,
@@ -167,8 +106,49 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
     },
   }
 
-  // Create separate SoftwareApplication schemas
+  // ProfilePage Schema
+  const profilePageSchema = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+    mainEntity: {
+      "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}#person`,
+    },
+    name: `${mugshot.name} - Legendary Builder Profile`,
+    description: `Discover ${mugshot.name}'s maker journey, products, and achievements on FoundersWall`,
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+    isPartOf: {
+      "@type": "WebSite",
+      "@id": `${process.env.NEXT_PUBLIC_APP_URL}#website`,
+    },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "FoundersWall",
+          item: process.env.NEXT_PUBLIC_APP_URL,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Makers",
+          item: `${process.env.NEXT_PUBLIC_APP_URL}/launch`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: mugshot.name,
+          item: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+        },
+      ],
+    },
+  }
+
+  // Create separate SoftwareApplication schemas for each product
   const softwareSchemas = products.map((product) => ({
+    "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "@id": `${process.env.NEXT_PUBLIC_APP_URL}/launch/${product.slug}#software`,
     name: product.title,
@@ -177,21 +157,23 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
         ? product.description.substring(0, 297) + "..."
         : product.description,
     url: product.productUrl,
+    datePublished: product.launchDate,
     creator: {
       "@type": "Person",
       "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}#person`,
+      name: mugshot.name,
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+      sameAs: sameAs,
     },
-    datePublished: product.launchDate,
-    aggregateRating:
-      product.upvotes > 0
-        ? {
-            "@type": "AggregateRating",
-            ratingValue: Math.min(5, Math.max(1, product.upvotes / 10 + 3)),
-            ratingCount: product.upvotes,
-            bestRating: 5,
-            worstRating: 1,
-          }
-        : undefined,
+    ...(product.upvotes > 0 && {
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: Math.min(5, Math.max(1, product.upvotes / 10 + 3)).toString(),
+        ratingCount: product.upvotes.toString(),
+        bestRating: "5",
+        worstRating: "1",
+      },
+    }),
   }))
 
   return [personSchema, profilePageSchema, ...softwareSchemas]
