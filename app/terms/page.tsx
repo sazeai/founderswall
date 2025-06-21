@@ -19,6 +19,51 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-black text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Terms of Service - FoundersWall",
+            description:
+              "Read FoundersWall's Terms of Service. Understand your rights and responsibilities when using our indie maker platform.",
+            url: "https://founderswall.com/terms",
+            mainEntity: {
+              "@type": "TermsOfService",
+              name: "FoundersWall Terms of Service",
+              dateModified: new Date().toISOString(),
+              publisher: {
+                "@type": "Organization",
+                name: "FoundersWall",
+                url: "https://founderswall.com",
+                contactPoint: {
+                  "@type": "ContactPoint",
+                  email: "warden@founderswall.com",
+                  contactType: "customer service",
+                },
+              },
+            },
+            breadcrumb: {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: "https://founderswall.com",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Terms of Service",
+                  item: "https://founderswall.com/terms",
+                },
+              ],
+            },
+          }),
+        }}
+      />
       <PublicHeader />
 
       <main className="container mx-auto px-4 pb-12 pt-24 max-w-4xl">
@@ -162,7 +207,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-yellow-400 mb-4">12. Contact Information</h2>
               <p className="text-gray-300">
-                 If you have any questions about this Terms of Service, please contact us at warden@founderswall.com
+                If you have any questions about this Terms of Service, please contact us at warden@founderswall.com
               </p>
             </section>
           </div>

@@ -117,15 +117,12 @@ export function PublicHeader() {
               label="The Heist Board"
               active={pathname === "/launch" || pathname.startsWith("/launch/")}
             />
+            <NavLink href="/logs" label="Build Logs" active={pathname === "/logs"} />
+            <NavLink href="/uplift" label="Uplift" active={pathname === "/uplift"} />
             <NavLink
-              href="/logs"
-              label="Build Logs"
-              active={pathname === "/logs"}
-            />
-            <NavLink
-              href="/uplift"
-              label="Uplift"
-              active={pathname === "/uplift"}
+              href="/ghost"
+              label="Ghost Projects"
+              active={pathname === "/ghost" || pathname.startsWith("/ghost/")}
             />
 
             {/* Show loading state while checking auth */}
@@ -210,15 +207,12 @@ export function PublicHeader() {
                     label="The Heist Board"
                     active={pathname === "/launch" || pathname.startsWith("/launch/")}
                   />
+                  <MobileNavLink href="/logs" label="Build Logs" active={pathname === "/logs"} />
+                  <MobileNavLink href="/uplift" label="Uplift" active={pathname === "/uplift"} />
                   <MobileNavLink
-                    href="/logs"
-                    label="Build Logs"
-                    active={pathname === "/logs"}
-                  />
-                  <MobileNavLink
-                    href="/uplift"
-                    label="Uplift"
-                    active={pathname === "/uplift"}
+                    href="/ghost"
+                    label="Ghost Projects"
+                    active={pathname === "/ghost" || pathname.startsWith("/ghost/")}
                   />
 
                   {isLoading ? (

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import type { User } from "@supabase/supabase-js"
-import { LogOut, ChevronDown, UserIcon, FileText, Camera, Home, Loader2 } from "lucide-react"
+import { LogOut, ChevronDown, UserIcon, FileText, Camera, Home, Loader2, Ghost } from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
 
 interface StationHeaderProps {
@@ -52,9 +52,9 @@ export default function StationHeader({ user }: StationHeaderProps) {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6">
-             <Link href="/" className="flex items-center">
-            <img src="/founderwall-logo.png" alt="FoundersWall" className="h-8 md:h-10" />
-          </Link>
+            <Link href="/" className="flex items-center">
+              <img src="/founderwall-logo.png" alt="FoundersWall" className="h-8 md:h-10" />
+            </Link>
 
             <nav className="hidden md:flex items-center space-x-4">
               <Link href="/station" className="px-3 py-2 text-gray-300 hover:text-white transition-colors">
@@ -85,6 +85,13 @@ export default function StationHeader({ user }: StationHeaderProps) {
                 <span className="flex items-center">
                   <FileText className="w-4 h-4 mr-2" />
                   Request Support
+                </span>
+              </Link>
+              {/* ONLY ADDITION - story  Link */}
+              <Link href="/station/submit-story" className="px-3 py-2 text-gray-300 hover:text-white transition-colors">
+                <span className="flex items-center">
+                  <Ghost className="w-4 h-4 mr-2" />
+                  Submit Story
                 </span>
               </Link>
             </nav>
@@ -155,7 +162,7 @@ export default function StationHeader({ user }: StationHeaderProps) {
             className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors"
           >
             <Camera className="w-5 h-5 mx-auto" />
-            <span className="text-xs">Mugshot </span>
+            <span className="text-xs">Mugshot</span>
           </Link>
           <Link href="/launch" className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors">
             <FileText className="w-5 h-5 mx-auto" />
@@ -165,9 +172,20 @@ export default function StationHeader({ user }: StationHeaderProps) {
             <FileText className="w-5 h-5 mx-auto" />
             <span className="text-xs">Uplift</span>
           </Link>
-          <Link href="/station/show-up" className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors">
+          <Link
+            href="/station/show-up"
+            className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors"
+          >
             <FileText className="w-5 h-5 mx-auto" />
             <span className="text-xs">Request</span>
+          </Link>
+          {/* ONLY ADDITION - Ghost Projects Mobile Link */}
+          <Link
+            href="/station/submit-ghost"
+            className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors"
+          >
+            <Ghost className="w-5 h-5 mx-auto" />
+            <span className="text-xs">Ghost</span>
           </Link>
         </div>
       </div>

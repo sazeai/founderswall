@@ -11,6 +11,23 @@ import { PublicHeader } from "@/components/public-header"
 import TimelineSection from "./timeline-section"
 import type { Metadata } from "next"
 
+// Smart description function for schema
+function getSchemaDescription(product: any) {
+  // 1. Use summary points if available (join first 2-3 points)
+  if (product.summary && product.summary.length > 0) {
+    const summaryText = product.summary.slice(0, 2).join(". ") + "."
+    return summaryText.length > 160 ? summaryText.substring(0, 157) + "..." : summaryText
+  }
+
+  // 2. Truncate description to 160 chars
+  if (product.description) {
+    return product.description.length > 160 ? product.description.substring(0, 157) + "..." : product.description
+  }
+
+  // 3. Fallback
+  return `${product.title} - A legendary build by ${product.founderName || "an indie maker"}`
+}
+
 // Add metadata generation for individual product pages
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const normalizedSlug = params.slug.toLowerCase()
@@ -130,9 +147,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 "@type": "SoftwareApplication",
                 "@id": `https://founderswall.com/launch/${product.slug}#software`,
                 name: product.title,
-                description:
-                  product.description ||
-                  `${product.title} - A legendary build by ${product.founderName || "an indie maker"}`,
+                description: getSchemaDescription(product),
                 url: product.productUrl,
                 applicationCategory: product.category || "BusinessApplication",
                 operatingSystem: "Web",
@@ -143,7 +158,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   availability: "https://schema.org/InStock",
                 },
                 screenshot: product.screenshotUrl,
-                logo: product.logoUrl,
                 datePublished: product.launchDate,
                 creator: {
                   "@type": "Person",
@@ -200,9 +214,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 "@id": `https://founderswall.com/launch/${product.slug}#webpage`,
                 url: `https://founderswall.com/launch/${product.slug}`,
                 name: `${product.title} by ${product.founderName || "Unknown Builder"} - FoundersWall`,
-                description:
-                  product.description ||
-                  `${product.title} - A legendary build by ${product.founderName || "an indie maker"}`,
+                description: getSchemaDescription(product),
                 datePublished: product.launchDate,
                 dateModified: product.updatedAt || product.launchDate,
                 mainEntity: {
@@ -378,11 +390,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
                         <UpvoteButton productSlug={product.slug} initialUpvotes={product.upvotes || 0} />
 
                         {product.productUrl && (
-                          <Button asChild className="bg-red-600 hover:bg-red-700 text-white" size="sm">
-                            <a href={product.productUrl} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="h-4 w-4 mr-2" /> Visit Website
-                            </a>
-                          </Button>
+                          <a
+                            href={product.productUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded inline-flex items-center font-medium transition-colors"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" /> Visit Website
+                          </a>
                         )}
                       </div>
                     </div>
@@ -575,7 +590,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                             <a
                               href={product.productUrl}
                               target="_blank"
-                              rel="noopener noreferrer"
+                              rel="nofollow noopener noreferrer"
                               className="flex items-center gap-2 group"
                             >
                               <div className="p-2 bg-zinc-700/50 border border-yellow-500 rounded-sm group-hover:shadow-md group-hover:shadow-red-600/50 transition-shadow">
@@ -598,7 +613,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                                 <Twitter className="h-5 w-5 text-blue-400 group-hover:text-blue-300" />
                               </div>
                               <span className="font-[Permanent Marker] text-yellow-400 text-sm border-b border-yellow-500">
-                                Suspect's Twitter
+                                Builders' Twitter
                               </span>
                             </a>
                           )}
@@ -607,14 +622,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
                             <a
                               href={product.socialLinks.github}
                               target="_blank"
-                              rel="noopener noreferrer"
+                              rel="nofollow noopener noreferrer"
                               className="flex items-center gap-2 group"
                             >
                               <div className="p-2 bg-zinc-700/50 border border-yellow-500 rounded-sm group-hover:shadow-md group-hover:shadow-red-600/50 transition-shadow">
                                 <Github className="h-5 w-5 text-blue-400 group-hover:text-blue-300" />
                               </div>
                               <span className="font-[Permanent Marker] text-yellow-400 text-sm border-b border-yellow-500">
-                                Suspect's GitHub
+                                Builders' GitHub
                               </span>
                             </a>
                           )}

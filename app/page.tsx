@@ -149,24 +149,38 @@ export default function Home() {
 
   // Generate JSON-LD Schema for homepage
   const generateHomePageSchema = () => {
-    const schema = {
+    const webPageSchema = {
       "@context": "https://schema.org",
       "@type": "WebPage",
       "@id": "https://founderswall.com/#webpage",
       url: "https://founderswall.com",
       name: "FoundersWall – A Public Log of Legendary Builders",
-      isPartOf: {
-        "@id": "https://founderswall.com/#website",
-      },
-      about: {
-        "@id": "https://founderswall.com/#organization",
-      },
       description:
         "Discover and explore top indie makers. FoundersWall is where the most consistent, creative, and relentless builders get tracked, logged, and celebrated.",
-      breadcrumb: {
-        "@id": "https://founderswall.com/#breadcrumb",
-      },
       inLanguage: "en-US",
+      isPartOf: {
+        "@type": "WebSite",
+        "@id": "https://founderswall.com/#website",
+        name: "FoundersWall",
+        url: "https://founderswall.com",
+      },
+      about: {
+        "@type": "Organization",
+        "@id": "https://founderswall.com/#organization",
+        name: "FoundersWall",
+        description: "A platform for indie makers to showcase their builds and connect with the community",
+      },
+      breadcrumb: {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://founderswall.com",
+          },
+        ],
+      },
       potentialAction: [
         {
           "@type": "ReadAction",
@@ -203,11 +217,11 @@ export default function Home() {
 
       return {
         "@context": "https://schema.org",
-        "@graph": [schema, featuredSchema],
+        "@graph": [webPageSchema, featuredSchema],
       }
     }
 
-    return schema
+    return webPageSchema
   }
 
   // Generate torn paper effect
@@ -285,7 +299,6 @@ export default function Home() {
     try {
       const mugshotsData = await getMugshots()
 
-
       // Fetch products directly from API
       const productsResponse = await fetch("/api/products?limit=1000")
       const productsData = await productsResponse.json()
@@ -303,8 +316,6 @@ export default function Home() {
           }
         })
       }
-
-  
 
       setProductCounts(counts)
     } catch (err) {
@@ -731,41 +742,41 @@ export default function Home() {
   // Add this above the return statement in your Home component:
   const wallCards = [
     {
-      title: '🔧 Build Logs',
-      color: 'text-red-600',
-      desc: 'Raw updates. No filters. Like digital graffiti. Just ship and log it.',
-      stamp: 'EVIDENCE',
+      title: "🔧 Build Logs",
+      color: "text-red-600",
+      desc: "Raw updates. No filters. Like digital graffiti. Just ship and log it.",
+      stamp: "EVIDENCE",
       stain: true,
     },
     {
-      title: '📢 Uplifts',
-      color: 'text-yellow-600',
-      desc: 'Boost the builders who show up. No likes. Just recognition from the real ones.',
-      stamp: '',
+      title: "📢 Uplifts",
+      color: "text-yellow-600",
+      desc: "Boost the builders who show up. No likes. Just recognition from the real ones.",
+      stamp: "",
       stain: false,
     },
     {
-      title: '🧠 Mental Logs',
-      color: 'text-blue-600',
-      desc: 'Rants, wins, burnout. Track the chaos behind the code.',
-      stamp: 'CONFIDENTIAL',
+      title: "🧠 Mental Logs",
+      color: "text-blue-600",
+      desc: "Rants, wins, burnout. Track the chaos behind the code.",
+      stamp: "CONFIDENTIAL",
       stain: true,
     },
     {
-      title: '📸 Product Drops',
-      color: 'text-pink-600',
+      title: "📸 Product Drops",
+      color: "text-pink-600",
       desc: "What you've launched. No leaderboard. Just receipts.",
-      stamp: '',
+      stamp: "",
       stain: false,
     },
     {
-      title: '🧷 Pins & Threads',
-      color: 'text-green-600',
-      desc: 'Connect your chaos. Thread your logs into a timeline.',
-      stamp: '',
+      title: "🧷 Pins & Threads",
+      color: "text-green-600",
+      desc: "Connect your chaos. Thread your logs into a timeline.",
+      stamp: "",
       stain: true,
     },
-  ];
+  ]
 
   return (
     <main className="min-h-screen flex flex-col bg-black overflow-x-hidden">
@@ -822,7 +833,7 @@ export default function Home() {
             {/* Left Side - Typography */}
             <div className="text-center lg:text-left order-2 lg:order-1">
               <div className="mb-6 lg:mb-8 relative">
-              <div className="absolute -bottom-4 left-0 lg:relative lg:bottom-auto lg:left-auto lg:inline-block lg:ml-4 lg:mt-2">
+                <div className="absolute -bottom-4 left-0 lg:relative lg:bottom-auto lg:left-auto lg:inline-block lg:ml-4 lg:mt-2">
                   <div className="bg-yellow-400 text-black px-3 py-1 text-xs lg:text-sm font-bold transform rotate-[-12deg] shadow-lg border-2 border-black">
                     WANTED
                   </div>
@@ -837,16 +848,14 @@ export default function Home() {
                   <span className="block">FOUNDERS</span>
                   <span className="block -mt-2 lg:-mt-4">WALL</span>
                 </h1>
-               
               </div>
 
               <div className="mb-6 lg:mb-8">
                 <h2 className="text-white text-xl sm:text-2xl lg:text-3xl font-bold mb-2 lg:mb-3">
-                Where the shipping never stops, and the dopamine never hits.
+                  Where the shipping never stops, and the dopamine never hits.
                 </h2>
                 <p className="text-yellow-200 text-base font-handwriting sm:text-lg lg:text-xl">
-                Built for the ones who ship quietly, fail publicly, and don't stop.
-
+                  Built for the ones who ship quietly, fail publicly, and don't stop.
                 </p>
               </div>
 
@@ -902,7 +911,8 @@ export default function Home() {
                   <div
                     className="absolute inset-0 pointer-events-none rounded-lg"
                     style={{
-                      backgroundImage: "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
+                      backgroundImage:
+                        "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
                       backgroundSize: "cover",
                       opacity: 0.18,
                       mixBlendMode: "luminosity",
@@ -910,14 +920,31 @@ export default function Home() {
                     }}
                   />
                   {/* Hand-drawn border (SVG) */}
-                  <svg className="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <rect x="2" y="2" width="96" height="96" fill="none" stroke="black" strokeDasharray="6,4" strokeWidth="2"/>
+                  <svg
+                    className="absolute inset-0 w-full h-full pointer-events-none z-30"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                  >
+                    <rect
+                      x="2"
+                      y="2"
+                      width="96"
+                      height="96"
+                      fill="none"
+                      stroke="black"
+                      strokeDasharray="6,4"
+                      strokeWidth="2"
+                    />
                   </svg>
                   {/* Body */}
                   <div className="relative z-40 text-black font-handwriting font-medium  whitespace-pre-line leading-snug">
-                    FoundersWall is where indie hackers log their <span className="text-red-600 font-bold">chaos</span>.<br/>
-                    Not polished posts. Not follower farming.<br/>
-                    Just proof that you're <span className="text-green-700 font-bold">alive</span> and building.<br/><br/>
+                    FoundersWall is where indie hackers log their <span className="text-red-600 font-bold">chaos</span>.
+                    <br />
+                    Not polished posts. Not follower farming.
+                    <br />
+                    Just proof that you're <span className="text-green-700 font-bold">alive</span> and building.
+                    <br />
+                    <br />
                     <span className="text-yellow-700 font-bold">It's gritty. It's public. It's real.</span>
                   </div>
                 </div>
@@ -1195,17 +1222,23 @@ export default function Home() {
       </section>
       <section className="relative py-16 px-4 sm:px-8 lg:px-16 bg-[#18181b] text-white overflow-hidden">
         {/* Dirty texture overlay */}
-        <div className="absolute inset-0 pointer-events-none z-0" style={{
-          backgroundImage: "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
-          backgroundSize: 'cover',
-          opacity: 0.18,
-          mixBlendMode: 'luminosity',
-        }} />
+        <div
+          className="absolute inset-0 pointer-events-none z-0"
+          style={{
+            backgroundImage:
+              "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
+            backgroundSize: "cover",
+            opacity: 0.18,
+            mixBlendMode: "luminosity",
+          }}
+        />
         <div className="max-w-5xl mx-auto relative z-10">
           {/* Torn Sticky Note Heading */}
           <div className="flex items-center justify-center mb-12 relative">
-           
-            <div className="font-handwriting text-2xl sm:text-3xl font-bold uppercase" style={{ transform: 'rotate(-3deg)', letterSpacing: '2px', textShadow: '1px 1px 0 #fff', border: 'none' }}>
+            <div
+              className="font-handwriting text-2xl sm:text-3xl font-bold uppercase"
+              style={{ transform: "rotate(-3deg)", letterSpacing: "2px", textShadow: "1px 1px 0 #fff", border: "none" }}
+            >
               ✦ WHAT HAPPENS ON THE WALL ✦
             </div>
           </div>
@@ -1217,46 +1250,80 @@ export default function Home() {
                 className="relative bg-yellow-200 px-4 pt-4 pb-6 font-handwriting text-black"
                 style={{
                   transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (3 + Math.random() * 3)}deg) translateY(${Math.random() * 8 - 4}px)`,
-                  minHeight: '90px',
-                  boxShadow: '2px 2px 0 #000',
-                  border: 'none',
-                  marginTop: i % 2 === 0 ? '0px' : '16px',
-                  marginBottom: i % 2 === 1 ? '0px' : '8px',
+                  minHeight: "90px",
+                  boxShadow: "2px 2px 0 #000",
+                  border: "none",
+                  marginTop: i % 2 === 0 ? "0px" : "16px",
+                  marginBottom: i % 2 === 1 ? "0px" : "8px",
                 }}
               >
                 {/* Pin */}
-                <div className="absolute left-1/2 -top-4 z-20" style={{ transform: 'translateX(-50%)' }}>
+                <div className="absolute left-1/2 -top-4 z-20" style={{ transform: "translateX(-50%)" }}>
                   <div className="w-4 h-4 bg-red-500 rounded-full shadow border-2 border-red-700" />
                 </div>
                 {/* Dirty paper texture overlay */}
-                <div className="absolute inset-0 pointer-events-none rounded-lg" style={{
-                  backgroundImage: "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
-                  backgroundSize: 'cover',
-                  opacity: 0.18,
-                  mixBlendMode: 'luminosity',
-                  zIndex: 10,
-                }} />
+                <div
+                  className="absolute inset-0 pointer-events-none rounded-lg"
+                  style={{
+                    backgroundImage:
+                      "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
+                    backgroundSize: "cover",
+                    opacity: 0.18,
+                    mixBlendMode: "luminosity",
+                    zIndex: 10,
+                  }}
+                />
                 {/* Stamp */}
                 {card.stamp && (
-                  <div className="absolute top-3 right-3 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded rotate-[-8deg] shadow z-30 tracking-widest opacity-80" style={{ letterSpacing: '2px' }}>{card.stamp}</div>
+                  <div
+                    className="absolute top-3 right-3 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded rotate-[-8deg] shadow z-30 tracking-widest opacity-80"
+                    style={{ letterSpacing: "2px" }}
+                  >
+                    {card.stamp}
+                  </div>
                 )}
                 {/* Coffee stain */}
                 {card.stain && (
-                  <svg className="absolute left-6 bottom-3 z-30 opacity-30" width="48" height="48" viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="20" ry="8" fill="none" stroke="#222" strokeWidth="2" strokeDasharray="4 4" /></svg>
+                  <svg className="absolute left-6 bottom-3 z-30 opacity-30" width="48" height="48" viewBox="0 0 48 48">
+                    <ellipse
+                      cx="24"
+                      cy="24"
+                      rx="20"
+                      ry="8"
+                      fill="none"
+                      stroke="#222"
+                      strokeWidth="2"
+                      strokeDasharray="4 4"
+                    />
+                  </svg>
                 )}
-                <h3 className={`${card.color} text-lg font-handwriting font-bold z-20 relative`} style={{letterSpacing:'1px',textShadow:'1px 1px 0 #fff',marginBottom:'0'}}>{card.title}</h3>
-                <p className="text-black text-sm font-medium z-20 relative font-mono leading-snug" style={{marginTop:'0',marginBottom:'0'}}>{card.desc}</p>
+                <h3
+                  className={`${card.color} text-lg font-handwriting font-bold z-20 relative`}
+                  style={{ letterSpacing: "1px", textShadow: "1px 1px 0 #fff", marginBottom: "0" }}
+                >
+                  {card.title}
+                </h3>
+                <p
+                  className="text-black text-sm font-medium z-20 relative font-mono leading-snug"
+                  style={{ marginTop: "0", marginBottom: "0" }}
+                >
+                  {card.desc}
+                </p>
               </div>
             ))}
           </div>
 
           <div className="mt-12 text-center">
             <p className="text-yellow-300 mb-4 font-mono text-sm">
-              Got a startup? A mess?<br />
+              Got a startup? A mess?
+              <br />
               Cool. That's all you need to show up here.
             </p>
             <Link href="/login" passHref legacyBehavior>
-              <a className="bg-red-700 hover:bg-red-800 text-yellow-100 py-3 px-8 rounded-full font-extrabold text-lg shadow-lg border-2 border-yellow-400 tracking-wider font-handwriting inline-block" style={{ letterSpacing: '2px', boxShadow: '4px 4px 0 #000', textShadow: '1px 1px 0 #000' }}>
+              <a
+                className="bg-red-700 hover:bg-red-800 text-yellow-100 py-3 px-8 rounded-full font-extrabold text-lg shadow-lg border-2 border-yellow-400 tracking-wider font-handwriting inline-block"
+                style={{ letterSpacing: "2px", boxShadow: "4px 4px 0 #000", textShadow: "1px 1px 0 #000" }}
+              >
                 Get on the Wall
               </a>
             </Link>

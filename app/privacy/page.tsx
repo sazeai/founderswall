@@ -19,6 +19,51 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-black text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Privacy Policy - FoundersWall",
+            description:
+              "Learn how FoundersWall collects, uses, and protects your personal information. Our commitment to your privacy and data security.",
+            url: "https://founderswall.com/privacy",
+            mainEntity: {
+              "@type": "PrivacyPolicy",
+              name: "FoundersWall Privacy Policy",
+              dateModified: new Date().toISOString(),
+              publisher: {
+                "@type": "Organization",
+                name: "FoundersWall",
+                url: "https://founderswall.com",
+                contactPoint: {
+                  "@type": "ContactPoint",
+                  email: "warden@founderswall.com",
+                  contactType: "customer service",
+                },
+              },
+            },
+            breadcrumb: {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: "https://founderswall.com",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Privacy Policy",
+                  item: "https://founderswall.com/privacy",
+                },
+              ],
+            },
+          }),
+        }}
+      />
       <PublicHeader />
 
       <main className="container mx-auto px-4 pb-12 pt-24 max-w-4xl">

@@ -114,7 +114,7 @@ export default function CriminalModal({ criminal, onClose }: CriminalModalProps)
                   <a
                     href={criminal.productUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="nofollow noopener noreferrer"
                     className="text-blue-600 hover:underline break-words"
                   >
                     {criminal.productUrl?.replace(/(^\w+:|^)\/\//, "") || "N/A"}
@@ -123,9 +123,9 @@ export default function CriminalModal({ criminal, onClose }: CriminalModalProps)
                 <p className="text-gray-800 leading-tight">
                   <span className="font-bold">Known Alias:</span>{" "}
                   <a
-                    href={`https://twitter.com/${criminal.twitterHandle?.replace("@", "")}`}
+                    href={`https://x.com/${criminal.twitterHandle?.replace("@", "")}`}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="nofollow noopener noreferrer"
                     className="text-blue-600 hover:underline"
                   >
                     {criminal.twitterHandle || "N/A"}

@@ -233,4 +233,4 @@ export function AddLogModal({ isOpen, onClose, onLogPosted }: AddLogModalProps) 
       </DialogContent>
     </Dialog>
   );
-} 
+}

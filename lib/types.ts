@@ -89,6 +89,54 @@ export interface Product {
   imageUrl: string // To fix missing property error
 }
 
+export interface BuildStory {
+  id: string
+  slug: string
+  founder_id: string
+  founder?: {
+    id: string
+    name: string
+    image_url: string | null
+  }
+  title: string
+  category: "win" | "fail" | "hack"
+  content: string
+  upvotes: number
+  reactions: {
+    [key: string]: number
+  }
+  created_at: string
+  updated_at: string
+}
+
+export interface BuildStoryFormData {
+  title: string
+  category: "win" | "fail" | "hack"
+  content: string
+}
+
+export interface BuildStoryReaction {
+  id: string
+  story_id: string
+  user_id: string
+  emoji: string
+  created_at: string
+}
+
+export interface BuildStoryUpvote {
+  id: string
+  story_id: string
+  user_id: string
+  created_at: string
+}
+
+export interface CreateBuildStoryData {
+  title: string
+  category: "win" | "fail" | "hack"
+  content: string
+  author_id: string
+}
+
 export interface TimelineEntry {
   id: string
   productId: string

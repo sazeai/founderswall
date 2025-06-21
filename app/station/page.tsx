@@ -2,8 +2,7 @@ import type React from "react"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/server"
 import { Camera, FileText, Users, Eye, Edit, Crown, Star, PlusCircle } from "lucide-react"
-import { StationHeaderClient } from '@/components/StationHeaderClient';
-import { YourLogsWall } from '@/components/YourLogsWall';
+import { StationHeaderClient } from "@/components/StationHeaderClient"
 
 export default async function StationDashboard() {
   const supabase = await createClient()
@@ -79,7 +78,7 @@ export default async function StationDashboard() {
         <h1 className="text-3xl font-bold text-white">Your Station</h1>
         <StationHeaderClient />
       </header>
-      
+
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 text-red-500 stamped-text">DETECTIVE STATION</h1>
@@ -166,7 +165,6 @@ export default async function StationDashboard() {
             linkHref="/station/logs"
             status="normal"
           />
-          
         </div>
       </div>
 
@@ -202,13 +200,24 @@ export default async function StationDashboard() {
               priority="normal"
             />
 
+            <CriminalActionCard
+              title="Submit Ghost Project"
+              description="List your abandoned project for others to learn or revive"
+              icon={<PlusCircle className="w-6 h-6" />}
+              href="/station/submit-ghost"
+              priority="normal"
+            />
+
             {userMugshot && (
               <CriminalActionCard
                 title="Share Your Arrest"
                 description="Spread the word about your criminal activity"
                 icon={<Users className="w-6 h-6" />}
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                  `Just got arrested on the #FoundersWall 🚨\nI'm officially guilty of building in public\n\n${process.env.NEXT_PUBLIC_APP_URL}/maker/${userMugshot.name.toLowerCase().replace(/\s+/g, "-")}`,
+                  `Just got arrested on the #FoundersWall 🚨
+I'm officially guilty of building in public
+
+${process.env.NEXT_PUBLIC_APP_URL}/maker/${userMugshot.name.toLowerCase().replace(/\s+/g, "-")}`,
                 )}`}
                 priority="normal"
                 external={true}
@@ -231,13 +240,19 @@ export default async function StationDashboard() {
               priority="normal"
             />
 
-          
-
             <CriminalActionCard
               title="Investigate Products"
               description="Browse the Heist Board for criminal Build Log"
               icon={<FileText className="w-6 h-6" />}
               href="/launch"
+              priority="normal"
+            />
+
+            <CriminalActionCard
+              title="Browse Ghost Projects"
+              description="Discover abandoned projects and hidden gems"
+              icon={<Eye className="w-6 h-6" />}
+              href="/ghost"
               priority="normal"
             />
             <div className="absolute -top-2 right-8 w-10 h-2 bg-yellow-400/80 rounded shadow-sm z-10"></div>
@@ -273,6 +288,8 @@ export default async function StationDashboard() {
           )}
         </div>
       </div>
+
+    
     </div>
   )
 }
@@ -293,9 +310,7 @@ function CriminalStatCard({
   status: "active" | "missing" | "normal"
 }) {
   return (
-    <div
-      className="bg-gray-900 border border-gray-800 rounded-xl shadow-md p-6"
-    >
+    <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-md p-6">
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-lg font-bold text-white">{title}</h3>
         {icon}
@@ -307,8 +322,8 @@ function CriminalStatCard({
           status === "missing"
             ? "text-red-400 hover:text-red-300"
             : status === "active"
-            ? "text-green-400 hover:text-green-300"
-            : "text-yellow-400 hover:text-yellow-300"
+              ? "text-green-400 hover:text-green-300"
+              : "text-yellow-400 hover:text-yellow-300"
         }`}
       >
         {linkText}

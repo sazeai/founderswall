@@ -286,4 +286,4 @@ export function PinCard({
   );
 }
 
-// Add a sticky-note-font class to your global CSS or tailwind config for a friendly, handwritten look 
+// Add a sticky-note-font class to your global CSS or tailwind config for a friendly, handwritten look

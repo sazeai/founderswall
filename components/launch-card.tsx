@@ -307,4 +307,4 @@ export function LaunchCard({ launch, currentUser }: LaunchCardProps) {
         </div>
       </div>
     )
-} 
+}

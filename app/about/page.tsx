@@ -18,10 +18,102 @@ export const metadata: Metadata = {
   },
 }
 
+// Generate JSON-LD Schema for About Page
+const generateAboutPageSchema = () => {
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "AboutPage",
+        "@id": "https://founderswall.com/about#webpage",
+        url: "https://founderswall.com/about",
+        name: "About FoundersWall | The Public Log of Legendary Builders",
+        description:
+          "Learn about FoundersWall and our mission to celebrate indie makers and builders. Discover how we're building the ultimate directory of builders, creators, and innovators.",
+        isPartOf: {
+          "@type": "WebSite",
+          "@id": "https://founderswall.com/#website",
+        },
+        mainEntity: {
+          "@id": "https://founderswall.com/#organization",
+        },
+        breadcrumb: {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: "https://founderswall.com",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "About",
+              item: "https://founderswall.com/about",
+            },
+          ],
+        },
+        inLanguage: "en-US",
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://founderswall.com/#organization",
+        name: "FoundersWall",
+        alternateName: "Founders Wall",
+        url: "https://founderswall.com",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://founderswall.com/founderwall-logo.png",
+          width: 400,
+          height: 100,
+        },
+        description:
+          "The public log of legendary indie makers. A platform where builders, creators, and innovators showcase their products and connect with the community.",
+        foundingDate: "2024",
+        founder: {
+          "@type": "Person",
+          name: "Harvansh",
+          url: "https://x.com/AINotSoSmart",
+        },
+        sameAs: ["https://x.com/AINotSoSmart"],
+        contactPoint: {
+          "@type": "ContactPoint",
+          email: "warden@founderswall.com",
+          contactType: "customer service",
+        },
+        address: {
+          "@type": "PostalAddress",
+          addressCountry: "US",
+        },
+        knowsAbout: [
+          "Indie Makers",
+          "Startup Founders",
+          "Product Launches",
+          "Bootstrapped Companies",
+          "Solo Entrepreneurs",
+          "Side Projects",
+        ],
+        audience: {
+          "@type": "Audience",
+          audienceType: "Indie Makers and Startup Founders",
+        },
+      },
+    ],
+  }
+}
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       <PublicHeader />
+      {/* JSON-LD Schema for About Page */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(generateAboutPageSchema()),
+        }}
+      />
 
       <main className="container mx-auto px-4 pb-12 pt-24 max-w-4xl">
         <div className="bg-gray-900 border-2 border-yellow-400 rounded-lg p-8 shadow-2xl">

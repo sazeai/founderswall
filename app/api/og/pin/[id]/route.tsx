@@ -234,4 +234,4 @@ export async function GET(req: NextRequest) {
     console.error('[OG Image Route] Error generating ImageResponse:', e);
     return new Response(`Error generating image: ${e.message}`, { status: 500 });
   }
-} 
+}

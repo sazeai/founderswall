@@ -75,7 +75,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://founderswall.com",
   },
- 
+    generator: 'v0.dev'
 }
 
 // Sitewide JSON-LD Schema

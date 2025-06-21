@@ -90,20 +90,52 @@ export default async function LaunchPage() {
   const generateLaunchPageSchema = () => {
     const baseSchema = {
       "@context": "https://schema.org",
-      "@type": "WebPage",
+      "@type": "CollectionPage",
       "@id": "https://founderswall.com/launch#webpage",
       url: "https://founderswall.com/launch",
       name: "The Heist Board - Most Wanted Products by Legendary Builders",
-      isPartOf: {
-        "@id": "https://founderswall.com/#website",
-      },
-      about: {
-        "@type": "Thing",
-        name: "Product Launches",
-        description: "Latest product launches from indie makers and startup builders",
-      },
       description:
         "Discover the latest product launches from indie makers and startup builders. Track the most wanted SaaS products, tools, and innovations from the legendary builder community.",
+      isPartOf: {
+        "@type": "WebSite",
+        "@id": "https://founderswall.com/#website",
+        name: "FoundersWall",
+        url: "https://founderswall.com",
+      },
+      mainEntity: {
+        "@type": "ItemList",
+        name: "Product Launches",
+        description: "Latest product launches from indie makers and startup builders",
+        numberOfItems: products.length,
+        itemListElement: products.slice(0, 20).map((product, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          item: {
+            "@type": "SoftwareApplication",
+            "@id": `https://founderswall.com/launch/${product.slug}`,
+            name: product.title,
+            description: product.description || `${product.title} - A product by ${product.founderName}`,
+            url: `https://founderswall.com/launch/${product.slug}`,
+            applicationCategory: product.category || "BusinessApplication",
+            operatingSystem: "Web",
+            datePublished: product.launchDate,
+            author: {
+              "@type": "Person",
+              name: product.founderName || "Unknown Founder",
+            },
+            aggregateRating:
+              product.upvotes > 0
+                ? {
+                    "@type": "AggregateRating",
+                    ratingValue: Math.min(5, Math.max(1, product.upvotes / 10 + 3)),
+                    reviewCount: product.upvotes,
+                    bestRating: 5,
+                    worstRating: 1,
+                  }
+                : undefined,
+          },
+        })),
+      },
       breadcrumb: {
         "@type": "BreadcrumbList",
         itemListElement: [
@@ -122,55 +154,13 @@ export default async function LaunchPage() {
         ],
       },
       inLanguage: "en-US",
-    }
-
-    // Add products as ItemList if available
-    if (products.length > 0) {
-      const productsSchema = {
-        "@type": "ItemList",
-        name: "Most Wanted Products",
-        description: "Latest product launches from legendary builders",
-        numberOfItems: products.length,
-        itemListElement: products.slice(0, 10).map((product, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
-          item: {
-            "@type": "SoftwareApplication",
-            "@id": `https://founderswall.com/launch/${product.slug}`,
-            name: product.title,
-            description: product.description || `${product.title} - A product by ${product.founderName}`,
-            url: `https://founderswall.com/launch/${product.slug}`,
-            applicationCategory: product.category || "BusinessApplication",
-            operatingSystem: "Web",
-            offers: {
-              "@type": "Offer",
-              price: "0",
-              priceCurrency: "USD",
-              availability: "https://schema.org/InStock",
-            },
-            author: {
-              "@type": "Person",
-              name: product.founderName || "Unknown Founder",
-            },
-            datePublished: product.launchDate,
-            aggregateRating:
-              product.upvotes > 0
-                ? {
-                    "@type": "AggregateRating",
-                    ratingValue: Math.min(5, Math.max(1, product.upvotes / 10 + 3)),
-                    reviewCount: product.upvotes,
-                    bestRating: 5,
-                    worstRating: 1,
-                  }
-                : undefined,
-          },
-        })),
-      }
-
-      return {
-        "@context": "https://schema.org",
-        "@graph": [baseSchema, productsSchema],
-      }
+      keywords: [
+        "product launches",
+        "indie maker products",
+        "startup launches",
+        "saas products",
+        "product hunt alternative",
+      ],
     }
 
     return baseSchema

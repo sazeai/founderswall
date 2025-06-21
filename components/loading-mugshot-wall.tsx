@@ -5,8 +5,8 @@ import { Eye, Database, Shield } from "lucide-react"
 
 export default function LoadingMugshotWall() {
   const [currentMessage, setCurrentMessage] = useState(0)
-  const [scanLinePosition, setScanLinePosition] = useState(0)
-  const [fakeProgress, setFakeProgress] = useState(0) // For visual effect only
+  const [fakeProgress, setFakeProgress] = useState(0)
+  const [isClient, setIsClient] = useState(false)
 
   const messages = [
     "ACCESSING DATABASE...",
@@ -17,32 +17,41 @@ export default function LoadingMugshotWall() {
     "AUTHENTICATING AGENT...",
   ]
 
+  // Only show loading animation on client-side (not for crawlers)
   useEffect(() => {
-    // Cycle messages for visual effect
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isClient) return
+
+    // Faster message cycling
     const messageTimer = setInterval(() => {
       setCurrentMessage((prev) => (prev + 1) % messages.length)
-    }, 350); // Slightly slower message cycle
+    }, 800) // Slower, less CPU intensive
 
-    // Animate scan line for visual effect
-    const scanLineTimer = setInterval(() => {
-      setScanLinePosition((prev) => (prev + 2) % 100);
-    }, 50);
-
-    // Animate fake progress for visual effect (completes quickly)
-    let progressValue = 0;
-    const fakeProgressTimer = setInterval(() => {
-      progressValue += 5;
-      if (progressValue > 100) progressValue = 100;
-      setFakeProgress(progressValue);
-      if (progressValue === 100) clearInterval(fakeProgressTimer); // Stop when full for visual calmness
-    }, 50);
+    // Simpler progress animation
+    let progressValue = 0
+    const progressTimer = setInterval(() => {
+      progressValue += 15 // Faster increments
+      if (progressValue > 100) progressValue = 100
+      setFakeProgress(progressValue)
+      if (progressValue === 100) {
+        clearInterval(progressTimer)
+        clearInterval(messageTimer)
+      }
+    }, 200) // Less frequent updates
 
     return () => {
       clearInterval(messageTimer)
-      clearInterval(scanLineTimer)
-      clearInterval(fakeProgressTimer)
+      clearInterval(progressTimer)
     }
-  }, [])
+  }, [isClient])
+
+  // Don't render anything on server-side (for SEO)
+  if (!isClient) {
+    return null
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
@@ -74,34 +83,29 @@ export default function LoadingMugshotWall() {
             </div>
           </div>
 
-          {/* Scanning interface */}
+          {/* Simplified scanning interface */}
           <div className="mb-4">
-            <div className="bg-black border border-red-500 rounded p-4 relative overflow-hidden">
-              {/* Scanning grid (visual only, driven by fakeProgress) */}
+            <div className="bg-black border border-red-500 rounded p-4">
+              {/* Simple progress grid */}
               <div className="grid grid-cols-10 gap-1 mb-3">
-                {Array.from({ length: 50 }, (_, i) => (
-                  <div
-                    key={i}
-                    className={`h-1 transition-all duration-100 ${
-                      i < (fakeProgress / 100) * 50 ? (i % 2 === 0 ? "bg-yellow-500" : "bg-red-500") : "bg-gray-800"
-                    }`}
-                  />
-                ))}
+                {Array.from(
+                  { length: 30 },
+                  (
+                    _,
+                    i, // Reduced from 50 to 30
+                  ) => (
+                    <div
+                      key={i}
+                      className={`h-1 transition-all duration-300 ${
+                        i < (fakeProgress / 100) * 30 ? "bg-yellow-500" : "bg-gray-800"
+                      }`}
+                    />
+                  ),
+                )}
               </div>
 
-              {/* Scanning line (visual only) */}
-              <div className="relative h-px bg-gray-800 overflow-hidden">
-                <div
-                  className="absolute top-0 h-full w-4 bg-gradient-to-r from-transparent via-yellow-400 to-transparent"
-                  style={{
-                    left: `${scanLinePosition}%`,
-                    filter: "blur(0.5px)",
-                  }}
-                />
-              </div>
-
-              {/* Status (visual only, driven by fakeProgress) */}
-              <div className="flex justify-between items-center mt-3 text-xs">
+              {/* Status */}
+              <div className="flex justify-between items-center text-xs">
                 <div className="flex items-center space-x-1">
                   <Database className="w-3 h-3 text-yellow-500" />
                   <span className="text-yellow-500">SUSPECTS</span>
@@ -117,7 +121,9 @@ export default function LoadingMugshotWall() {
 
           {/* Loading message */}
           <div className="text-center mb-4">
-            <p className="text-yellow-500 text-sm font-bold mb-1 transition-opacity duration-300">{messages[currentMessage]}</p>
+            <p className="text-yellow-500 text-sm font-bold mb-1 transition-opacity duration-300">
+              {messages[currentMessage]}
+            </p>
             <div className="flex justify-center space-x-1">
               {[0, 1, 2].map((i) => (
                 <div
@@ -129,7 +135,7 @@ export default function LoadingMugshotWall() {
             </div>
           </div>
 
-          {/* Progress bar (visual only, driven by fakeProgress) */}
+          {/* Progress bar */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-gray-400">
               <span>DATABASE ACCESS</span>

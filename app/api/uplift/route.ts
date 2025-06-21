@@ -48,4 +48,4 @@ export async function POST(request: Request) {
     console.error("Error processing request:", error)
     return NextResponse.json({ error: "Invalid request" }, { status: 400 })
   }
-} 
+}

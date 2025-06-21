@@ -76,4 +76,4 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
   }
 
   return NextResponse.json({ message: "Pledges removed" })
-} 
+}

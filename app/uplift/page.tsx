@@ -52,19 +52,25 @@ export default async function UpliftPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  let pastSupporters = new Set<string>()
+  const pastSupporters = new Set<string>()
   if (user) {
     const { data: myLaunches } = await supabase.from("launches").select("id").eq("user_id", user.id)
     if (myLaunches && myLaunches.length > 0) {
       const myLaunchIds = myLaunches.map((l) => l.id)
-      const { data: mySupporters } = await supabase.from("launch_supports").select("supporter_id").in("launch_id", myLaunchIds)
+      const { data: mySupporters } = await supabase
+        .from("launch_supports")
+        .select("supporter_id")
+        .in("launch_id", myLaunchIds)
       if (mySupporters) {
         mySupporters.forEach((s) => pastSupporters.add(s.supporter_id))
       }
     }
   }
 
-  const { data: launchesData, error: launchesError } = await supabase.from("launches").select("*").order("launch_date", { ascending: true })
+  const { data: launchesData, error: launchesError } = await supabase
+    .from("launches")
+    .select("*")
+    .order("launch_date", { ascending: true })
   const { data: supportsData, error: supportsError } = await supabase.from("launch_supports").select("*")
 
   if (launchesError || supportsError) {
@@ -72,8 +78,8 @@ export default async function UpliftPage() {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-500">Error Loading Launches</h1>
-            <p className="text-gray-400">There was a problem fetching the launch data. Please try again later.</p>
+          <h1 className="text-2xl font-bold text-red-500">Error Loading Launches</h1>
+          <p className="text-gray-400">There was a problem fetching the launch data. Please try again later.</p>
         </div>
       </div>
     )
@@ -106,22 +112,78 @@ export default async function UpliftPage() {
   })
 
   const today = new Date()
-  today.setHours(0,0,0,0);
+  today.setHours(0, 0, 0, 0)
 
   const todaysLaunches = launches.filter((l) => {
-    const launchDate = new Date(l.launch_date);
-    launchDate.setHours(0,0,0,0);
-    return launchDate.getTime() === today.getTime();
-  });
+    const launchDate = new Date(l.launch_date)
+    launchDate.setHours(0, 0, 0, 0)
+    return launchDate.getTime() === today.getTime()
+  })
 
   const upcomingLaunches = launches.filter((l) => {
-      const launchDate = new Date(l.launch_date);
-      launchDate.setHours(0,0,0,0);
-      return launchDate.getTime() > today.getTime();
-  });
+    const launchDate = new Date(l.launch_date)
+    launchDate.setHours(0, 0, 0, 0)
+    return launchDate.getTime() > today.getTime()
+  })
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "The Launch Alliance - Founders Backing Founders",
+            description:
+              "The weekly thread for builders launching soon. Pledge your support and get backed by the alliance.",
+            url: "https://founderswall.com/uplift",
+            mainEntity: {
+              "@type": "ItemList",
+              name: "Launch Support Requests",
+              description: "Indie makers requesting support for their upcoming product launches",
+              numberOfItems: upcomingLaunches.length + todaysLaunches.length,
+              itemListElement: [...upcomingLaunches, ...todaysLaunches].map((launch, index) => ({
+                "@type": "SoftwareApplication",
+                position: index + 1,
+                name: launch.product_name,
+                description:
+                  launch.description || `${launch.product_name} by ${launch.mugshot?.name || "Anonymous Founder"}`,
+                url: `https://founderswall.com/uplift#${launch.id}`,
+                author: {
+                  "@type": "Person",
+                  name: launch.mugshot?.name || "Anonymous Founder",
+                  url: launch.mugshot ? `https://founderswall.com/maker/${launch.mugshot.username}` : undefined,
+                },
+                datePublished: launch.created_at,
+                applicationCategory: "ProductivityApplication",
+              })),
+            },
+            breadcrumb: {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: "https://founderswall.com",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Launch Alliance",
+                  item: "https://founderswall.com/uplift",
+                },
+              ],
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "FoundersWall",
+              url: "https://founderswall.com",
+            },
+          }),
+        }}
+      />
       <PublicHeader />
       {/* Header */}
       <section className="pt-24 px-6 pb-4 text-center">
@@ -131,17 +193,23 @@ export default async function UpliftPage() {
         >
           THE LAUNCH ALLIANCE
         </h1>
-        <h2 className="text-white text-2xl sm:text-4xl font-bold tracking-wider mb-4" data-text="FOUNDERS BACKING FOUNDERS">
+        <h2
+          className="text-white text-2xl sm:text-4xl font-bold tracking-wider mb-4"
+          data-text="FOUNDERS BACKING FOUNDERS"
+        >
           FOUNDERS BACKING FOUNDERS
         </h2>
         <p className="text-gray-200 max-w-2xl mx-auto font-semibold">
           The weekly thread for builders launching soon. Pledge your support and get backed by the alliance.
         </p>
-         <Link href="/station/show-up" className="mt-6 inline-block">
-            <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
-              + Request Support
-            </Button>
-          </Link>
+        <Link href="/station/show-up" className="mt-6 inline-block">
+          <Button
+            size="lg"
+            className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform"
+          >
+            + Request Support
+          </Button>
+        </Link>
       </section>
 
       {/* Yellow Caution Stripe */}
@@ -157,47 +225,47 @@ export default async function UpliftPage() {
           <span className="text-black text-xs font-bold tracking-wider uppercase">ALLIANCE BRIEFING - EYES ONLY</span>
         </div>
       </div>
-      
+
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="upcoming" className="w-full">
-            <TabsList className="grid grid-cols-2 mb-8 bg-zinc-900 border border-zinc-800">
-                <TabsTrigger value="upcoming" className="text-gray-200 font-semibold">
-                🗓️ Upcoming Missions
-                </TabsTrigger>
-                <TabsTrigger value="today" className="text-gray-200 font-semibold">
-                🚀 Today's Targets
-                </TabsTrigger>
-            </TabsList>
+          <TabsList className="grid grid-cols-2 mb-8 bg-zinc-900 border border-zinc-800">
+            <TabsTrigger value="upcoming" className="text-gray-200 font-semibold">
+              🗓️ Upcoming Missions
+            </TabsTrigger>
+            <TabsTrigger value="today" className="text-gray-200 font-semibold">
+              🚀 Today's Targets
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="upcoming">
-                {upcomingLaunches.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {upcomingLaunches.map((launch) => (
-                            <LaunchCard key={launch.id} launch={launch} currentUser={user} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-12 text-gray-400">
-                        <p>No upcoming missions on the roster. Check back soon!</p>
-                    </div>
-                )}
-            </TabsContent>
+          <TabsContent value="upcoming">
+            {upcomingLaunches.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {upcomingLaunches.map((launch) => (
+                  <LaunchCard key={launch.id} launch={launch} currentUser={user} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-400">
+                <p>No upcoming missions on the roster. Check back soon!</p>
+              </div>
+            )}
+          </TabsContent>
 
-            <TabsContent value="today">
-                {todaysLaunches.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {todaysLaunches.map((launch) => (
-                            <LaunchCard key={launch.id} launch={launch} currentUser={user} />
-                        ))}
-                    </div>
-                 ) : (
-                    <div className="text-center py-12 text-gray-400">
-                        <p>No launches targeted for today. All clear... for now.</p>
-                    </div>
-                )}
-            </TabsContent>
+          <TabsContent value="today">
+            {todaysLaunches.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {todaysLaunches.map((launch) => (
+                  <LaunchCard key={launch.id} launch={launch} currentUser={user} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-400">
+                <p>No launches targeted for today. All clear... for now.</p>
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
     </div>
   )
-} 
+}
