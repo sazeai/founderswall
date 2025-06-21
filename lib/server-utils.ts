@@ -19,3 +19,18 @@ export async function generateCaseIdServer(): Promise<string> {
   const nextNumber = (count || 0) + 1
   return `L${nextNumber.toString().padStart(3, "0")}`
 }
+
+export async function getUserFromCookie() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    return null
+  }
+
+  return user
+}

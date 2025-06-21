@@ -1,134 +1,155 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
+import { createClient } from "@/utils/supabase/server"
 
-export async function POST(request: Request) {
-  console.log("🚀 BUILD STORY POST - Route handler started")
+export async function POST(request: NextRequest) {
+  console.log("🚀 BUILD STORIES API - POST request received")
 
   try {
-    console.log("📝 BUILD STORY POST - Importing dependencies")
-    const { createClient } = await import("@/utils/supabase/server")
-
-    console.log("✅ BUILD STORY POST - Dependencies imported successfully")
-
-    console.log("📝 BUILD STORY POST - Creating Supabase client")
     const supabase = await createClient()
-    console.log("✅ BUILD STORY POST - Supabase client created")
 
-    console.log("👤 BUILD STORY POST - Getting authenticated user")
+    // Get the current user
     const {
       data: { user },
-      error: authError,
+      error: userError,
     } = await supabase.auth.getUser()
-    console.log("👤 BUILD STORY POST - Auth result:", user ? `User ID: ${user.id}` : "No user found", authError)
 
-    if (authError || !user) {
-      console.log("❌ BUILD STORY POST - No user authenticated")
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    console.log("👤 BUILD STORIES API - User check:", user ? `User ID: ${user.id}` : "No user found")
+
+    if (userError || !user) {
+      console.error("❌ BUILD STORIES API - Authentication error:", userError)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    console.log("📄 BUILD STORY POST - Parsing request body")
+    // Parse the request body
     const body = await request.json()
-    console.log("📄 BUILD STORY POST - Request body:", body)
+    console.log("📝 BUILD STORIES API - Request body:", {
+      title: body.title,
+      category: body.category,
+      contentLength: body.content?.length || 0,
+    })
 
     const { title, category, content } = body
 
     // Validate required fields
     if (!title || !category || !content) {
-      console.log("❌ BUILD STORY POST - Missing required fields")
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+      console.error("❌ BUILD STORIES API - Missing required fields")
+      return NextResponse.json({ error: "Missing required fields: title, category, content" }, { status: 400 })
     }
 
-    // Validate category
-    if (!["win", "fail", "hack"].includes(category)) {
-      console.log("❌ BUILD STORY POST - Invalid category:", category)
-      return NextResponse.json({ error: "Invalid category" }, { status: 400 })
-    }
-
-    console.log("🔧 BUILD STORY POST - Generating slug")
+    // Generate slug from title
     const slug = title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim()
       .substring(0, 50)
-    console.log("🔧 BUILD STORY POST - Generated slug:", slug)
 
-    console.log("💾 BUILD STORY POST - Preparing insert data")
-    const insertData = {
-      user_id: user.id, // Use user_id, not author_id
-      title: title,
-      slug: slug, // Add this line
-      category: category,
-      content: content,
-      upvotes: 0,
-      emoji_reactions: {}, // Use emoji_reactions, not reactions
-    }
-    console.log("💾 BUILD STORY POST - Insert data:", insertData)
+    console.log("🔗 BUILD STORIES API - Generated slug:", slug)
 
-    console.log("💾 BUILD STORY POST - Inserting into build_stories table")
-    const { data: story, error: insertError } = await supabase
+    // Check if slug already exists
+    const { data: existingStory, error: slugCheckError } = await supabase
       .from("build_stories")
-      .insert(insertData)
+      .select("id")
+      .eq("slug", slug)
+      .single()
+
+    if (slugCheckError && slugCheckError.code !== "PGRST116") {
+      console.error("❌ BUILD STORIES API - Error checking slug:", slugCheckError)
+      return NextResponse.json({ error: "Database error" }, { status: 500 })
+    }
+
+    // If slug exists, append timestamp
+    const finalSlug = existingStory ? `${slug}-${Date.now()}` : slug
+    console.log("🔗 BUILD STORIES API - Final slug:", finalSlug)
+
+    // Insert the story
+    const { data: newStory, error: insertError } = await supabase
+      .from("build_stories")
+      .insert({
+        user_id: user.id,
+        title: title.trim(),
+        category: category.toLowerCase(),
+        content: content.trim(),
+        slug: finalSlug,
+        upvotes: 0,
+        emoji_reactions: {},
+      })
       .select()
       .single()
 
-    console.log("💾 BUILD STORY POST - Insert result:", { story, insertError })
-
     if (insertError) {
-      console.log("❌ BUILD STORY POST - Database insert error:", insertError)
-      return NextResponse.json(
-        {
-          error: "Database error",
-          details: insertError.message,
-          code: insertError.code,
-        },
-        { status: 500 },
-      )
+      console.error("❌ BUILD STORIES API - Insert error:", insertError)
+      return NextResponse.json({ error: `Failed to create story: ${insertError.message}` }, { status: 500 })
     }
 
-    console.log("✅ BUILD STORY POST - Story created successfully:", story?.id)
-    return NextResponse.json(story, { status: 201 })
-  } catch (error) {
-    console.error("💥 BUILD STORY POST - Unhandled error:", error)
-    console.error("💥 BUILD STORY POST - Error name:", error?.constructor?.name)
-    console.error("💥 BUILD STORY POST - Error message:", error instanceof Error ? error.message : String(error))
+    console.log("✅ BUILD STORIES API - Story created successfully:", newStory.id)
 
-    return NextResponse.json(
-      {
-        error: "Internal server error",
-        message: error instanceof Error ? error.message : String(error),
-        type: error?.constructor?.name || "Unknown",
-      },
-      { status: 500 },
-    )
+    // Verify the story was created by fetching it back
+    const { data: verifyStory, error: verifyError } = await supabase
+      .from("build_stories")
+      .select("*")
+      .eq("id", newStory.id)
+      .single()
+
+    if (verifyError) {
+      console.error("❌ BUILD STORIES API - Verification error:", verifyError)
+    } else {
+      console.log("✅ BUILD STORIES API - Story verified:", {
+        id: verifyStory.id,
+        slug: verifyStory.slug,
+        title: verifyStory.title,
+      })
+    }
+
+    return NextResponse.json({
+      success: true,
+      story: newStory,
+      message: "Story created successfully",
+    })
+  } catch (error) {
+    console.error("💥 BUILD STORIES API - Unexpected error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
 export async function GET() {
-  console.log("🚀 BUILD STORY GET - Route handler started")
+  console.log("🔍 BUILD STORIES API - GET request received")
 
   try {
-    const { createClient } = await import("@/utils/supabase/server")
     const supabase = await createClient()
 
+    // Get all stories with basic info
     const { data: stories, error } = await supabase
       .from("build_stories")
-      .select("*")
+      .select(`
+        id,
+        slug,
+        title,
+        content,
+        category,
+        created_at,
+        updated_at,
+        upvotes,
+        emoji_reactions,
+        user_id
+      `)
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.log("❌ BUILD STORY GET - Database error:", error)
+      console.error("❌ BUILD STORIES API - GET error:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log("✅ BUILD STORY GET - Stories fetched:", stories?.length || 0)
-    return NextResponse.json(stories || [])
+    console.log("✅ BUILD STORIES API - Stories fetched:", stories?.length || 0)
+
+    return NextResponse.json({
+      success: true,
+      stories: stories || [],
+      count: stories?.length || 0,
+    })
   } catch (error) {
-    console.error("💥 BUILD STORY GET - Error:", error)
-    return NextResponse.json(
-      {
-        error: "Internal server error",
-        message: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    )
+    console.error("💥 BUILD STORIES API - GET unexpected error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
