@@ -114,15 +114,15 @@ export function PublicHeader() {
             <NavLink href="/" label="Home" active={pathname === "/"} />
             <NavLink
               href="/launch"
-              label="The Heist Board"
+              label="The Launch Board"
               active={pathname === "/launch" || pathname.startsWith("/launch/")}
             />
             <NavLink href="/logs" label="Build Logs" active={pathname === "/logs"} />
             <NavLink href="/uplift" label="Uplift" active={pathname === "/uplift"} />
             <NavLink
-              href="/ghost"
-              label="Ghost Projects"
-              active={pathname === "/ghost" || pathname.startsWith("/ghost/")}
+              href="/stories"
+              label="Build Stories"
+              active={pathname === "/stories" || pathname.startsWith("/stories/")}
             />
 
             {/* Show loading state while checking auth */}
@@ -204,15 +204,15 @@ export function PublicHeader() {
                   <MobileNavLink href="/" label="Home" active={pathname === "/"} />
                   <MobileNavLink
                     href="/launch"
-                    label="The Heist Board"
+                    label="The Launch Board"
                     active={pathname === "/launch" || pathname.startsWith("/launch/")}
                   />
                   <MobileNavLink href="/logs" label="Build Logs" active={pathname === "/logs"} />
                   <MobileNavLink href="/uplift" label="Uplift" active={pathname === "/uplift"} />
                   <MobileNavLink
-                    href="/ghost"
-                    label="Ghost Projects"
-                    active={pathname === "/ghost" || pathname.startsWith("/ghost/")}
+                    href="/stories"
+                    label="Build Stories"
+                    active={pathname === "/stories" || pathname.startsWith("/stories/")}
                   />
 
                   {isLoading ? (

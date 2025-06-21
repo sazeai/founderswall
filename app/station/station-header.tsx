@@ -66,7 +66,7 @@ export default function StationHeader({ user }: StationHeaderProps) {
               <Link href="/station/get-arrested" className="px-3 py-2 text-gray-300 hover:text-white transition-colors">
                 <span className="flex items-center">
                   <Camera className="w-4 h-4 mr-2" />
-                  Create Mugshot
+                  Create Profile
                 </span>
               </Link>
               <Link href="/launch" className="px-3 py-2 text-gray-300 hover:text-white transition-colors">
@@ -162,11 +162,11 @@ export default function StationHeader({ user }: StationHeaderProps) {
             className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors"
           >
             <Camera className="w-5 h-5 mx-auto" />
-            <span className="text-xs">Mugshot</span>
+            <span className="text-xs">Profile</span>
           </Link>
           <Link href="/launch" className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors">
             <FileText className="w-5 h-5 mx-auto" />
-            <span className="text-xs">All Products</span>
+            <span className="text-xs">All Launches</span>
           </Link>
           <Link href="/uplift" className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors">
             <FileText className="w-5 h-5 mx-auto" />
@@ -181,11 +181,11 @@ export default function StationHeader({ user }: StationHeaderProps) {
           </Link>
           {/* ONLY ADDITION - Ghost Projects Mobile Link */}
           <Link
-            href="/station/submit-ghost"
+            href="/station/submit-story"
             className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors"
           >
             <Ghost className="w-5 h-5 mx-auto" />
-            <span className="text-xs">Ghost</span>
+            <span className="text-xs">Build Stories</span>
           </Link>
         </div>
       </div>
