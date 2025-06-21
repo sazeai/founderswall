@@ -3,36 +3,63 @@ export class BuildStoryService {
 
   async getAllBuildStories() {
     try {
-      console.log("🔍 BUILD STORY SERVICE - Fetching all build stories with authors")
 
-      const { data: stories, error } = await this.supabase
+      // First, get all stories
+      const { data: stories, error: storiesError } = await this.supabase
         .from("build_stories")
         .select(`
-        id,
-        slug,
-        title,
-        content,
-        created_at,
-        updated_at,
-        category,
-        upvotes,
-        emoji_reactions,
-        mugshots!build_stories_user_id_fkey (
-          name,
-          image_url
-        )
-      `)
+          id,
+          slug,
+          title,
+          content,
+          created_at,
+          updated_at,
+          category,
+          user_id,
+          upvotes,
+          emoji_reactions
+        `)
         .order("created_at", { ascending: false })
 
-      if (error) {
-        console.error("❌ BUILD STORY SERVICE - Error:", error)
+      if (storiesError) {
         return []
       }
 
-      console.log("✅ BUILD STORY SERVICE - Stories fetched:", stories?.length || 0)
 
-      return (
-        stories?.map((story: any) => ({
+      if (!stories || stories.length === 0) {
+        return []
+      }
+
+      // Get unique user IDs
+      const userIds = [...new Set(stories.map((story) => story.user_id))]
+      console.log("👥 BUILD STORY SERVICE - Fetching authors for user IDs:", userIds)
+
+      // Fetch author info separately
+      const { data: authors, error: authorsError } = await this.supabase
+        .from("mugshots")
+        .select("user_id, name, image_url")
+        .in("user_id", userIds)
+
+      if (authorsError) {
+        // Continue without authors rather than failing completely
+      }
+
+
+      // Create a map of user_id to author info
+      const authorMap = new Map()
+      if (authors) {
+        authors.forEach((author) => {
+          authorMap.set(author.user_id, {
+            name: author.name,
+            image_url: author.image_url,
+          })
+        })
+      }
+
+      // Transform the data to match the expected structure
+      const transformedStories = stories.map((story: any) => {
+        const author = authorMap.get(story.user_id)
+        return {
           id: story.id,
           slug: story.slug,
           title: story.title,
@@ -43,47 +70,64 @@ export class BuildStoryService {
           upvotes: story.upvotes || 0,
           emoji_reactions: story.emoji_reactions || {},
           author: {
-            name: story.mugshots?.name || "Anonymous",
-            image_url: story.mugshots?.image_url || null,
+            name: author?.name || "Anonymous",
+            image_url: author?.image_url || null,
           },
-        })) || []
-      )
+        }
+      })
+
+      return transformedStories
     } catch (error) {
-      console.error("💥 BUILD STORY SERVICE - Error:", error)
+      console.error("💥 BUILD STORY SERVICE - Error in getAllBuildStories:", error)
       return []
     }
   }
 
   async getBuildStoryBySlug(slug: string) {
     try {
-      console.log("🔍 BUILD STORY SERVICE - Fetching story by slug:", slug)
 
-      const { data: story, error } = await this.supabase
+      // Get the story
+      const { data: story, error: storyError } = await this.supabase
         .from("build_stories")
         .select(`
-        id,
-        slug,
-        title,
-        content,
-        created_at,
-        updated_at,
-        category,
-        upvotes,
-        emoji_reactions,
-        mugshots!build_stories_user_id_fkey (
-          name,
-          image_url
-        )
-      `)
+          id,
+          slug,
+          title,
+          content,
+          created_at,
+          updated_at,
+          category,
+          user_id,
+          upvotes,
+          emoji_reactions
+        `)
         .eq("slug", slug)
         .single()
 
-      if (error) {
-        console.error("❌ BUILD STORY SERVICE - Error:", error)
+      if (storyError) {
+        throw new Error(`Story not found: ${storyError.message}`)
+      }
+
+      if (!story) {
         throw new Error("Story not found")
       }
 
-      return {
+      console.log("✅ BUILD STORY SERVICE - Story fetched:", story.id)
+
+      // Get author info separately
+      const { data: author, error: authorError } = await this.supabase
+        .from("mugshots")
+        .select("name, image_url")
+        .eq("user_id", story.user_id)
+        .single()
+
+      if (authorError) {
+        // Continue without author info rather than failing
+      }
+
+
+      // Transform the data
+      const transformedStory = {
         id: story.id,
         slug: story.slug,
         title: story.title,
@@ -94,19 +138,20 @@ export class BuildStoryService {
         upvotes: story.upvotes || 0,
         emoji_reactions: story.emoji_reactions || {},
         author: {
-          name: story.mugshots?.name || "Anonymous",
-          image_url: story.mugshots?.image_url || null,
+          name: author?.name || "Anonymous",
+          image_url: author?.image_url || null,
         },
       }
+
+      console.log("BUILD STORY SERVICE - Story transformed successfully")
+      return transformedStory
     } catch (error) {
-      console.error("💥 BUILD STORY SERVICE - Error:", error)
       throw error
     }
   }
 
   async getTopStoryAuthors() {
     try {
-      console.log("🏆 BUILD STORY SERVICE - Fetching top story authors")
 
       // Get story counts by user
       const { data: storyCounts, error: countsError } = await this.supabase
@@ -115,7 +160,6 @@ export class BuildStoryService {
         .not("user_id", "is", null)
 
       if (countsError) {
-        console.error("❌ BUILD STORY SERVICE - Error fetching story counts:", countsError)
         return []
       }
 
@@ -146,7 +190,6 @@ export class BuildStoryService {
         .in("user_id", topUserIds)
 
       if (authorsError) {
-        console.error("❌ BUILD STORY SERVICE - Error fetching top authors:", authorsError)
         return []
       }
 
@@ -161,10 +204,8 @@ export class BuildStoryService {
           }))
           .sort((a: any, b: any) => b.story_count - a.story_count) || []
 
-      console.log("🏆 BUILD STORY SERVICE - Top authors fetched:", topAuthors.length)
       return topAuthors
     } catch (error) {
-      console.error("💥 BUILD STORY SERVICE - Error in getTopStoryAuthors:", error)
       return []
     }
   }
