@@ -81,10 +81,37 @@ export default function PinWallPage() {
     <main className="min-h-screen flex flex-col bg-black text-white">
       <PublicHeader />
       <div className="container mx-auto py-24 px-4 flex-grow relative">
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold text-yellow-400 mb-2">The Founders' Log</h1>
-          <p className="text-lg text-gray-300">Follow the real-time progress of indie makers building in public.</p>
+
+      {/* Header */}
+      <section className="pt-24 px-6 pb-4 text-center">
+        <h1
+          className="text-white text-3xl sm:text-5xl font-bold tracking-wider mb-4 glitch-text"
+          data-text="THE HEIST BOARD"
+        >
+          THE BUILD LOGS
+        </h1>
+        <h2 className="text-white text-2xl sm:text-4xl font-bold tracking-wider mb-4" data-text="Alt Text">
+          FOLLOW THE REAL-TIME PROGRESS OF INDIE MAKERS BUILDING IN PUBLIC.
+        </h2>
+        <p className="text-gray-200 max-w-2xl mx-auto font-semibold">
+          Every commit, drop, and meltdown logged in public.
+        </p>
+      </section>
+
+      {/* Yellow Caution Stripe with Crime Scene Text */}
+      <div className="h-8 w-full bg-yellow-400 relative overflow-hidden my-6">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "repeating-linear-gradient(45deg, #000 0, #000 10px, #f6e05e 10px, #f6e05e 20px)",
+            backgroundSize: "28px 28px",
+          }}
+        ></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-black text-xs font-bold tracking-wider uppercase">Crime Scene - Do Not Cross</span>
         </div>
+      </div>
+      
         <PinWall />
         {/* Floating Add Log Button - Stuck to device right edge */}
         <div

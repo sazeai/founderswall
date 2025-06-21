@@ -167,7 +167,7 @@ export function ProductCaseFile({ product, isMostWanted = false }: ProductCaseFi
               <div className="mb-2">
                 <div className="flex justify-between items-center mb-1">
                   <div className="bg-red-600 text-white px-1 py-0.5 text-xs font-bold inline-block">
-                    CASE #{product.caseId}
+                    LAUNCH #{product.caseId}
                   </div>
                 </div>
                 <div className="flex justify-between items-center mb-1">
@@ -250,7 +250,7 @@ export function ProductCaseFile({ product, isMostWanted = false }: ProductCaseFi
               <div className="mb-2">
                 <div className="flex items-center mb-1">
                   <div className="w-2 h-2 bg-red-600 mr-1"></div>
-                  <h3 className="text-xs font-black uppercase text-black font-mono">EVIDENCE SUMMARY</h3>
+                  <h3 className="text-xs font-black uppercase text-black font-mono">SHIPPING NOTES </h3>
                 </div>
                 <ul className="space-y-1 pl-1">
                   {product.summary.slice(0, 3).map((item, index) => (

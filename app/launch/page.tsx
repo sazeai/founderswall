@@ -7,7 +7,7 @@ import { ProductCaseFile } from "@/components/product-case-file"
 import { PublicHeader } from "@/components/public-header"
 
 export const metadata: Metadata = {
-  title: "The Heist Board - Most Wanted Products by Legendary Builders",
+  title: "The Launch Board - Most Wanted Products by Legendary Builders",
   description:
     "Discover the latest product launches from indie makers and startup builders. Track the most wanted SaaS products, tools, and innovations from the legendary builder community.",
   keywords: [
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "product directory",
   ],
   openGraph: {
-    title: "The Heist Board - Most Wanted Products by Legendary Builders",
+    title: "The Launch Board - Most Wanted Products by Legendary Builders",
     description:
       "Discover the latest product launches from indie makers and startup builders. Track the most wanted SaaS products, tools, and innovations from the legendary builder community.",
     type: "website",
@@ -184,7 +184,7 @@ export default async function LaunchPage() {
           className="text-white text-3xl sm:text-5xl font-bold tracking-wider mb-4 glitch-text"
           data-text="THE HEIST BOARD"
         >
-          THE HEIST BOARD
+          THE LAUNCH BOARD
         </h1>
         <h2 className="text-white text-2xl sm:text-4xl font-bold tracking-wider mb-4" data-text="Alt Text">
           MOST WANTED PRODUCTS LAUNCHED BY INDIE MAKERS

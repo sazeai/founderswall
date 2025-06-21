@@ -284,7 +284,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <div className="h-12 flex items-center px-4">
             <Link href="/launch" className="flex items-center text-white font-bold">
               <ArrowLeft className="h-5 w-5 mr-2" />
-              <span>RETURN TO HEIST BOARD</span>
+              <span>RETURN TO LAUNCH BOARD</span>
             </Link>
           </div>
 
@@ -503,7 +503,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                       <div className="w-5 h-5 rounded-full bg-red-600 flex items-center justify-center text-xs font-bold mr-2">
                         1
                       </div>
-                      <h2 className="text-lg font-bold">Caught in the Build</h2>
+                      <h2 className="text-lg font-bold">Proof of Work	</h2>
                     </div>
                     <div className="text-xs bg-yellow-400 text-black text-xs px-2 py-0.5 rotate-3 z-10 whitespace-nowrap">
                       EXHIBIT B
@@ -547,7 +547,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
                   {/* Sticky Note */}
                   <div className="absolute top-0 right-0 transform rotate-3 bg-yellow-300 text-black p-2 shadow-md  text-xs">
-                    Urgent: Check this lead!
+                    ✨ Caught Our Eye
                   </div>
 
                   <div className="p-4">
@@ -647,7 +647,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               {founderMugshot && (
                 <div className="bg-zinc-900 border border-zinc-800">
                   <div className="border-b border-zinc-800 bg-zinc-800 p-3 flex justify-between items-center">
-                    <h2 className="text-lg font-bold">Suspected Indie</h2>
+                    <h2 className="text-lg font-bold">Builder Profile </h2>
                     <div className="bg-red-600/80 text-white px-2 py-0.5 text-xs uppercase font-bold">Wanted</div>
                   </div>
 
@@ -691,7 +691,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
                       {founderMugshot.twitterHandle && (
                         <div className="flex justify-between border-b border-zinc-800 pb-1">
-                          <span className="text-zinc-400">Alias:</span>
+                          <span className="text-zinc-400">Social:</span>
                           <a
                             href={`https://x.com/${founderMugshot.twitterHandle.replace("@", "")}`}
                             target="_blank"
@@ -720,7 +720,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
                     {founderMugshot.note && (
                       <div className="mt-4 bg-zinc-800 p-3 border-l-2 border-yellow-500">
-                        <div className="text-xs text-zinc-400 mb-1">INTERROGATION NOTES:</div>
+                        <div className="text-xs text-zinc-400 mb-1">The Chaos So Far:</div>
                         <p className="text-zinc-300 italic text-sm">{founderMugshot.note}</p>
                       </div>
                     )}
