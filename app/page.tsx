@@ -2,7 +2,7 @@ import HomePageSchema from "@/components/HomePageSchema"
 import HomeClient from "@/components/HomeClient"
 
 export default function Home() {
-  // Split schema into @graph with WebPage and BreadcrumbList as separate objects
+
   const webPageSchema = {
     "@type": "WebPage",
     "@id": "https://founderswall.com/#webpage",
@@ -26,10 +26,22 @@ export default function Home() {
     ],
   }
 
+  const breadcrumbSchema = {
+    "@type": "BreadcrumbList",
+    "@id": "https://founderswall.com/#breadcrumb",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://founderswall.com",
+      },
+    ],
+  }
 
   const schema = {
     "@context": "https://schema.org",
-    "@graph": [webPageSchema],
+    "@graph": [webPageSchema, breadcrumbSchema],
   }
 
   return (
