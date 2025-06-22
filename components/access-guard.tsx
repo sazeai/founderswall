@@ -77,7 +77,7 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
   // 2. User logged in but hasn't paid
   return (
     <>
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen text-white flex items-center justify-center">
         <div className="max-w-md mx-auto text-center p-8">
           <div className="bg-gray-800 border-4 border-red-500 p-6 rounded-md transform -rotate-1 relative">
             {/* Police badge decoration */}
