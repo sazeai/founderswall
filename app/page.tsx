@@ -2,9 +2,8 @@ import HomePageSchema from "@/components/HomePageSchema"
 import HomeClient from "@/components/HomeClient"
 
 export default function Home() {
-  // Minimal static schema for now; can be extended to fetch featured mugshots server-side if needed
-  const schema = {
-    "@context": "https://schema.org",
+  // Split schema into @graph with WebPage and BreadcrumbList as separate objects
+  const webPageSchema = {
     "@type": "WebPage",
     "@id": "https://founderswall.com/#webpage",
     url: "https://founderswall.com",
@@ -19,24 +18,30 @@ export default function Home() {
       name: "FoundersWall",
       description: "A platform for indie makers to showcase their builds and connect with the community",
     },
-    breadcrumb: {
-      "@type": "BreadcrumbList",
-      "@id": "https://founderswall.com/#breadcrumb",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: "https://founderswall.com",
-        },
-      ],
-    },
     potentialAction: [
       {
         "@type": "ReadAction",
         target: ["https://founderswall.com"],
       },
     ],
+  }
+
+  const breadcrumbSchema = {
+    "@type": "BreadcrumbList",
+    "@id": "https://founderswall.com/#breadcrumb",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://founderswall.com",
+      },
+    ],
+  }
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@graph": [webPageSchema, breadcrumbSchema],
   }
 
   return (
