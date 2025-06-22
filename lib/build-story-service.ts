@@ -5,7 +5,6 @@ export class BuildStoryService {
 
   async getAllBuildStories() {
     try {
-
       // First, get all stories
       const { data: stories, error: storiesError } = await this.supabase
         .from("build_stories")
@@ -18,7 +17,6 @@ export class BuildStoryService {
           updated_at,
           category,
           user_id,
-          upvotes,
           emoji_reactions
         `)
         .order("created_at", { ascending: false })
@@ -26,7 +24,6 @@ export class BuildStoryService {
       if (storiesError) {
         return []
       }
-
 
       if (!stories || stories.length === 0) {
         return []
@@ -46,7 +43,6 @@ export class BuildStoryService {
       if (authorsError) {
         // Continue without authors rather than failing completely
       }
-
 
       // Create a map of user_id to author info
       const authorMap = new Map()
@@ -72,7 +68,6 @@ export class BuildStoryService {
           created_at: story.created_at,
           updated_at: story.updated_at,
           category: story.category,
-          upvotes: story.upvotes || 0,
           emoji_reactions: story.emoji_reactions || {},
           author: {
             name: author?.name || "Anonymous",
@@ -89,7 +84,6 @@ export class BuildStoryService {
 
   async getBuildStoryBySlug(slug: string) {
     try {
-
       // Get the story
       const { data: story, error: storyError } = await this.supabase
         .from("build_stories")
@@ -102,7 +96,6 @@ export class BuildStoryService {
           updated_at,
           category,
           user_id,
-          upvotes,
           emoji_reactions
         `)
         .eq("slug", slug)
@@ -116,7 +109,6 @@ export class BuildStoryService {
         throw new Error("Story not found")
       }
 
-
       // Get author info separately
       const { data: author, error: authorError } = await this.supabase
         .from("mugshots")
@@ -128,7 +120,6 @@ export class BuildStoryService {
         // Continue without author info rather than failing
       }
 
-
       // Transform the data
       const transformedStory = {
         id: story.id,
@@ -138,7 +129,6 @@ export class BuildStoryService {
         created_at: story.created_at,
         updated_at: story.updated_at,
         category: story.category,
-        upvotes: story.upvotes || 0,
         emoji_reactions: story.emoji_reactions || {},
         author: {
           name: author?.name || "Anonymous",
@@ -154,7 +144,6 @@ export class BuildStoryService {
 
   async getTopStoryAuthors() {
     try {
-
       // Get story counts by user
       const { data: storyCounts, error: countsError } = await this.supabase
         .from("build_stories")

@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
         category: category.toLowerCase(),
         content: content.trim(),
         slug: finalSlug,
-        upvotes: 0,
         emoji_reactions: {},
       })
       .select()
@@ -98,7 +97,6 @@ export async function GET() {
         category,
         created_at,
         updated_at,
-        upvotes,
         emoji_reactions,
         user_id
       `)
