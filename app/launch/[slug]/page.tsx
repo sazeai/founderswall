@@ -8,6 +8,8 @@ import { ArrowLeft, ExternalLink, Tag, User, Calendar, Twitter, Github } from "l
 import UpvoteButton from "./upvote-button"
 import { getMugshotById } from "@/lib/mugshot-service"
 import { PublicHeader } from "@/components/public-header"
+import PublicFooter from "@/components/public-footer"
+
 import TimelineSection from "./timeline-section"
 import type { Metadata } from "next"
 
@@ -30,7 +32,8 @@ function getSchemaDescription(product: any) {
 
 // Add metadata generation for individual product pages
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const normalizedSlug = params.slug.toLowerCase()
+  const awaitedParams = await params
+  const normalizedSlug = awaitedParams.slug.toLowerCase()
   const { product, error } = await getProductBySlug(normalizedSlug)
 
   if (error || !product) {
@@ -117,8 +120,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export const dynamic = "force-dynamic"
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
+  const awaitedParams = await params
   // Normalize the slug to lowercase to ensure case-insensitive matching
-  const normalizedSlug = params.slug.toLowerCase()
+  const normalizedSlug = awaitedParams.slug.toLowerCase()
 
   const { product, error } = await getProductBySlug(normalizedSlug)
 
@@ -187,6 +191,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
               // Breadcrumb schema
               {
                 "@type": "BreadcrumbList",
+                "@id": `https://founderswall.com/launch/${product.slug}#breadcrumb`,
                 itemListElement: [
                   {
                     "@type": "ListItem",
@@ -737,6 +742,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </div>
           </div>
         </div>
+
+        <PublicFooter />
       </div>
     </div>
   )
