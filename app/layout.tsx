@@ -112,7 +112,7 @@ const siteSchema = {
         inLanguage: "en-US",
         "@id": "https://founderswall.com/#/schema/logo/image/",
         url: "https://founderswall.com/founderswall-logo.png",
-        contentUrl: "https://founderswall.com/founderswal-llogo.png",
+        contentUrl: "https://founderswall.com/founderswall-logo.png",
         width: 400,
         height: 100,
         caption: "FoundersWall",

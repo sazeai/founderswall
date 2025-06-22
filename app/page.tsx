@@ -158,12 +158,7 @@ export default function Home() {
       description:
         "Discover and explore top indie makers. FoundersWall is where the most consistent, creative, and relentless builders get tracked, logged, and celebrated.",
       inLanguage: "en-US",
-      isPartOf: {
-        "@type": "WebSite",
-        "@id": "https://founderswall.com/#website",
-        name: "FoundersWall",
-        url: "https://founderswall.com",
-      },
+      isPartOf: "https://founderswall.com/#website",
       about: {
         "@type": "Organization",
         "@id": "https://founderswall.com/#organization",
@@ -172,6 +167,7 @@ export default function Home() {
       },
       breadcrumb: {
         "@type": "BreadcrumbList",
+        "@id": "https://founderswall.com/#breadcrumb",
         itemListElement: [
           {
             "@type": "ListItem",
