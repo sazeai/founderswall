@@ -134,7 +134,7 @@ export function PublicHeader() {
                   asChild
                   variant="outline"
                   size="sm"
-                  className="border-yellow-400 text-yellow-400 hover:bg-yellow-400/10"
+                  className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black hover:border-yellow-400"
                 >
                   <Link href="/station">
                     <UserIcon className="h-4 w-4 mr-2" />
