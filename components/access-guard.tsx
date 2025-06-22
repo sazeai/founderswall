@@ -87,41 +87,35 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
 
             <Lock className="h-12 w-12 mx-auto text-red-500 mb-2" />
             <h2 className="text-2xl font-bold text-red-500 mb-2" style={{ fontFamily: "Impact, sans-serif" }}>
-              ACCESS REQUIRES A FOUNDER KEYCARD
+              UNLOCK YOUR LAUNCHPAD
             </h2>
-            <p className="text-gray-300 font-handwriting mb-4">
-            This isn’t for looky-loos. It’s for builders who want to be seen, launch like pros, and actually grow. Grab your Founder Keycard lifetime access for $3.
+            <p className="text-gray-300 mb-4">
+            Getting your first users is the hardest part of any launch. For a one-time $5 payment, you can list unlimited products and get them in front of a dedicated community of builders, and potential customers.
             </p>
 
             <div className="space-y-2 mb-4 text-left">
               <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300 text-sm">Create your mugshot profile</span>
+                <span className="text-gray-300 text-sm">Launch Unlimited Products, Forever</span>
+              </div>
+             
+              <div className="flex items-center gap-2">
+                <Check className="h-5 w-5 text-green-500" />
+                <span className="text-gray-300 text-sm">Tap into a Network of Early Adopters</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300 text-sm">Submit unlimited products</span>
+                <span className="text-gray-300 text-sm">Boost SEO with backlinks from ai-q.in & geekdroid.in</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300 text-sm">Appear on the founder wall</span>
+                <span className="text-gray-300 text-sm">Cement Your Legacy on the Founder Wall</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300 text-sm">Full platform access forever</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="h-5 w-5 text-green-500" />
-                <span className="text-gray-300 text-sm">SEO backlinks when your product is Live (ai-q.in, geekdroid.in)</span>
-              </div>
-              
-
-
             </div>
 
             <div className="text-center mb-4">
-              <div className="text-yellow-400 text-sm font-bold">LIFETIME ACCESS - $3</div>
-              <div className="text-green-400 text-xs mt-1">JOIN THE INNER CIRCLE. BUILD YOUR LEGACY.</div>
+              <div className="text-yellow-400 text-sm font-bold">ONE-TIME PAYMENT - $5</div>
+              <div className="text-green-400 text-xs mt-1">THE ONLY LAUNCH FEE YOU'LL EVER PAY.</div>
             </div>
 
             {!user ? (
@@ -144,7 +138,7 @@ export default function AccessGuard({ children, requiresPayment = false, fallbac
                 >
                   🚨 Get Your Founder Keycard 🚨
                 </Button>
-                <p className="text-xs text-gray-500">One-time payment • Lifetime access • No subscriptions</p>
+                <p className="text-xs text-gray-500">One-time payment • Launch unlimited products</p>
               </div>
             )}
           </div>

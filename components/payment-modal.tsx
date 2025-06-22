@@ -98,7 +98,7 @@ export default function PaymentModal({ isOpen, onClose, onSuccess }: PaymentModa
                   Processing...
                 </>
               ) : (
-                "🚨 Pay $3 Now 🚨"
+                "🚨 Pay 5 Now 🚨"
               )}
             </Button>
           </div>

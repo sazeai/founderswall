@@ -265,7 +265,7 @@ export default function GetArrestedPage() {
 
   return (
     <div className="min-h-screen max-w-4xl mx-auto bg-gray-900 rounded-xl p-6 border border-gray-800 shadow-lg">
-      {/* $3 Sticky Note Block */}
+      {/* $5 Sticky Note Block */}
 
       {/* Form Steps */}
       <div className="p-4">
@@ -276,7 +276,7 @@ export default function GetArrestedPage() {
             <div className={`w-1/3 h-1 ${step >= 3 ? "bg-yellow-400" : "bg-gray-700"} rounded-full`}></div>
           </div>
           <h2 className="text-xl font-bold text-white">
-            {step === 1 ? "Upload Your Selfie" : step === 2 ? "Enter Your Crime" : "Payment & Confirmation"}
+            {step === 1 ? "Upload Your Selfie" : step === 2 ? "Write Your Choas" : "Payment & Confirmation"}
           </h2>
         </div>
         {/* Error message */}
@@ -422,7 +422,7 @@ export default function GetArrestedPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="crime" className="text-white">
-                    Your Crime
+                    Your Chaos
                   </Label>
                   <Input
                     id="crime"
@@ -536,7 +536,7 @@ export default function GetArrestedPage() {
                     <span className="text-white">{formData.name}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Crime:</span>
+                    <span className="text-gray-400">Chaos:</span>
                     <span className="text-white">{formData.crime}</span>
                   </div>
                   {formData.note && (

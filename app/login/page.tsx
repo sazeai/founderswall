@@ -104,16 +104,7 @@ export default function LoginPage() {
             mixBlendMode: 'luminosity',
             zIndex: 10,
           }} />
-          {/* RESTRICTED badge */}
-          <div className="absolute top-2 right-2 bg-yellow-400 text-black text-xs px-3 py-1 font-bold rounded shadow-sm z-30 border border-black" style={{ letterSpacing: '1px' }}>
-            RESTRICTED
-          </div>
-          {/* $3 Note - smaller, less messy */}
-          <div className="flex justify-center mb-4 mt-2">
-            <div className="bg-yellow-200 border border-yellow-400 rounded px-2 py-1 text-xs text-gray-800 font-mono shadow-sm" style={{ fontFamily: 'inherit' }}>
-              $3 once because showing up should cost <span className="text-red-500 font-bold">something</span>.
-            </div>
-          </div>
+         
           {/* Main Card Content */}
           <div className="relative z-20">
             <h2 className="text-2xl font-bold mb-4 text-center text-red-600 tracking-wide font-mono uppercase">

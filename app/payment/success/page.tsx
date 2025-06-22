@@ -33,7 +33,7 @@ export default function PaymentSuccessPage() {
 
         if (data.has_lifetime_access) {
           setStatus("success")
-          setMessage("Payment successful! You now have lifetime access to the platform.")
+          setMessage("Payment successful! You can now submit unlimited product launches.")
         } else {
           setStatus("error")
           setMessage("Payment verification failed. Please contact support if you believe this is an error.")
@@ -165,7 +165,7 @@ export default function PaymentSuccessPage() {
 
                 <div className="space-y-3">
                   <Button
-                    onClick={() => router.push("/station")}
+                    onClick={() => router.push("/station/submit-launch")}
                     className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3"
                   >
                     Enter Detective Station
@@ -266,10 +266,10 @@ export default function PaymentSuccessPage() {
 
                 <div className="space-y-3">
                   <Button
-                    onClick={() => router.push("/station")}
+                    onClick={() => router.push("/station/submit-launch")}
                     className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3"
                   >
-                    Enter Detective Station
+                    Enter Builder Playground
                   </Button>
                   <Button
                     variant="outline"
@@ -294,10 +294,10 @@ export default function PaymentSuccessPage() {
 
                 <div className="space-y-3">
                   <Button
-                    onClick={() => router.push("/station")}
+                    onClick={() => router.push("/station/submit-launch")}
                     className="w-full bg-red-600 hover:bg-red-700 text-white"
                   >
-                    Try Detective Station
+                    Submit Launch
                   </Button>
                   <Button
                     variant="outline"

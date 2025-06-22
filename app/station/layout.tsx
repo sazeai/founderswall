@@ -2,7 +2,6 @@ import type React from "react"
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import StationHeader from "./station-header"
-import AccessGuard from "@/components/access-guard"
 
 // Add this line to mark the route as dynamic
 export const dynamic = "force-dynamic"
@@ -26,15 +25,11 @@ export default async function StationLayout({
       redirect("/login?redirectedFrom=/station")
     }
 
-    // Wrap in PaymentStatusProvider, then AccessGuard
     return (
-      
-        <AccessGuard requiresPayment={true}>
-          <div className="min-h-screen flex flex-col bg-dark text-white">
-            <StationHeader user={user} />
-            <main className="flex-grow py-12 px-4">{children}</main>
-          </div>
-        </AccessGuard>
+      <div className="min-h-screen flex flex-col bg-dark text-white">
+        <StationHeader user={user} />
+        <main className="flex-grow py-12 px-4">{children}</main>
+      </div>
     )
   } catch (error) {
     console.error("Error in station layout:", error)
