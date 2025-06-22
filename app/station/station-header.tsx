@@ -4,7 +4,16 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import type { User } from "@supabase/supabase-js"
-import { LogOut, ChevronDown, UserIcon, FileText, Camera, Home, Loader2, Ghost } from "lucide-react"
+import {
+  LogOut,
+  ChevronDown,
+  UserIcon,
+  FileText,
+  Camera,
+  Home,
+  Loader2,
+  Ghost,
+} from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
 
 interface StationHeaderProps {
@@ -166,7 +175,7 @@ export default function StationHeader({ user }: StationHeaderProps) {
           </Link>
           <Link href="/launch" className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors">
             <FileText className="w-5 h-5 mx-auto" />
-            <span className="text-xs">All Launches</span>
+            <span className="text-xs">Launches</span>
           </Link>
           <Link href="/uplift" className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors">
             <FileText className="w-5 h-5 mx-auto" />
@@ -185,7 +194,7 @@ export default function StationHeader({ user }: StationHeaderProps) {
             className="flex-1 text-center py-3 text-gray-400 hover:text-white transition-colors"
           >
             <Ghost className="w-5 h-5 mx-auto" />
-            <span className="text-xs">Build Stories</span>
+            <span className="text-xs">Stories</span>
           </Link>
         </div>
       </div>

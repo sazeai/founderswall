@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, Trophy, X, Lightbulb, Eye, Edit } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface SubmitStoryFormProps {
   user: User
@@ -151,7 +153,7 @@ export default function SubmitStoryForm({ user }: SubmitStoryFormProps) {
                     onClick={() => setCategory(cat.id)}
                     className={`p-4 rounded-lg border-2 transition-all ${
                       category === cat.id
-                        ? "border-purple-500 bg-purple-500/10"
+                        ? "border-red-500 bg-red-500/10"
                         : "border-gray-600 bg-gray-700 hover:border-gray-500"
                     }`}
                   >
@@ -210,7 +212,7 @@ I was struggling with **user retention** in my SaaS app...
 ### The Solution  
 After trying multiple approaches, I discovered that *personalized onboarding* was the key..."
                   className="bg-gray-700 border-gray-600 text-white min-h-[300px] font-mono text-sm"
-                  maxLength={2000}
+                  maxLength={3000}
                   required
                 />
               </TabsContent>
@@ -218,25 +220,9 @@ After trying multiple approaches, I discovered that *personalized onboarding* wa
               <TabsContent value="preview" className="mt-2">
                 <div className="bg-gray-700 border border-gray-600 rounded-md p-4 min-h-[300px]">
                   {content ? (
-                    <div
-                      className="text-white prose prose-invert prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{
-                        __html: content
-                          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-                          .replace(/\*(.*?)\*/g, "<em>$1</em>")
-                          .replace(/^### (.*$)/gm, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>')
-                          .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>')
-                          .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>')
-                          .replace(/^- (.*$)/gm, '<li class="ml-4">• $1</li>')
-                          .replace(/^\d+\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
-                          .replace(
-                            /^&gt; (.*$)/gm,
-                            '<blockquote class="border-l-4 border-purple-500 pl-4 italic text-gray-300">$1</blockquote>',
-                          )
-                          .replace(/`(.*?)`/g, '<code class="bg-gray-800 px-1 py-0.5 rounded text-sm">$1</code>')
-                          .replace(/\n/g, "<br>"),
-                      }}
-                    />
+                    <div className="text-white prose prose-invert prose-sm max-w-none">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+                    </div>
                   ) : (
                     <p className="text-gray-400 italic">Nothing to preview yet. Start writing in the Write tab!</p>
                   )}
@@ -244,7 +230,7 @@ After trying multiple approaches, I discovered that *personalized onboarding* wa
               </TabsContent>
             </Tabs>
 
-            <p className="text-xs text-gray-400 mt-1">{content.length}/2000 characters</p>
+            <p className="text-xs text-gray-400 mt-1">{content.length}/3000 characters</p>
             <p className="text-xs text-gray-500 mt-1">
               <strong>Markdown supported:</strong> **bold**, *italic*, ### headings, - lists, &gt; quotes, `code`
             </p>
@@ -261,7 +247,7 @@ After trying multiple approaches, I discovered that *personalized onboarding* wa
           <Button
             type="submit"
             disabled={isSubmitting || !title.trim() || !category || !content.trim()}
-            className="w-full bg-purple-600 hover:bg-purple-700"
+            className="w-full bg-red-600 hover:bg-red-700"
           >
             {isSubmitting ? (
               <>

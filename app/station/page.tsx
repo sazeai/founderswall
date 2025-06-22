@@ -81,8 +81,8 @@ export default async function StationDashboard() {
 
       {/* Header Section */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-red-500 stamped-text">DETECTIVE STATION</h1>
-        <p className="text-gray-400">Your criminal investigation headquarters</p>
+        <h1 className="text-3xl font-bold mb-2 text-red-500 stamped-text">BUILDER PLAYGROUND</h1>
+        <p className="text-gray-400">Your Chaos Hub</p>
       </div>
 
       {/* Criminal Status Card */}
@@ -100,7 +100,7 @@ export default async function StationDashboard() {
               </span>
             </div>
             <p className="text-gray-400 text-sm mt-1">
-              {badgeType === "wanted" && "Create a mugshot or nominate someone to upgrade your status"}
+              {badgeType === "wanted" && "Create a Profile"}
               {badgeType === "community_pick" && "You've been selected by the community!"}
               {badgeType === "startup_saviour" && "You've helped nominate underdog talented builder to the wall"}
             </p>
@@ -201,10 +201,10 @@ export default async function StationDashboard() {
             />
 
             <CriminalActionCard
-              title="Submit Ghost Project"
-              description="List your abandoned project for others to learn or revive"
+              title="Submit Stories"
+              description="Share your wins, fails, hacks and learnings"
               icon={<PlusCircle className="w-6 h-6" />}
-              href="/station/submit-ghost"
+              href="/station/submit-story"
               priority="normal"
             />
 

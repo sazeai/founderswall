@@ -7,7 +7,10 @@ import { ArrowLeft, Trophy, X, Lightbulb, Calendar, User, Crown } from "lucide-r
 import Link from "next/link"
 import { formatDistanceToNow } from "date-fns"
 import { PublicHeader } from "@/components/public-header"
+import PublicFooter from "@/components/public-footer"
 import StoryReactions from "./story-reactions"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface StoryPageProps {
   params: {
@@ -18,32 +21,15 @@ interface StoryPageProps {
 // Function to strip markdown syntax for schema descriptions
 function stripMarkdown(text: string): string {
   return text
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1") // Remove links, keep text
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, "") // Remove images
     .replace(/#{1,6}\s+/g, "") // Remove heading markers
-    .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold markers
-    .replace(/\*(.*?)\*/g, "$1") // Remove italic markers
+    .replace(/(\*|_){1,2}(.*?)\1{1,2}/g, "$2") // Remove bold/italic markers
     .replace(/`(.*?)`/g, "$1") // Remove code markers
     .replace(/>\s+/g, "") // Remove quote markers
     .replace(/[-*+]\s+/g, "") // Remove list markers
-    .replace(/\[([^\]]+)\]$$[^)]+$$/g, "$1") // Remove link syntax, keep text
     .replace(/\n+/g, " ") // Replace newlines with spaces
     .trim()
-}
-
-// Function to render markdown to HTML
-function renderMarkdown(text: string): string {
-  return text
-    .replace(/#{3}\s+(.*?)(?=\n|$)/g, '<h3 class="text-lg font-bold mb-2 text-white">$1</h3>')
-    .replace(/#{2}\s+(.*?)(?=\n|$)/g, '<h2 class="text-xl font-bold mb-3 text-white">$1</h2>')
-    .replace(/#{1}\s+(.*?)(?=\n|$)/g, '<h1 class="text-2xl font-bold mb-4 text-white">$1</h1>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-white">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em class="italic text-zinc-300">$1</em>')
-    .replace(/`(.*?)`/g, '<code class="bg-zinc-700 px-1 py-0.5 rounded text-yellow-400 font-mono text-sm">$1</code>')
-    .replace(
-      /^>\s+(.*?)$/gm,
-      '<blockquote class="border-l-4 border-yellow-500 pl-4 italic text-zinc-400 my-2">$1</blockquote>',
-    )
-    .replace(/^[-*+]\s+(.*?)$/gm, '<li class="ml-4 text-zinc-300">• $1</li>')
-    .replace(/\n/g, "<br>")
 }
 
 export default async function StoryPage({ params }: StoryPageProps) {
@@ -127,9 +113,6 @@ export default async function StoryPage({ params }: StoryPageProps) {
   const cleanDescription = stripMarkdown(story.content)
   const schemaDescription =
     cleanDescription.length > 160 ? cleanDescription.substring(0, 157) + "..." : cleanDescription
-
-  // Render markdown for display
-  const renderedContent = renderMarkdown(story.content)
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -238,7 +221,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
                     {/* Story Info */}
                     <div className="flex-grow">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                        <Badge className={`${getCategoryColor(story.category)} font-mono text-xs font-bold`}>
+                        <Badge variant="outline" className={`${getCategoryColor(story.category)} font-mono text-xs font-bold`}>
                           {getCategoryIcon(story.category)}
                           <span className="ml-1">{story.category.toUpperCase()}</span>
                         </Badge>
@@ -319,10 +302,9 @@ export default async function StoryPage({ params }: StoryPageProps) {
 
                 <div className="p-3 sm:p-6">
                   <div className="bg-zinc-800 p-2 border-l-4 border-yellow-500">
-                    <div
-                      className="prose prose-zinc dark:prose-invert max-w-none text-zinc-300"
-                      dangerouslySetInnerHTML={{ __html: renderedContent }}
-                    />
+                    <div className="prose prose-zinc dark:prose-invert max-w-none text-zinc-300">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{story.content}</ReactMarkdown>
+                    </div>
                     <StoryReactions storyId={story.id} initialReactions={initialReactions} />
                   </div>
                 </div>
@@ -395,6 +377,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
             </div>
           </div>
         </div>
+        <PublicFooter />
       </div>
     </div>
   )

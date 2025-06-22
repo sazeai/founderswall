@@ -36,16 +36,35 @@ export default function ShowUpPage() {
 
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+    const checkUserAndProfile = async () => {
+      setLoading(true)
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user) {
         router.push("/login?redirectedFrom=/station/show-up")
-      } else {
-        setUser(user)
+        return
       }
+      setUser(user)
+
+      // Check for mugshot profile
+      try {
+        const response = await fetch("/api/user/mugshot-check")
+        const data = await response.json()
+
+        if (!data.hasMugshot) {
+          router.push("/station/get-arrested?notice=profile_required")
+          return
+        }
+      } catch (e) {
+        console.error("Failed to check mugshot", e)
+        setError("Could not verify your profile. Please try again.")
+      }
+
       setLoading(false)
     }
-    getUser()
+    checkUserAndProfile()
   }, [supabase, router])
 
   const handleSupportTypeChange = (type: SupportType) => {
@@ -149,7 +168,7 @@ export default function ShowUpPage() {
   }
   
   if (loading) {
-    return <div className="flex justify-center items-center h-screen bg-gray-900"><Loader2 className="animate-spin text-white" /></div>
+    return <div className="flex justify-center items-center h-screen"><Loader2 className="animate-spin text-white" /></div>
   }
 
   return (
@@ -162,11 +181,14 @@ export default function ShowUpPage() {
                     </Button>
                 </Link>
             </div>
-            <div className="max-w-2xl mx-auto bg-gray-800 border-2 border-gray-700 rounded-xl p-8 shadow-lg">
-                <h1 className="text-3xl font-bold text-center mb-6 uppercase text-red-500 w-full ">SUBMIT YOUR LAUNCH TO SEEK SUPPORT </h1>
+            <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-6 uppercase text-red-500 w-full ">SUBMIT YOUR LAUNCH TO SEEK SUPPORT </h2>
                 <p className="text-center text-gray-400 text-sm w-full mb-4">
                     This feature is designed to foster a culture of mutual support, do not submit your launch if you are not seeking support, instead go to <Link href="/station/submit-launch" className="text-red-500">submit-launch</Link> page to submit your normal launch.
                 </p>
+                </div>
+            <div className="max-w-4xl mx-auto bg-gray-800 border-2 border-gray-700 rounded-xl p-8 shadow-lg">
+                
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="flex items-center justify-between p-4 bg-gray-700/50 rounded-lg">

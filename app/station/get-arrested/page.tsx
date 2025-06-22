@@ -227,7 +227,7 @@ export default function GetArrestedPage() {
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Checking your criminal record...</p>
+          <p>Checking your Build record...</p>
         </div>
       </div>
     )

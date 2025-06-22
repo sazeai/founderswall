@@ -9,12 +9,19 @@ export default async function SubmitStoryPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect("/login")
+    redirect("/login?redirectedFrom=/station/submit-story")
+  }
+
+  // Check for mugshot profile
+  const { data: mugshot } = await supabase.from("mugshots").select("id").eq("user_id", user.id).single()
+
+  if (!mugshot) {
+    redirect("/station/get-arrested?notice=profile_required_for_story")
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen py-4">
+      <div className="container mx-auto px-2">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">

@@ -1,34 +1,35 @@
-'use client';
-import Link from "next/link";
-import { YourLogsWall } from "@/components/YourLogsWall";
-import { ArrowLeft, PlusCircle } from "lucide-react";
-import { useState } from "react";
-import { AddLogModal } from "@/components/AddLogModal";
+import { createClient } from "@/utils/supabase/server"
+import { redirect } from "next/navigation"
+import { YourLogsWall } from "@/components/YourLogsWall"
+import AddLogModalButton from "@/components/AddLogModalButton"
 
-export default function LogsPage() {
-  const [isAddLogModalOpen, setIsAddLogModalOpen] = useState(false);
+export default async function LogsPage() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return redirect("/login")
+  }
+
+  // Check if user has a mugshot/profile
+  const { data: mugshot, error } = await supabase.from("mugshots").select("id").eq("user_id", user.id).single()
+
+  if (error || !mugshot) {
+    // If no mugshot, redirect to the page to create one
+    return redirect("/station/get-arrested")
+  }
+
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-6 flex items-center gap-2">
-        <Link href="/station" className="text-gray-400 hover:text-white flex items-center">
-          <ArrowLeft className="w-5 h-5 mr-1" /> Back to Station
-        </Link>
+    <div className="text-white min-h-screen">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold mb-4">Your Logs</h1>
+        <p className="text-gray-400 mb-8">This is your personal wall of logs, tracking your journey.</p>
+        <AddLogModalButton />
+        <YourLogsWall />
       </div>
-      <div className="mb-6 flex justify-end">
-        <button
-          onClick={() => setIsAddLogModalOpen(true)}
-          className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-semibold shadow transition"
-        >
-          <PlusCircle className="h-5 w-5" />
-          Pin Your Chaos
-        </button>
-      </div>
-      <h1 className="text-3xl font-bold text-white mb-6">Your Build Logs</h1>
-      <YourLogsWall />
-      <AddLogModal
-        isOpen={isAddLogModalOpen}
-        onClose={() => setIsAddLogModalOpen(false)}
-      />
     </div>
-  );
+  )
 }

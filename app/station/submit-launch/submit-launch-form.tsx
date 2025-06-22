@@ -67,25 +67,44 @@ export default function SubmitLaunchForm() {
   useEffect(() => {
     const supabase = createClient()
 
-    const getUser = async () => {
+    const checkUserAndProfile = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
+
+      if (!user) {
+        router.push("/login?redirectedFrom=/station/submit-launch")
+        return
+      }
       setUser(user)
+
+      // Check for mugshot profile
+      const response = await fetch("/api/user/mugshot-check")
+      const data = await response.json()
+
+      if (!data.hasMugshot) {
+        router.push("/station/get-arrested?notice=profile_required")
+        return
+      }
       setIsLoading(false)
     }
 
-    getUser()
+    checkUserAndProfile()
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user || null)
+      // Re-check profile on auth change if user logs in on this page
+      if (event === "SIGNED_IN" && session?.user) {
+        checkUserAndProfile()
+      } else {
+        setUser(session?.user || null)
+      }
       setIsLoading(false)
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [router])
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -389,7 +408,7 @@ export default function SubmitLaunchForm() {
     <div className="min-h-screen max-w-4xl mx-auto bg-gray-900 rounded-xl border border-gray-800 shadow-lg">
       <div className="p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-white">Submit a Launch</h1>
+          <h2 className="text-3xl font-bold mb-2 text-white">Submit a Launch</h2>
           <p className="text-gray-400">Add your product to the Heist Board</p>
         </div>
 
