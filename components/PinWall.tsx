@@ -205,7 +205,6 @@ export function PinWall() {
             userForNewPin.username = mugshotData.name || 'Anonymous';
             userForNewPin.avatar_url = mugshotData.image_url || '/images/indie-hackers/default-avatar.png';
           } else if (mugshotError) {
-            console.error('Error fetching mugshot for new pin:', mugshotError);
           }
           
           let productForNewPin: PinProduct | undefined = undefined;
@@ -218,7 +217,6 @@ export function PinWall() {
             if(productData){
               productForNewPin = { id: productData.id, name: productData.title, slug: productData.slug };
             } else if (productError) {
-              console.error('Error fetching product for new pin:', productError);
             }
           }
 
@@ -239,9 +237,7 @@ export function PinWall() {
       )
       .subscribe((status, err) => {
         if (status === 'SUBSCRIBED') {
-          console.log('Subscribed to pins channel!');
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-          console.error('Failed to subscribe to pins channel:', err);
         }
       });
 

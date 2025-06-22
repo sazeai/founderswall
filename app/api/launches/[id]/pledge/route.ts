@@ -26,7 +26,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     .eq("supporter_id", user.id)
 
   if (deleteError) {
-    console.error("Error removing existing pledges:", deleteError)
     return NextResponse.json({ error: "Failed to update pledges" }, { status: 500 })
   }
 
@@ -45,7 +44,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const { data, error } = await supabase.from("launch_supports").insert(newPledges).select()
 
   if (error) {
-    console.error("Error creating pledges:", error)
     return NextResponse.json({ error: "Failed to create pledges" }, { status: 500 })
   }
 
@@ -71,7 +69,6 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
     .eq("supporter_id", user.id)
 
   if (error) {
-    console.error("Error deleting pledges:", error)
     return NextResponse.json({ error: "Failed to delete pledges" }, { status: 500 })
   }
 

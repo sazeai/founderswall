@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next"
-import { getMugshots } from "@/lib/mugshot-service"
+import { getAllMugshotsForSitemap } from "@/lib/sitemap-mugshot-service"
 import { getProducts } from "@/lib/product-service"
 import { getBuildStories } from "@/lib/build-story-service"
 
@@ -61,14 +61,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // Get dynamic content with better error handling
     const [mugshotsResult, productsResult, storiesResult] = await Promise.allSettled([
-      getMugshots(),
+      getAllMugshotsForSitemap(),
       getProducts(),
       getBuildStories(),
     ])
 
     // Extract successful results
     const mugshots = mugshotsResult.status === "fulfilled" ? mugshotsResult.value : []
-    const products = productsResult.status === "fulfilled" ? productsResult.value : []
+    const products = productsResult.status === "fulfilled" ? (productsResult.value.products || []) : []
     const stories = storiesResult.status === "fulfilled" ? storiesResult.value : []
 
     console.log(
@@ -87,10 +87,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .replace(/[^a-z0-9-]/g, "") // Remove special characters
         .replace(/-+/g, "-") // Replace multiple hyphens with single
         .replace(/^-|-$/g, "") // Remove leading/trailing hyphens
-
+    
       return {
         url: `${baseUrl}/maker/${username}`,
-        lastModified: new Date(mugshot.updated_at || mugshot.created_at || new Date()),
+        lastModified: new Date(mugshot.createdAt || new Date()),
         changeFrequency: "weekly" as const,
         priority: mugshot.featured ? 0.9 : 0.7,
       }
@@ -99,13 +99,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Product launch pages
     const productPages: MetadataRoute.Sitemap = products.map((product) => ({
       url: `${baseUrl}/launch/${product.slug}`,
-      lastModified: new Date(product.updated_at || product.launch_date || product.created_at || new Date()),
+      lastModified: new Date(product.updatedAt || product.launchDate || product.createdAt || new Date()),
       changeFrequency: "weekly" as const,
       priority: 0.8,
     }))
 
     // Story pages
-    const storyPages: MetadataRoute.Sitemap = stories.map((story) => ({
+    const storyPages: MetadataRoute.Sitemap = stories.map((story: any) => ({
       url: `${baseUrl}/stories/${story.slug}`,
       lastModified: new Date(story.updated_at || story.created_at || new Date()),
       changeFrequency: "monthly" as const,

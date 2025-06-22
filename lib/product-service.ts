@@ -10,7 +10,6 @@ export async function getProducts(limit = 10, offset = 0) {
   try {
     const supabase = await createClient()
 
-    console.log("Fetching products with limit:", limit, "offset:", offset)
 
     // Get products with founder information
     const { data: products, error } = await supabase
@@ -27,30 +26,24 @@ export async function getProducts(limit = 10, offset = 0) {
       .limit(limit)
       .range(offset, offset + limit - 1)
 
-    console.log("Raw products query result:", { products, error })
 
     if (error) {
-      console.error("Products query error:", error)
       return { products: [], error: error.message }
     }
 
     if (!products || products.length === 0) {
-      console.log("No products found in database")
       return { products: [], error: null }
     }
 
-    console.log("Found", products.length, "products")
 
     // Get upvote counts for all products in a single query
     const productIds = products.map((p) => p.id)
-    console.log("Product IDs:", productIds)
 
     const { data: upvoteData, error: upvoteError } = await supabase
       .from("product_upvotes")
       .select("product_id")
       .in("product_id", productIds)
 
-    console.log("Upvote data:", upvoteData, "error:", upvoteError)
 
     // Count upvotes per product
     const upvoteCounts = new Map()
@@ -63,7 +56,6 @@ export async function getProducts(limit = 10, offset = 0) {
 
     // Format products for the frontend
     const formattedProducts = products.map((product) => {
-      console.log("Processing product:", product.id, "founder_id:", product.founder_id)
 
       // Ensure launch_date is valid or use created_at as fallback
       let launchDate = product.launch_date
@@ -99,15 +91,13 @@ export async function getProducts(limit = 10, offset = 0) {
         upvotes: upvoteCounts.get(product.id) || 0,
         createdAt: product.created_at,
         updatedAt: product.updated_at,
+        imageUrl: product.logo_url,
       }
     })
 
-    console.log("Formatted products:", formattedProducts.length, "products")
-    console.log("First product founder_id:", formattedProducts[0]?.founderId)
 
     return { products: formattedProducts, error: null }
   } catch (error) {
-    console.error("getProducts error:", error)
     return {
       products: [],
       error: error instanceof Error ? error.message : "An unknown error occurred",
@@ -119,10 +109,8 @@ export async function getProductBySlug(slug: string) {
   // Check cache first
   const cachedEntry = productBySlugCache.get(slug);
   if (cachedEntry && Date.now() - cachedEntry.timestamp < PRODUCT_CACHE_DURATION) {
-    console.log(`Cache HIT for product slug: ${slug}`);
     return cachedEntry.data;
   }
-  console.log(`Cache MISS for product slug: ${slug}`);
 
   try {
     const supabase = await createClient()
@@ -198,6 +186,7 @@ export async function getProductBySlug(slug: string) {
       timelineEntries: timelineEntries || [],
       createdAt: product.created_at,
       updatedAt: product.updated_at,
+      imageUrl: product.logo_url,
     }
 
     // Store in cache before returning
@@ -387,5 +376,6 @@ export async function getProductsByFounderId(founderId: string): Promise<Product
     updatedAt: product.updated_at,
     upvotes: product.upvotes || 0,
     timelineEntries: product.timeline_entries || [],
+    imageUrl: product.logo_url,
   }))
 }

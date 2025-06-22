@@ -46,7 +46,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       upvotes: upvotes?.length || 0,
     })
   } catch (error) {
-    console.error("Upvote error:", error)
     return NextResponse.json({ error: "Failed to toggle upvote" }, { status: 500 })
   }
 }

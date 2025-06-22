@@ -55,7 +55,6 @@ export default function StoryReactions({ storyId, initialReactions }: StoryReact
     if (isLoading) return
 
     setIsLoading(true)
-    console.log(`🎭 STORY PAGE - Reacting with ${emoji} to story ${storyId}`)
 
     try {
       const response = await fetch(`/api/build-stories/${storyId}/react`, {
@@ -68,16 +67,13 @@ export default function StoryReactions({ storyId, initialReactions }: StoryReact
 
       if (response.ok) {
         const data = await response.json()
-        console.log("✅ STORY PAGE - Reaction response:", data)
 
         // Update local state with server response
         setReactions(data.reactions)
         setUserReaction(data.userReaction) // null if removed, emoji if added/updated
       } else {
-        console.error("❌ STORY PAGE - Reaction failed:", response.status)
       }
     } catch (error) {
-      console.error("💥 STORY PAGE - Reaction error:", error)
     } finally {
       setIsLoading(false)
     }

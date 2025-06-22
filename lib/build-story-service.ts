@@ -1,3 +1,5 @@
+import { BuildStory } from "@/lib/types"
+
 export class BuildStoryService {
   constructor(private supabase: any) {}
 
@@ -31,8 +33,9 @@ export class BuildStoryService {
       }
 
       // Get unique user IDs
-      const userIds = [...new Set(stories.map((story) => story.user_id))]
-      console.log("👥 BUILD STORY SERVICE - Fetching authors for user IDs:", userIds)
+      const userIds = [
+        ...new Set(stories.map((story: { user_id: string }) => story.user_id)),
+      ]
 
       // Fetch author info separately
       const { data: authors, error: authorsError } = await this.supabase
@@ -48,12 +51,14 @@ export class BuildStoryService {
       // Create a map of user_id to author info
       const authorMap = new Map()
       if (authors) {
-        authors.forEach((author) => {
-          authorMap.set(author.user_id, {
-            name: author.name,
-            image_url: author.image_url,
-          })
-        })
+        authors.forEach(
+          (author: { user_id: string; name: string; image_url: string }) => {
+            authorMap.set(author.user_id, {
+              name: author.name,
+              image_url: author.image_url,
+            })
+          }
+        )
       }
 
       // Transform the data to match the expected structure
@@ -78,7 +83,6 @@ export class BuildStoryService {
 
       return transformedStories
     } catch (error) {
-      console.error("💥 BUILD STORY SERVICE - Error in getAllBuildStories:", error)
       return []
     }
   }
@@ -112,7 +116,6 @@ export class BuildStoryService {
         throw new Error("Story not found")
       }
 
-      console.log("✅ BUILD STORY SERVICE - Story fetched:", story.id)
 
       // Get author info separately
       const { data: author, error: authorError } = await this.supabase
@@ -143,7 +146,6 @@ export class BuildStoryService {
         },
       }
 
-      console.log("BUILD STORY SERVICE - Story transformed successfully")
       return transformedStory
     } catch (error) {
       throw error

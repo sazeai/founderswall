@@ -37,20 +37,17 @@ export default function SubmitStoryForm({ user }: SubmitStoryFormProps) {
     setError("")
     setIsSubmitting(true)
 
-    console.log("🚀 FORM SUBMIT - Starting submission")
 
     try {
       if (!title.trim() || !category || !content.trim()) {
         throw new Error("Please fill in all fields")
       }
 
-      console.log("📤 FORM SUBMIT - Sending request to API")
       const requestBody = {
         title: title.trim(),
         category,
         content: content.trim(),
       }
-      console.log("📤 FORM SUBMIT - Request body:", requestBody)
 
       const response = await fetch("/api/build-stories", {
         method: "POST",
@@ -60,32 +57,23 @@ export default function SubmitStoryForm({ user }: SubmitStoryFormProps) {
         body: JSON.stringify(requestBody),
       })
 
-      console.log("📥 FORM SUBMIT - Response received:", {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-      })
+     
 
       // Check if response is ok
       if (!response.ok) {
-        console.log("❌ FORM SUBMIT - Response not ok, status:", response.status)
 
         // Try to parse as JSON first
         let errorData
         try {
           const responseText = await response.text()
-          console.log("📄 FORM SUBMIT - Raw response text:", responseText)
 
           // Try to parse as JSON
           try {
             errorData = JSON.parse(responseText)
-            console.log("📄 FORM SUBMIT - Parsed as JSON:", errorData)
           } catch (jsonError) {
-            console.log("❌ FORM SUBMIT - Not valid JSON, treating as plain text")
             errorData = { error: responseText || `HTTP ${response.status}: ${response.statusText}` }
           }
         } catch (textError) {
-          console.log("❌ FORM SUBMIT - Could not read response text:", textError)
           errorData = { error: `HTTP ${response.status}: ${response.statusText}` }
         }
 
@@ -96,19 +84,14 @@ export default function SubmitStoryForm({ user }: SubmitStoryFormProps) {
       let result
       try {
         const responseText = await response.text()
-        console.log("📄 FORM SUBMIT - Success response text:", responseText)
         result = JSON.parse(responseText)
-        console.log("✅ FORM SUBMIT - Parsed success response:", result)
       } catch (parseError) {
-        console.log("❌ FORM SUBMIT - Could not parse success response:", parseError)
         throw new Error("Invalid response from server")
       }
 
-      console.log("✅ FORM SUBMIT - Story created successfully, redirecting to /stories")
       // Redirect to stories page
       router.push("/stories")
     } catch (err) {
-      console.error("💥 FORM SUBMIT - Error occurred:", err)
       setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       setIsSubmitting(false)

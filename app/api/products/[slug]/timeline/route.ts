@@ -100,7 +100,6 @@ export async function POST(request: Request, { params }: { params: { slug: strin
     // Invalidate timeline cache for this slug
     const cacheKey = `timeline-${slug}`;
     timelineCache.delete(cacheKey);
-    console.log(`Cache invalidated for timeline: ${cacheKey}`);
 
     return NextResponse.json(entry)
   } catch (error) {
@@ -116,10 +115,8 @@ export async function GET(request: Request, { params }: { params: { slug: string
   const cacheKey = `timeline-${slug}`;
   const cachedEntry = timelineCache.get(cacheKey);
   if (cachedEntry && Date.now() - cachedEntry.timestamp < TIMELINE_CACHE_DURATION) {
-    console.log(`Cache HIT for timeline: ${slug}`);
     return NextResponse.json(cachedEntry.data);
   }
-  console.log(`Cache MISS for timeline: ${slug}`);
 
   try {
     // Get the product

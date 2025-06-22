@@ -5,59 +5,41 @@ import { createClient } from '@/utils/supabase/server';
 import { NextURL } from 'next/dist/server/web/next-url';
 
 export async function GET(req: NextRequest) {
-  console.log('[OG Image Route] Received request:', req.url);
   const supabase = await createClient();
   
   const url = new NextURL(req.url);
   const pathSegments = url.pathname.split('/');
   const pinId = pathSegments[pathSegments.length - 1];
-  console.log('[OG Image Route] Extracted pinId for RPC:', pinId);
 
   if (!pinId || pinId === '[id]') { 
-    console.error('[OG Image Route] Invalid pinId extracted:', pinId);
     return new Response('Invalid Pin ID format', { status: 400 });
   }
 
   // 1. Fetch the pin using the RPC function
-  console.log(`[OG Image Route] Calling RPC get_pin_by_prefix with id_prefix: ${pinId}`);
   const { data: pinData, error: pinError } = await supabase
     .rpc('get_pin_by_prefix', { id_prefix: pinId })
-    .maybeSingle(); // Use maybeSingle() as RPC might return 0 or 1 row based on LIMIT 1 in function
+    .maybeSingle();
 
   if (pinError) {
-    console.error('[OG Image Route] Supabase RPC error fetching pin:', pinError);
     return new Response(`Supabase RPC error: ${pinError.message}`, { status: 500 });
   }
   if (!pinData) {
-    console.warn('[OG Image Route] Pin not found via RPC for id_prefix:', pinId);
     return new Response('Pin not found', { status: 404 });
   }
 
-  console.log('[OG Image Route] Pin data fetched successfully via RPC:', pinData);
   const userIdFromPin = pinData.user_id;
-
-  if (!userIdFromPin) {
-     console.warn('[OG Image Route] No user_id found on pin:', pinData.id, '- will use default user info.');
-  }
 
   // 2. Fetch the mugshot/profile using the user_id from the pin
   let mugshotProfile = null;
   if (userIdFromPin) {
-    console.log(`[OG Image Route] Querying Supabase for mugshot data, user_id: ${userIdFromPin}`);
     const { data: mugshotData, error: mugshotError } = await supabase
       .from('mugshots')
       .select('name, mugshot_url, twitter_handle') 
       .eq('user_id', userIdFromPin) 
       .single();
 
-    if (mugshotError) {
-      console.error('[OG Image Route] Supabase error fetching mugshot for user_id:', userIdFromPin, mugshotError);
-    }
     if (mugshotData) {
-      console.log('[OG Image Route] Mugshot data fetched successfully:', mugshotData);
       mugshotProfile = mugshotData;
-    } else {
-      console.warn('[OG Image Route] Mugshot not found for user_id:', userIdFromPin);
     }
   }
 
@@ -228,10 +210,8 @@ export async function GET(req: NextRequest) {
         height: 630,
       }
     );
-    console.log('[OG Image Route] ImageResponse generated successfully.');
     return imageResponse;
   } catch (e) {
-    console.error('[OG Image Route] Error generating ImageResponse:', e);
     return new Response(`Error generating image: ${e.message}`, { status: 500 });
   }
 }

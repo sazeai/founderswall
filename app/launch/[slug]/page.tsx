@@ -356,7 +356,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                         <div className="flex items-start gap-2">
                           <User className="h-4 w-4 text-gray-400 mt-0.5" />
                           <div>
-                            <div className="text-xs text-gray-400">SUSPECT</div>
+                            <div className="text-xs text-gray-400">FOUNDER</div>
                             <div className="text-gray-200">{product.founderName || "Unknown"}</div>
                           </div>
                         </div>
@@ -444,7 +444,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                       <div className="flex items-start">
                         <User className="h-4 w-4 text-red-500 mt-1 mr-2" />
                         <div>
-                          <div className="text-xs text-zinc-500 uppercase">Suspect</div>
+                          <div className="text-xs text-zinc-500 uppercase">Founder</div>
                           <div className="text-zinc-300">{product.founderName || "Unknown"}</div>
                         </div>
                       </div>
@@ -492,7 +492,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   {product.productUrl && (
                     <Button asChild className="bg-red-600 hover:bg-red-700 text-white" size="sm">
                       <a href={product.productUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4 mr-2" /> Visit Crime Scene
+                        <ExternalLink className="h-4 w-4 mr-2" /> Explore Product
                       </a>
                     </Button>
                   )}
