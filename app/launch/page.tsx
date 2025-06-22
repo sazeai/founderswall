@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ProductCaseFile } from "@/components/product-case-file"
 import { PublicHeader } from "@/components/public-header"
+import type { Product } from "@/lib/types"
 
 export const metadata: Metadata = {
   title: "The Launch Board - Most Wanted Products by Legendary Builders",
@@ -50,12 +51,12 @@ export const metadata: Metadata = {
 
 export default async function LaunchPage() {
   // Add error handling for the getProducts call
-  let products = []
-  let error = null
+  let products: Product[] = []
+  let error: string | null = null
 
   try {
     const result = await getProducts(20, 0)
-    products = result.products || []
+    products = (result.products || []) as Product[]
     error = result.error
   } catch (e) {
     console.error("Error fetching products:", e)
@@ -63,7 +64,7 @@ export default async function LaunchPage() {
   }
 
   // Group products by launch date and find the most upvoted product for each date
-  const productsByDate = products.reduce((acc, product) => {
+  const productsByDate: Record<string, Product[]> = products.reduce<Record<string, Product[]>>((acc: Record<string, Product[]>, product: Product) => {
     const launchDate = new Date(product.launchDate).toISOString().split("T")[0]
     if (!acc[launchDate]) {
       acc[launchDate] = []
@@ -73,18 +74,23 @@ export default async function LaunchPage() {
   }, {})
 
   // For each date, find the product with the most upvotes
-  const mostWantedByDate = Object.keys(productsByDate).reduce((acc, date) => {
-    const productsForDate = productsByDate[date]
-    const mostWanted = productsForDate.reduce((prev, current) => (prev.upvotes > current.upvotes ? prev : current))
-    acc[mostWanted.id] = true
-    return acc
-  }, {})
+  const mostWantedByDate: Record<string, boolean> = Object.keys(productsByDate).reduce<Record<string, boolean>>(
+    (acc: Record<string, boolean>, date: string) => {
+      const productsForDate: Product[] = productsByDate[date]
+      const mostWanted = productsForDate.reduce(
+        (prev: Product, current: Product) => ((prev.upvotes ?? 0) > (current.upvotes ?? 0) ? prev : current)
+      )
+      acc[mostWanted.id] = true
+      return acc
+    },
+    {}
+  )
 
   // Sort products for Trending (by upvotes) and Newest (by launch date)
-  const newestProducts = [...products].sort((a, b) => new Date(b.launchDate) - new Date(a.launchDate))
+  const newestProducts: Product[] = [...products].sort((a: Product, b: Product) => new Date(b.launchDate).getTime() - new Date(a.launchDate).getTime())
 
   // Sort products by launch date for display in "All" tab (newest date first)
-  const sortedProducts = [...products].sort((a, b) => new Date(b.launchDate) - new Date(a.launchDate))
+  const sortedProducts: Product[] = [...products].sort((a: Product, b: Product) => new Date(b.launchDate).getTime() - new Date(a.launchDate).getTime())
 
   // Generate JSON-LD Schema for launch page
   const generateLaunchPageSchema = () => {
@@ -107,7 +113,7 @@ export default async function LaunchPage() {
         name: "Product Launches",
         description: "Latest product launches from indie makers and startup builders",
         numberOfItems: products.length,
-        itemListElement: products.slice(0, 20).map((product, index) => ({
+        itemListElement: products.slice(0, 20).map((product: Product, index: number) => ({
           "@type": "ListItem",
           position: index + 1,
           item: {
@@ -128,7 +134,7 @@ export default async function LaunchPage() {
               name: product.founderName || "Unknown Founder",
             },
             aggregateRating:
-              product.upvotes > 0
+              product.upvotes && product.upvotes > 0
                 ? {
                     "@type": "AggregateRating",
                     ratingValue: Math.min(5, Math.max(1, product.upvotes / 10 + 3)),
@@ -279,7 +285,7 @@ export default async function LaunchPage() {
                       </h2>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {productsByDate[date]
-                          .sort((a, b) => b.upvotes - a.upvotes) // Sort by upvotes within each date
+                          .sort((a: Product, b: Product) => Number(b.upvotes ?? 0) - Number(a.upvotes ?? 0)) // Sort by upvotes within each date
                           .map((product) => (
                             <ProductCaseFile
                               key={product.id}
@@ -316,8 +322,8 @@ export default async function LaunchPage() {
             {Object.keys(mostWantedByDate).length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {sortedProducts
-                  .filter((product) => mostWantedByDate[product.id])
-                  .map((product) => (
+                  .filter((product: Product) => mostWantedByDate[product.id])
+                  .map((product: Product) => (
                     <ProductCaseFile key={product.id} product={product} isMostWanted={true} />
                   ))}
               </div>
