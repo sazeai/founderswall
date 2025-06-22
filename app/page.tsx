@@ -26,22 +26,10 @@ export default function Home() {
     ],
   }
 
-  const breadcrumbSchema = {
-    "@type": "BreadcrumbList",
-    "@id": "https://founderswall.com/#breadcrumb",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://founderswall.com",
-      },
-    ],
-  }
 
   const schema = {
     "@context": "https://schema.org",
-    "@graph": [webPageSchema, breadcrumbSchema],
+    "@graph": [webPageSchema],
   }
 
   return (

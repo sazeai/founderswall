@@ -225,9 +225,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 mainEntity: {
                   "@id": `https://founderswall.com/launch/${product.slug}#software`,
                 },
-                breadcrumb: {
-                  "@id": `https://founderswall.com/launch/${product.slug}#breadcrumb`,
-                },
+               
                 isPartOf: {
                   "@type": "WebSite",
                   "@id": "https://founderswall.com#website",
