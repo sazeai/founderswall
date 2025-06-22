@@ -47,16 +47,39 @@ function renderMarkdown(text: string): string {
 }
 
 export default async function StoryPage({ params }: StoryPageProps) {
-  let story = null
-  let topAuthors = []
+  let story: any = null
+  let topAuthors: any[] = []
   let error = null
+  let initialReactions: Record<string, number> = {}
 
   try {
+    const awaitedParams = await params
     const supabase = await createClient()
     const buildStoryService = new BuildStoryService(supabase)
 
     // Get the story
-    story = await buildStoryService.getBuildStoryBySlug(params.slug)
+    story = await buildStoryService.getBuildStoryBySlug(awaitedParams.slug)
+
+    if (!story) {
+      notFound()
+    }
+
+    // Get reactions for the story
+    const { data: reactionsData, error: reactionsError } = await supabase
+      .from("build_story_reactions")
+      .select("emoji")
+      .eq("story_id", story.id)
+
+    if (reactionsError) {
+      console.error("Error fetching reactions:", reactionsError)
+      // Continue without reactions if there's an error
+    } else {
+      initialReactions =
+        reactionsData?.reduce((acc: Record<string, number>, { emoji }) => {
+          acc[emoji] = (acc[emoji] || 0) + 1
+          return acc
+        }, {}) || {}
+    }
 
     // Try to get top authors, but don't fail if it errors
     try {
@@ -211,11 +234,10 @@ export default async function StoryPage({ params }: StoryPageProps) {
             <div className="lg:col-span-8">
               {/* Story Header Card */}
               <div className="bg-zinc-900 border-l-4 border-red-600 p-4 md:p-6 mb-8">
-                <div className="p-6">
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Story Info */}
                     <div className="flex-grow">
-                      <div className="flex flex-wrap items-center gap-2 mb-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                         <Badge className={`${getCategoryColor(story.category)} font-mono text-xs font-bold`}>
                           {getCategoryIcon(story.category)}
                           <span className="ml-1">{story.category.toUpperCase()}</span>
@@ -233,7 +255,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
                         <div className="flex items-start">
                           <User className="h-4 w-4 text-red-500 mt-1 mr-2" />
                           <div>
-                            <div className="text-xs text-zinc-500 uppercase font-mono">Author</div>
+                            <div className="text-xs text-zinc-500 uppercase font-mono">Founder</div>
                             <Link
                               href={`/maker/${story.author?.name?.toLowerCase().replace(/\s+/g, "-") || "unknown"}`}
                               className="text-zinc-300 hover:text-white underline font-mono"
@@ -259,7 +281,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
                     <div className="flex-shrink-0 w-[80px] md:w-[100px] self-start md:self-center">
                       <div className="bg-zinc-800 p-2 relative border-2 border-dashed border-white/70">
                         <div className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs px-2 py-0.5 rotate-3 z-10 whitespace-nowrap">
-                          AUTHOR
+                          Builder
                         </div>
 
                         {story.author?.image_url ? (
@@ -278,7 +300,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
                       </div>
                     </div>
                   </div>
-                </div>
+               
               </div>
 
               {/* Story Content */}
@@ -295,16 +317,14 @@ export default async function StoryPage({ params }: StoryPageProps) {
                   </div>
                 </div>
 
-                <div className="p-6">
-                  <div className="bg-zinc-800 p-6 border-l-4 border-yellow-500">
+                <div className="p-3 sm:p-6">
+                  <div className="bg-zinc-800 p-2 border-l-4 border-yellow-500">
                     <div
-                      className="text-zinc-300 text-sm leading-relaxed font-mono"
+                      className="prose prose-zinc dark:prose-invert max-w-none text-zinc-300"
                       dangerouslySetInnerHTML={{ __html: renderedContent }}
                     />
+                    <StoryReactions storyId={story.id} initialReactions={initialReactions} />
                   </div>
-
-                  {/* Working Emoji Reactions */}
-                  <StoryReactions storyId={story.id} initialReactions={story.emoji_reactions || {}} />
                 </div>
               </div>
             </div>
@@ -320,17 +340,17 @@ export default async function StoryPage({ params }: StoryPageProps) {
                 <div className="p-4">
                   {topAuthors.length > 0 ? (
                     <div className="space-y-3">
-                      {topAuthors.map((author, index) => (
+                      {topAuthors.map((author: any, index: number) => (
                         <div key={author.user_id} className="flex items-center space-x-3">
                           <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                               index === 0
                                 ? "bg-yellow-500 text-black"
                                 : index === 1
-                                  ? "bg-gray-400 text-black"
-                                  : index === 2
-                                    ? "bg-orange-600 text-white"
-                                    : "bg-zinc-700 text-white"
+                                ? "bg-gray-400 text-black"
+                                : index === 2
+                                ? "bg-orange-600 text-white"
+                                : "bg-zinc-700 text-white"
                             }`}
                           >
                             {index + 1}
