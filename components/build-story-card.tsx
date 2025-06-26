@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { normalizeUsername } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Eye, Trophy, X, Lightbulb } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
@@ -72,7 +71,7 @@ export default function BuildStoryCard({ story }: BuildStoryCardProps) {
   const authorFirstName = story.author?.name ? story.author.name.split(" ")[0] : "Unknown"
 
   // Create a normalized username for the URL
-  const makerProfileUrl = story.author?.name ? `/maker/${normalizeUsername(story.author.name)}` : "#"
+  const makerProfileUrl = story.author && typeof story.author.slug === 'string' && story.author.slug.length > 0 ? `/maker/${story.author.slug}` : "#"
 
   // Truncate content for preview
   const truncatedContent = story.content.length > 150 ? story.content.substring(0, 150) + "..." : story.content

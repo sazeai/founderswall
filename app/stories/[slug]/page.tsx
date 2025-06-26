@@ -240,7 +240,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
                           <div>
                             <div className="text-xs text-zinc-500 uppercase font-mono">Founder</div>
                             <Link
-                              href={`/maker/${story.author?.name?.toLowerCase().replace(/\s+/g, "-") || "unknown"}`}
+                              href={`/maker/${story.author?.slug || "unknown"}`}
                               className="text-zinc-300 hover:text-white underline font-mono"
                             >
                               {story.author?.name || "Anonymous"}
@@ -344,7 +344,7 @@ export default async function StoryPage({ params }: StoryPageProps) {
                           />
                           <div className="flex-1">
                             <Link
-                              href={`/maker/${author.name?.toLowerCase().replace(/\s+/g, "-") || "unknown"}`}
+                              href={`/maker/${author.slug || "unknown"}`}
                               className="text-zinc-300 hover:text-white font-mono text-sm"
                             >
                               {author.name || "Anonymous"}

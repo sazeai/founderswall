@@ -20,7 +20,8 @@ export async function getProducts(limit = 10, offset = 0) {
           id,
           name,
           image_url
-        )
+        ),
+        mugshots:founder_id (slug)
       `)
       .order("created_at", { ascending: false })
       .limit(limit)
@@ -92,6 +93,7 @@ export async function getProducts(limit = 10, offset = 0) {
         createdAt: product.created_at,
         updatedAt: product.updated_at,
         imageUrl: product.logo_url,
+        founderSlug: product.mugshots?.slug || undefined,
       }
     })
 
@@ -124,7 +126,8 @@ export async function getProductBySlug(slug: string) {
           id,
           name,
           image_url
-        )
+        ),
+        mugshots:founder_id (slug)
       `)
       .ilike("slug", slug)
       .single()
@@ -187,6 +190,7 @@ export async function getProductBySlug(slug: string) {
       createdAt: product.created_at,
       updatedAt: product.updated_at,
       imageUrl: product.logo_url,
+      founderSlug: product.mugshots?.slug || undefined,
     }
 
     // Store in cache before returning
@@ -347,7 +351,8 @@ export async function getProductsByFounderId(founderId: string): Promise<Product
     .from("products")
     .select(`
       *,
-      timeline_entries(*)
+      timeline_entries(*),
+      mugshots:founder_id (slug)
     `)
     .eq("founder_id", founderId)
     .order("created_at", { ascending: false })
@@ -377,5 +382,6 @@ export async function getProductsByFounderId(founderId: string): Promise<Product
     upvotes: product.upvotes || 0,
     timelineEntries: product.timeline_entries || [],
     imageUrl: product.logo_url,
+    founderSlug: product.mugshots?.slug || undefined,
   }))
 }

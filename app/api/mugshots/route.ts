@@ -47,6 +47,7 @@ export async function GET() {
       accessType: item.access_type,
       paymentStatus: item.payment_status,
       connections: item.connections || [],
+      slug: item.slug,
     })) as Mugshot[]
 
     return NextResponse.json(mugshots)
@@ -100,6 +101,7 @@ export async function POST(request: Request) {
       accessType: data.access_type,
       paymentStatus: data.payment_status,
       connections: [],
+      slug: data.slug,
     } as Mugshot
 
     return NextResponse.json(mugshot)

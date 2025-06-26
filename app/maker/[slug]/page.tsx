@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { getMugshotByUsername } from "@/lib/mugshot-service"
+import { getMugshotBySlug } from "@/lib/mugshot-service"
 import { getProductsByFounderId } from "@/lib/product-service"
 import type { Metadata } from "next"
 import MakerProfileClient from "./MakerProfileClient"
@@ -9,10 +9,10 @@ import type { Launch } from "@/lib/types"
 
 export const dynamic = "force-dynamic"
 
-export async function generateMetadata({ params }: { params: { username: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const awaitedParams = await params
-  const { username } = awaitedParams
-  const mugshot = await getMugshotByUsername(username)
+  const { slug } = awaitedParams
+  const mugshot = await getMugshotBySlug(slug)
 
   if (!mugshot) {
     return {
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: { username: string 
           alt: `${mugshot.name} - Legendary Builder Profile`,
         },
       ],
-      url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}`,
     },
     twitter: {
       card: "summary_large_image",
@@ -62,17 +62,17 @@ export async function generateMetadata({ params }: { params: { username: string 
       creator: mugshot.twitterHandle ? `@${mugshot.twitterHandle.replace("@", "")}` : undefined,
     },
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+      canonical: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}`,
     },
   }
 }
 
-async function generateMakerSchema(mugshot: any, products: any[], username: string) {
+async function generateMakerSchema(mugshot: any, products: any[], slug: string) {
   // Calculate total upvotes
   const totalUpvotes = products.reduce((sum, product) => sum + (product.upvotes || 0), 0)
 
   // Generate social profiles array
-  const sameAs = []
+  const sameAs: string[] = []
   if (mugshot.productUrl) sameAs.push(mugshot.productUrl)
   if (mugshot.twitterHandle) {
     sameAs.push(`https://twitter.com/${mugshot.twitterHandle.replace("@", "")}`)
@@ -82,10 +82,10 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
   const personSchema = {
     "@context": "https://schema.org",
     "@type": "Person",
-    "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}#person`,
+    "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}#person`,
     name: mugshot.name,
     description: `${mugshot.crime} • Legendary builder with ${products.length} products launched`,
-    url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}`,
     image: {
       "@type": "ImageObject",
       url: mugshot.imageUrl || "/placeholder.svg?height=400&width=400&text=Legendary+Builder",
@@ -110,13 +110,13 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
   const profilePageSchema = {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
-    "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+    "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}`,
     mainEntity: {
-      "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}#person`,
+      "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}#person`,
     },
     name: `${mugshot.name} - Legendary Builder Profile`,
     description: `Discover ${mugshot.name}'s maker journey, products, and achievements on FoundersWall`,
-    url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+    url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}`,
     isPartOf: {
       "@type": "WebSite",
       "@id": `${process.env.NEXT_PUBLIC_APP_URL}#website`,
@@ -140,7 +140,7 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
           "@type": "ListItem",
           position: 3,
           name: mugshot.name,
-          item: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+          item: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}`,
         },
       ],
     },
@@ -160,9 +160,9 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
     datePublished: product.launchDate,
     creator: {
       "@type": "Person",
-      "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}#person`,
+      "@id": `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}#person`,
       name: mugshot.name,
-      url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${username}`,
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/maker/${slug}`,
       sameAs: sameAs,
     },
     ...(product.upvotes > 0 && {
@@ -179,10 +179,10 @@ async function generateMakerSchema(mugshot: any, products: any[], username: stri
   return [personSchema, profilePageSchema, ...softwareSchemas]
 }
 
-export default async function MakerProfilePage({ params }: { params: { username: string } }) {
+export default async function MakerProfilePage({ params }: { params: { slug: string } }) {
   const awaitedParams = await params
-  const { username } = awaitedParams
-  const mugshot = await getMugshotByUsername(username)
+  const { slug } = awaitedParams
+  const mugshot = await getMugshotBySlug(slug)
 
   if (!mugshot) {
     notFound()
@@ -221,7 +221,7 @@ export default async function MakerProfilePage({ params }: { params: { username:
   const launches: Launch[] = launchesData || []
 
   // Generate schema
-  const schemas = await generateMakerSchema(mugshot, productsWithUpvotes, username)
+  const schemas = await generateMakerSchema(mugshot, productsWithUpvotes, slug)
 
   return (
     <>
@@ -232,7 +232,7 @@ export default async function MakerProfilePage({ params }: { params: { username:
         }}
       />
       <PublicHeader />
-      <MakerProfileClient username={username} mugshot={mugshot} products={productsWithUpvotes} launches={launches} />
+      <MakerProfileClient username={slug} mugshot={mugshot} products={productsWithUpvotes} launches={launches} />
     </>
   )
 }

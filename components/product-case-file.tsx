@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { formatDate, normalizeUsername } from "@/lib/utils"
+import { formatDate } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Eye, Triangle, Loader2 } from "lucide-react"
 import { createClient } from "@/utils/supabase/client"
@@ -24,6 +24,7 @@ interface ProductCaseFileProps {
     launchDate: string
     productUrl?: string
     upvotes?: number
+    founderSlug?: string
   }
   isMostWanted?: boolean
 }
@@ -114,7 +115,7 @@ export function ProductCaseFile({ product, isMostWanted = false }: ProductCaseFi
   }
 
   // Create a normalized username for the URL
-  const makerProfileUrl = product.founderName ? `/maker/${normalizeUsername(product.founderName)}` : "#"
+  const makerProfileUrl = product.founderSlug ? `/maker/${product.founderSlug}` : "#"
 
   return (
     <div className="relative w-full flex justify-center">

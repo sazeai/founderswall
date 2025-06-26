@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server"
 import type { Mugshot } from "./types"
 import { normalizeUsername } from "./utils"
+import { v4 as uuidv4 } from "uuid"
 
 // Add a simple cache at the top of the file
 let mugshotsCache: { data: Mugshot[]; timestamp: number } | null = null
@@ -94,6 +95,7 @@ export async function getMugshots(): Promise<Mugshot[]> {
     featured: mugshot.featured || false,
     accessType: mugshot.access_type,
     paymentStatus: mugshot.payment_status,
+    slug: mugshot.slug,
   }))
 
   // Update cache
@@ -129,11 +131,17 @@ export async function getMugshotById(id: string): Promise<Mugshot | null> {
     featured: data.featured || false,
     accessType: data.access_type,
     paymentStatus: data.payment_status,
+    slug: data.slug,
   }
 }
 
 export async function createMugshot(mugshotData: Omit<Mugshot, "id" | "createdAt" | "likes">) {
   const supabase = await createClient()
+
+  // Generate a unique slug: normalized name + short id
+  const tempId = uuidv4()
+  const normalizedName = normalizeUsername(mugshotData.name)
+  const slug = `${normalizedName}-${tempId.slice(0, 8)}`
 
   const { data, error } = await supabase
     .from("mugshots")
@@ -147,6 +155,7 @@ export async function createMugshot(mugshotData: Omit<Mugshot, "id" | "createdAt
         product_url: mugshotData.productUrl,
         twitter_handle: mugshotData.twitterHandle,
         user_id: mugshotData.userId,
+        slug: slug,
       },
     ])
     .select()
@@ -157,7 +166,10 @@ export async function createMugshot(mugshotData: Omit<Mugshot, "id" | "createdAt
   }
 
   return {
-    mugshot: data as Mugshot,
+    mugshot: {
+      ...(data as Mugshot),
+      slug: data.slug,
+    },
     error: null,
   }
 }
@@ -243,6 +255,7 @@ export async function updateMugshot(id: string, mugshotData: Partial<Omit<Mugsho
     featured: updatedMugshot.featured || false,
     accessType: updatedMugshot.access_type,
     paymentStatus: updatedMugshot.payment_status,
+    slug: updatedMugshot.slug,
   }
 
   return {
@@ -297,6 +310,7 @@ export async function getMugshotsByUserId(userId: string) {
     featured: mugshot.featured || false,
     accessType: mugshot.access_type,
     paymentStatus: mugshot.payment_status,
+    slug: mugshot.slug,
   }))
 }
 
@@ -331,6 +345,7 @@ export async function getMugshotsByIds(ids: string[]): Promise<Mugshot[]> {
     featured: mugshot.featured || false,
     accessType: mugshot.access_type,
     paymentStatus: mugshot.payment_status,
+    slug: mugshot.slug,
   }))
 }
 
@@ -365,6 +380,7 @@ export async function getMugshotsByUserIds(userIds: string[]): Promise<Mugshot[]
     featured: mugshot.featured || false,
     accessType: mugshot.access_type,
     paymentStatus: mugshot.payment_status,
+    slug: mugshot.slug,
   }))
 }
 
@@ -412,6 +428,42 @@ export async function getMugshotByUsername(username: string): Promise<Mugshot | 
       featured: matchingMugshot.featured || false,
       accessType: matchingMugshot.access_type,
       paymentStatus: matchingMugshot.payment_status,
+      slug: matchingMugshot.slug,
+    }
+  } catch (error) {
+    return null
+  }
+}
+
+export async function getMugshotBySlug(slug: string): Promise<Mugshot | null> {
+  const supabase = await createClient()
+  try {
+    const { data, error } = await supabase
+      .from("mugshots")
+      .select("*")
+      .eq("slug", slug)
+      .single()
+    if (error || !data) {
+      return null
+    }
+    const badgeType = await getBadgeTypeForUser(data.user_id)
+    return {
+      id: data.id,
+      name: data.name,
+      crime: data.crime,
+      note: data.note,
+      imageUrl: data.image_url,
+      mugshotUrl: data.mugshot_url,
+      productUrl: data.product_url,
+      twitterHandle: data.twitter_handle,
+      userId: data.user_id,
+      createdAt: data.created_at,
+      likes: data.likes || 0,
+      badgeType: badgeType,
+      featured: data.featured || false,
+      accessType: data.access_type,
+      paymentStatus: data.payment_status,
+      slug: data.slug,
     }
   } catch (error) {
     return null

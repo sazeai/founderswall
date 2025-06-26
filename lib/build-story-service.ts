@@ -37,7 +37,7 @@ export class BuildStoryService {
       // Fetch author info separately
       const { data: authors, error: authorsError } = await this.supabase
         .from("mugshots")
-        .select("user_id, name, image_url")
+        .select("user_id, name, image_url, slug")
         .in("user_id", userIds)
 
       if (authorsError) {
@@ -48,10 +48,11 @@ export class BuildStoryService {
       const authorMap = new Map()
       if (authors) {
         authors.forEach(
-          (author: { user_id: string; name: string; image_url: string }) => {
+          (author: { user_id: string; name: string; image_url: string; slug: string }) => {
             authorMap.set(author.user_id, {
               name: author.name,
               image_url: author.image_url,
+              slug: author.slug,
             })
           }
         )
@@ -72,6 +73,7 @@ export class BuildStoryService {
           author: {
             name: author?.name || "Anonymous",
             image_url: author?.image_url || null,
+            slug: author?.slug || undefined,
           },
         }
       })
@@ -112,7 +114,7 @@ export class BuildStoryService {
       // Get author info separately
       const { data: author, error: authorError } = await this.supabase
         .from("mugshots")
-        .select("name, image_url")
+        .select("name, image_url, slug")
         .eq("user_id", story.user_id)
         .single()
 
@@ -133,6 +135,7 @@ export class BuildStoryService {
         author: {
           name: author?.name || "Anonymous",
           image_url: author?.image_url || null,
+          slug: author?.slug || undefined,
         },
       }
 
@@ -177,7 +180,7 @@ export class BuildStoryService {
       // Get author info for top users
       const { data: authors, error: authorsError } = await this.supabase
         .from("mugshots")
-        .select("user_id, name, image_url")
+        .select("user_id, name, image_url, slug")
         .in("user_id", topUserIds)
 
       if (authorsError) {
@@ -191,6 +194,7 @@ export class BuildStoryService {
             user_id: author.user_id,
             name: author.name,
             image_url: author.image_url,
+            slug: author.slug,
             story_count: userCounts[author.user_id] || 0,
           }))
           .sort((a: any, b: any) => b.story_count - a.story_count) || []

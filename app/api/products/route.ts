@@ -43,7 +43,8 @@ export async function GET(request: Request) {
           id,
           name,
           image_url
-        )
+        ),
+        mugshots:founder_id (slug)
       `)
       .order("created_at", { ascending: false })
       .limit(limit)
@@ -106,6 +107,7 @@ export async function GET(request: Request) {
         upvotes: upvoteCounts.get(String(product.id)) || 0,
         createdAt: product.created_at,
         updatedAt: product.updated_at,
+        founderSlug: product.mugshots?.slug || undefined,
       }
     })
 

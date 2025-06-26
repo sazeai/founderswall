@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import type { Mugshot } from "@/lib/types"
 import { useRef } from "react"
-import { normalizeUsername } from "@/lib/utils"
 
 interface CriminalModalProps {
   criminal: Mugshot
@@ -23,8 +22,8 @@ export default function CriminalModal({ criminal, onClose }: CriminalModalProps)
     }
   }
 
-  // Create a normalized username for the URL
-  const makerProfileUrl = `/maker/${normalizeUsername(criminal.name)}`
+  const hasSlug = typeof criminal.slug === 'string' && criminal.slug.length > 0;
+  const makerProfileUrl = hasSlug ? `/maker/${criminal.slug}` : undefined;
 
   // Get badge info based on badge_type from user_profiles (now properly fetched)
   const getBadgeInfo = (badgeType: string) => {
@@ -165,19 +164,21 @@ export default function CriminalModal({ criminal, onClose }: CriminalModalProps)
         </div>
 
         <div className="flex justify-center p-2">
-          <Button
-            asChild
-            className="w-full rounded-none bg-gray-700 hover:bg-gray-600 flex items-center justify-center gap-2 text-white"
-            onClick={() => {
-              // Reset body overflow before navigation
-              document.body.style.overflow = "auto"
-            }}
-          >
-            <Link href={makerProfileUrl}>
+          {hasSlug ? (
+            <Link
+              href={makerProfileUrl!}
+              className="w-full rounded-none bg-gray-700 hover:bg-gray-600 flex items-center justify-center gap-2 text-white py-2 px-4 font-semibold"
+              onClick={() => { document.body.style.overflow = "auto"; }}
+            >
               <User className="w-4 h-4" />
               View Profile
             </Link>
-          </Button>
+          ) : (
+            <span className="w-full rounded-none bg-gray-400 flex items-center justify-center gap-2 text-white py-2 px-4 font-semibold opacity-60 cursor-not-allowed">
+              <User className="w-4 h-4" />
+              View Profile
+            </span>
+          )}
         </div>
       </div>
     </div>

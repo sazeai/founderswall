@@ -19,6 +19,7 @@ export interface Database {
           is_approved: boolean | null
           is_visible: boolean | null
           payment_status: string | null
+          slug: string
         }
         Insert: {
           id?: string
@@ -35,6 +36,7 @@ export interface Database {
           is_approved?: boolean | null
           is_visible?: boolean | null
           payment_status?: string | null
+          slug: string
         }
         Update: {
           id?: string
@@ -51,6 +53,7 @@ export interface Database {
           is_approved?: boolean | null
           is_visible?: boolean | null
           payment_status?: string | null
+          slug: string
         }
       }
       connections: {

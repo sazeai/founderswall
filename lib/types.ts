@@ -12,11 +12,12 @@ export interface Mugshot {
   userId?: string | null
   isApproved?: boolean
   isVisible?: boolean
-  paymentStatus?: string
+  paymentStatus?: string | null
   accessType?: "paid" | "community_pick"
   badgeType?: "wanted" | "community_pick" | "startup_saviour"
   featured?: boolean
   isLaunching?: boolean
+  slug: string
 }
 
 export interface Launch {
@@ -85,6 +86,7 @@ export interface Product {
   createdAt: string
   updatedAt: string
   upvotes?: number
+  founderSlug?: string
   timelineEntries?: TimelineEntry[]
   imageUrl: string // To fix missing property error
 }
