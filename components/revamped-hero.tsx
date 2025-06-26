@@ -226,8 +226,8 @@ const RevampedHero = () => {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             }`}
           >
-            <Badge className="bg-orange-600/20 border-orange-500 text-orange-400 font-mono px-4 py-2 text-sm">
-              <Terminal className="w-4 h-4 mr-2" />🚨 SERIAL SHIPPERS ONLY 🚨
+            <Badge className="bg-orange-600/20 border-orange-500 text-orange-400 font-mono px-2 py-1 text-sm">
+              <Terminal className="w-4 h-4 mr-2" />🚨 SERIAL BUILDERS ONLY 🚨
             </Badge>
           </div>
 
@@ -270,7 +270,7 @@ const RevampedHero = () => {
             }`}
           >
             <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold max-w-4xl mx-auto leading-relaxed">
-              The underground hideout where <span className="text-yellow-400 font-bold">code criminals</span> turn{" "}
+              The underground hideout where <span className="text-yellow-400 font-bold">real builders</span> turn{" "}
               <span className="text-red-400 font-bold">wild ideas into cold hard cash</span> and get{" "}
               <span className="text-green-400 font-bold">caught shipping</span> every damn day.
             </p>
