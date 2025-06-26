@@ -240,7 +240,7 @@ const RevampedHero = () => {
             {["BUILD", "SHIP", "REPEAT"].map((word, idx) => (
               <h1
                 key={word}
-                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none tracking-tight"
+                className="text-7xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-none tracking-tight"
                 style={{
                   background:
                     idx === 0
