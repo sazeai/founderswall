@@ -101,7 +101,7 @@ const RevampedHero = () => {
   }, [])
 
   return (
-    <div className="min-h-screen bg-black py-24 relative overflow-hidden">
+    <div className="min-h-screen bg-black pt-24 pb-12 relative overflow-hidden">
       {/* BACKGROUND LAYERS */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-zinc-800" />
