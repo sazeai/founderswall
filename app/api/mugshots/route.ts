@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/utils/supabase/server"
 import type { Mugshot } from "@/lib/types"
+import { normalizeUsername } from "@/lib/utils"
 
 export async function GET() {
   const supabase = await createClient()
@@ -62,6 +63,11 @@ export async function POST(request: Request) {
   try {
     const mugshotData = await request.json()
 
+    // Generate a unique slug: normalized name + short random string
+    const normalizedName = normalizeUsername(mugshotData.name)
+    const randomString = Math.random().toString(36).substring(2, 10)
+    const slug = `${normalizedName}-${randomString}`
+
     const { data, error } = await supabase
       .from("mugshots")
       .insert([
@@ -74,6 +80,7 @@ export async function POST(request: Request) {
           product_url: mugshotData.productUrl,
           twitter_handle: mugshotData.twitterHandle,
           user_id: mugshotData.userId,
+          slug: slug,
         },
       ])
       .select()
