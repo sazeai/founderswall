@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import RevampedHero from "@/components/revamped-hero"
 import { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
@@ -14,96 +14,6 @@ import PublicFooter from "@/components/public-footer"
 import LoadingMugshotWall from "@/components/loading-mugshot-wall"
 import { getRandomRotation, getPinPosition } from "@/utils/crimeBoardEffects"
 
-// Motivational quotes for indie makers
-const motivationalQuotes = [
-  "Ship early, ship often. Perfection is the enemy of progress.",
-  "Build in public. Learn in public. Fail in public. Succeed in public.",
-  "The best time to launch was yesterday. The second best time is today.",
-  "Your first version should embarrass you, or you waited too long to ship.",
-  "Focus on solving real problems for real people.",
-  "Consistency beats intensity. Show up every day.",
-  "Don't wait for permission. Just start building.",
-  "Revenue is the ultimate validation.",
-  "Build something people want, not something you think they need.",
-  "The best marketing is a great product.",
-  "Iterate based on feedback, not assumptions.",
-  "Small bets, quick wins, compound over time.",
-  "Your unfair advantage is being you. Lean into it.",
-  "Solve your own problems first. You'll be more passionate about it.",
-  "Done is better than perfect.",
-]
-
-// Add these helper functions after the motivationalQuotes array and before the Home component:
-
-// Points calculation based on product count
-const calculatePoints = (productCount: number): number => {
-  if (productCount === 1) return 10
-  if (productCount === 2) return 25
-  if (productCount === 3) return 45
-  if (productCount === 4) return 70
-  if (productCount >= 5) return 100 + (productCount - 5) * 20 // 100+ for 5+, +20 for each additional
-  return 0
-}
-
-// Convert points to star display
-const getStarDisplay = (points: number) => {
-  const fullStars = Math.min(Math.floor(points / 20), 5) // Max 5 stars
-  const hasHalfStar = points % 20 >= 10
-  const remainingPoints = points % 20
-
-  return {
-    fullStars,
-    hasHalfStar,
-    displayPoints: points,
-  }
-}
-
-// Get winning titles based on position and product count
-const getWinningTitle = (position: number, productCount: number): string => {
-  if (position === 0) {
-    // First place
-    if (productCount >= 5) return "🚀 SERIAL LAUNCHER"
-    if (productCount >= 4) return "⚡ PRODUCT MACHINE"
-    if (productCount >= 3) return "🔥 LAUNCH LEGEND"
-    if (productCount >= 2) return "💎 BUILD MASTER"
-    return "👑 TOP BUILDER"
-  } else if (position === 1) {
-    // Second place
-    if (productCount >= 4) return "🌟 LAUNCH EXPERT"
-    if (productCount >= 3) return "⭐ SHIP CHAMPION"
-    if (productCount >= 2) return "🎯 BUILD HERO"
-    return "🥈 ELITE MAKER"
-  } else {
-    // Third place
-    if (productCount >= 3) return "🔧 CRAFT MASTER"
-    if (productCount >= 2) return "🛠️ BUILD WIZARD"
-    return "🥉 RISING STAR"
-  }
-}
-
-// Render star component
-const StarRating = ({ points }: { points: number }) => {
-  const { fullStars, hasHalfStar } = getStarDisplay(points)
-
-  return (
-    <div className="flex items-center">
-      {/* Render full stars */}
-      {Array.from({ length: fullStars }).map((_, i) => (
-        <span key={i} className="text-yellow-400 text-sm">
-          ★
-        </span>
-      ))}
-      {/* Render half star if needed */}
-      {hasHalfStar && <span className="text-yellow-400 text-sm">☆</span>}
-      {/* Fill remaining slots with empty stars up to 5 */}
-      {Array.from({ length: Math.max(0, 5 - fullStars - (hasHalfStar ? 1 : 0)) }).map((_, i) => (
-        <span key={`empty-${i}`} className="text-gray-600 text-sm">
-          ☆
-        </span>
-      ))}
-    </div>
-  )
-}
 
 export default function HomeClient() {
   const [selectedCriminal, setSelectedCriminal] = useState<Mugshot | null>(null)
@@ -114,7 +24,6 @@ export default function HomeClient() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [productCounts, setProductCounts] = useState<Record<string, number>>({})
-  const [currentQuote, setCurrentQuote] = useState<string>(motivationalQuotes[0])
 
   // New state for panning
   const [panPosition, setPanPosition] = useState({ x: 0, y: 0 })
@@ -167,15 +76,6 @@ export default function HomeClient() {
     setBottomTornEdge(generateTornEdge())
   }, [])
 
-  // Rotate quotes every 8 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * motivationalQuotes.length)
-      setCurrentQuote(motivationalQuotes[randomIndex])
-    }, 8000)
-
-    return () => clearInterval(interval)
-  }, [])
 
   // Add coffee stains effect
   useEffect(() => {
@@ -599,71 +499,6 @@ export default function HomeClient() {
     )
   }
 
-  // Update the LeaderboardComponent to use the new points system:
-  // Replace the existing LeaderboardComponent with this updated version:
-  const LeaderboardComponent = ({ className = "" }: { className?: string }) => (
-    <div className={`bg-black/70 backdrop-blur-md rounded-lg border border-yellow-500 p-3 shadow-xl ${className}`}>
-      <div className="flex items-center justify-center text-yellow-400 text-sm font-bold mb-4">
-        <Crown className="h-4 w-4 mr-2" fill="currentColor" />
-        TOP FOUNDERS
-      </div>
-
-      {leaderboardMugshots.map((mugshot, index) => {
-        const points = calculatePoints(mugshot.productCount)
-        const title = getWinningTitle(index, mugshot.productCount)
-
-        return (
-          <div key={mugshot.id} className="flex items-center justify-between text-white text-sm mb-3">
-            <div className="flex items-center flex-1 min-w-0">
-              {/* Profile photo with medal overlay */}
-              <div className="relative mr-3 flex-shrink-0">
-                <div
-                  className={`w-8 h-8 rounded-full overflow-hidden border-2 ${
-                    index === 0
-                      ? "border-yellow-500 shadow-yellow-500/50"
-                      : index === 1
-                        ? "border-gray-400 shadow-gray-400/50"
-                        : "border-amber-700 shadow-amber-700/50"
-                  }`}
-                >
-                  <Image
-                    src={mugshot.imageUrl || "/placeholder.svg?height=32&width=32&query=person"}
-                    alt={mugshot.name}
-                    width={32}
-                    height={32}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                {/* Medal badge for top 3 */}
-                <div className="absolute -bottom-1 -right-1 text-xs">
-                  {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"}
-                </div>
-              </div>
-
-              <div className="flex flex-col min-w-0 flex-1">
-                {/* Name - ensure it doesn't wrap */}
-                <span className="text-white font-medium text-xs whitespace-nowrap overflow-hidden text-ellipsis">
-                  {mugshot.name}
-                </span>
-                {/* Title */}
-                <span className="text-yellow-400 text-[10px] font-bold whitespace-nowrap overflow-hidden text-ellipsis">
-                  {title}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-end flex-shrink-0 ml-2">
-              {/* Stars */}
-              <StarRating points={points} />
-              {/* Points */}
-              <span className="text-xs text-gray-400 mt-1">{points} pts</span>
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
-
   // Add this above the return statement in your Home component:
   const wallCards = [
     {
@@ -709,218 +544,8 @@ export default function HomeClient() {
 
       <PublicHeader />
 
-      {/* New Hero Section */}
-      <section className="relative top-16-custom overflow-hidden min-h-screen lg:min-h-screen">
-        {/* Playful Background Doodles and Text */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {/* Background Pattern */}
-          <div
-            className="absolute inset-0 opacity-5"
-            style={{
-              backgroundImage: `
-          radial-gradient(circle at 25% 25%,rgb(219, 191, 122) 2px, transparent 2px),
-          radial-gradient(circle at 75% 75%, #fbbf24 1px, transparent 1px)
-        `,
-              backgroundSize: "50px 50px",
-            }}
-          />
-
-          {/* Playful Doodles and Text Overlays */}
-          <div className="absolute top-10 left-10 text-yellow-300 opacity-20 transform -rotate-12">
-            <div className="text-6xl">💻</div>
-          </div>
-          <div className="absolute top-20 right-20 text-white opacity-15 transform rotate-12 font-mono text-sm">
-            SHIP IT!
-          </div>
-          <div className="absolute top-32 left-1/4 text-yellow-400 opacity-25 transform rotate-6">
-            <div className="text-4xl">🚀</div>
-          </div>
-          <div className="absolute top-40 right-1/3 text-white opacity-10 transform -rotate-6 font-mono text-xs">
-            ZERO FUNDING
-          </div>
-          <div className="absolute bottom-32 left-16 text-yellow-300 opacity-20 transform rotate-45">
-            <div className="text-5xl">⚡</div>
-          </div>
-          <div className="absolute bottom-20 right-16 text-white opacity-50 transform -rotate-12 font-mono text-sm">
-            BUILT IN PUBLIC
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="relative z-10 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 py-8">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-4 items-center w-full">
-            {/* Left Side - Typography */}
-            <div className="text-center lg:text-left order-2 lg:order-1">
-              <div className="mb-6 lg:mb-8 relative">
-                <div className="absolute -bottom-4 left-0 lg:relative lg:bottom-auto lg:left-auto lg:inline-block lg:ml-4 lg:mt-2">
-                  <div className="bg-yellow-400 text-black px-3 py-1 text-xs lg:text-sm font-bold transform rotate-[-12deg] shadow-lg border-2 border-black">
-                    WANTED
-                  </div>
-                </div>
-                <h1
-                  className="text-6xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-[7rem] font-black text-yellow-400 leading-none"
-                  style={{
-                    textShadow: "3px 3px 0px #bb1919, -2px -2px 0px #bb1919, 2px -2px 0px #bb1919, -2px 2px 0px #000",
-                    fontFamily: "'Arial Black', sans-serif",
-                  }}
-                >
-                  <span className="block">FOUNDERS</span>
-                  <span className="block -mt-2 lg:-mt-4">WALL</span>
-                </h1>
-              </div>
-
-              <div className="mb-6 lg:mb-8">
-                <h2 className="text-white text-xl sm:text-2xl lg:text-3xl font-bold mb-2 lg:mb-3">
-                  Where the shipping never stops, and the dopamine never hits.
-                </h2>
-                <p className="text-yellow-200 text-base font-handwriting sm:text-lg lg:text-xl">
-                  Built for the ones who ship quietly, fail publicly, and don't stop.
-                </p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6">
-                <Link
-                  href="/station"
-                  className="group bg-yellow-400 hover:bg-yellow-500 text-black px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center justify-center"
-                >
-                  <span className="mr-2">👮‍♂️</span>
-                  Get on the Board
-                  <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
-                </Link>
-                <button
-                  onClick={() => {
-                    const corkboardSection = document.getElementById("corkboard-section")
-                    corkboardSection?.scrollIntoView({ behavior: "smooth" })
-                  }}
-                  className="group bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                >
-                  <span className="mr-2">🔍</span>
-                  Meet Suspects
-                  <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
-                </button>
-              </div>
-
-              {/* Graffiti/Sticker Context Block */}
-              <div className="flex items-center mb-8 w-full min-h-[140px]">
-                <div
-                  className="relative bg-yellow-200 border-2 border-black rounded-lg shadow-2xl px-6 py-5 max-w-md w-full text-center"
-                  style={{
-                    fontFamily: "'Permanent Marker', Marker Felt, Arial, sans-serif",
-                    transform: "rotate(-4deg)",
-                    transformOrigin: "50% 0%",
-                    boxShadow: "8px 8px 0px #222, 0 2px 16px rgba(0,0,0,0.18)",
-                    position: "relative",
-                    zIndex: 10,
-                    animation: "popIn 0.7s cubic-bezier(.68,-0.55,.27,1.55)",
-                  }}
-                >
-                  {/* Hanging Pin */}
-                  <div
-                    className="absolute left-1/2 -top-4 z-30"
-                    style={{
-                      transform: "translateX(-50%)",
-                    }}
-                  >
-                    <div className="w-5 h-5 bg-red-500 rounded-full shadow-lg border-2 border-red-700" />
-                    {/* Pin shadow for realism */}
-                    <div className="w-2 h-2 bg-black opacity-30 rounded-full absolute left-1/2 top-5 -translate-x-1/2 blur-sm" />
-                  </div>
-                  {/* Dirty paper texture overlay */}
-                  <div
-                    className="absolute inset-0 pointer-events-none rounded-lg"
-                    style={{
-                      backgroundImage:
-                        "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
-                      backgroundSize: "cover",
-                      opacity: 0.18,
-                      mixBlendMode: "luminosity",
-                      zIndex: 20,
-                    }}
-                  />
-                  {/* Hand-drawn border (SVG) */}
-                  <svg
-                    className="absolute inset-0 w-full h-full pointer-events-none z-30"
-                    viewBox="0 0 100 100"
-                    preserveAspectRatio="none"
-                  >
-                    <rect
-                      x="2"
-                      y="2"
-                      width="96"
-                      height="96"
-                      fill="none"
-                      stroke="black"
-                      strokeDasharray="6,4"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                  {/* Body */}
-                  <div className="relative z-40 text-black font-handwriting font-medium  whitespace-pre-line leading-snug">
-                    FoundersWall is where indie hackers log their <span className="text-red-600 font-bold">chaos</span>.
-                    <br />
-                    Not polished posts. Not follower farming.
-                    <br />
-                    Just proof that you're <span className="text-green-700 font-bold">alive</span> and building.
-                    <br />
-                    <br />
-                    <span className="text-yellow-700 font-bold">It's gritty. It's public. It's real.</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* THIS WEEK'S LEADERBOARD - Show on mobile with proper spacing */}
-              <div className="lg:hidden mb-8">
-                <LeaderboardComponent />
-              </div>
-            </div>
-
-            {/* Right Side - Hero Visual */}
-            <div className="flex flex-col justify-center order-1 lg:order-2">
-              <div className="relative flex flex-col justify-center items-center">
-                <div className="absolute inset-0 bg-yellow-400 rounded-full blur-3xl opacity-20 scale-110"></div>
-                <div className="absolute inset-0 bg-red-400 rounded-full blur-2xl opacity-10 scale-125"></div>
-                <div className="relative flex justify-center items-center">
-                  <Image
-                    src="/wallimg.png"
-                    alt="Founders shipping like hell"
-                    width={350}
-                    height={350}
-                    className="w-48 h-48 sm:w-60 sm:h-60 lg:w-[300px] lg:h-[300px] xl:w-[350px] xl:h-[350px] object-contain drop-shadow-2xl max-w-xs sm:max-w-sm lg:max-w-md"
-                    priority
-                  />
-                  {/* Floating Achievement Badges */}
-                  <div className="absolute -top-4 -left-4 bg-green-500 text-white px-2 py-1 text-xs font-bold transform -rotate-12 shadow-lg">
-                    $10K MRR
-                  </div>
-                  <div className="absolute top-8 -right-8 bg-blue-500 text-white px-2 py-1 text-xs font-bold transform rotate-12 shadow-lg">
-                    SHIPPED
-                  </div>
-                  <div className="absolute -bottom-4 -right-4 bg-purple-500 text-white px-2 py-1 text-xs font-bold transform rotate-6 shadow-lg">
-                    INDIE
-                  </div>
-                  <div className="absolute bottom-8 -left-8 bg-orange-500 text-white px-2 py-1 text-xs font-bold transform -rotate-6 shadow-lg">
-                    LEGEND
-                  </div>
-                </div>
-                {/* THIS WEEK'S LEADERBOARD - Show below the image on desktop */}
-                <div className="hidden lg:block w-full max-w-md mt-6">
-                  <LeaderboardComponent />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Quote Section - Always visible above the caution strip */}
-      <div className="bg-black/80 text-white backdrop-blur-sm py-3 overflow-hidden z-20 relative border-t border-gray-800">
-        <div className="flex items-center justify-center text-center px-4">
-          <Quote className="h-5 w-5 text-yellow-400 mr-3 flex-shrink-0" />
-          <p className="text-white text-sm md:text-base font-medium transition-opacity duration-500">{currentQuote}</p>
-          <Quote className="h-5 w-5 text-yellow-400 ml-3 flex-shrink-0 transform rotate-180" />
-        </div>
-      </div>
+ 
+      <RevampedHero />
 
       {/* Caution Stripe Separator - Clear separation between sections */}
       <div className="h-8 w-full bg-yellow-400 relative overflow-hidden z-10">
@@ -1000,7 +625,41 @@ export default function HomeClient() {
               {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
             </button>
           </div>
-
+          {/* Sticky Note - Instructions */}
+          <div className="absolute top-20 left-16 z-40">
+            <div
+              className="bg-yellow-200 p-2 shadow-lg relative max-w-[120px] sm:max-w-[140px]"
+              style={{
+                transform: "rotate(-8deg)",
+                fontFamily: "'Permanent Marker', cursive",
+              }}
+            >
+              {/* Pin */}
+              <div className="absolute left-1/2 -top-2 z-20" style={{ transform: "translateX(-50%)" }}>
+                <div className="w-3 h-3 bg-red-500 rounded-full shadow border border-red-700" />
+              </div>
+              <p className="text-black text-[10px] sm:text-xs leading-tight">
+                Each pin = a builder. Click to see what they're building, breaking, and shipping.
+              </p>
+            </div>
+          </div>
+          <div className="absolute top-20 right-10 z-40">
+            <div
+              className="bg-yellow-200 p-2 shadow-lg relative max-w-[120px] sm:max-w-[140px]"
+              style={{
+                transform: "rotate(-8deg)",
+                fontFamily: "'Permanent Marker', cursive",
+              }}
+            >
+              {/* Pin */}
+              <div className="absolute left-1/2 -top-2 z-20" style={{ transform: "translateX(-50%)" }}>
+                <div className="w-3 h-3 bg-red-500 rounded-full shadow border border-red-700" />
+              </div>
+              <p className="text-black text-[10px] sm:text-xs leading-tight">
+                This is not a launch list. It’s a living board of what founders are really building.
+              </p>
+            </div>
+          </div>
           {/* Content container with panning and zooming */}
           <div
             ref={contentRef}
@@ -1139,8 +798,9 @@ export default function HomeClient() {
           </div>
         </div>
       </section>
-      <section className="relative py-16 px-4 sm:px-8 lg:px-16 bg-[#18181b] text-white overflow-hidden">
-        {/* Dirty texture overlay */}
+   
+      <section className="relative py-20 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] text-white overflow-hidden">
+        {/* Enhanced grunge texture with multiple layers */}
         <div
           className="absolute inset-0 pointer-events-none z-0"
           style={{
@@ -1151,101 +811,283 @@ export default function HomeClient() {
             mixBlendMode: "luminosity",
           }}
         />
-        <div className="max-w-5xl mx-auto relative z-10">
-          {/* Torn Sticky Note Heading */}
-          <div className="flex items-center justify-center mb-12 relative">
-            <div
-              className="font-handwriting text-2xl sm:text-3xl font-bold uppercase"
-              style={{ transform: "rotate(-3deg)", letterSpacing: "2px", textShadow: "1px 1px 0 #fff", border: "none" }}
-            >
-              ✦ WHAT HAPPENS ON THE WALL ✦
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {wallCards.map((card, i) => (
-              <div
-                key={card.title}
-                className="relative bg-yellow-200 px-4 pt-4 pb-6 font-handwriting text-black"
+        {/* Scattered evidence markers */}
+        <div className="absolute top-10 left-10 w-8 h-8 bg-red-600 rounded-full opacity-20 animate-pulse" />
+        <div className="absolute top-32 right-20 w-6 h-6 bg-yellow-500 rounded-full opacity-30" />
+        <div className="absolute bottom-20 left-1/4 w-4 h-4 bg-blue-500 rounded-full opacity-25" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Enhanced header with crime scene tape effect */}
+          <div className="text-center mb-16 relative">
+            {/* Crime scene tape background */}
+            <div className="absolute -top-4 left-0 right-0 h-12 bg-yellow-400 transform -rotate-1 opacity-20" />
+            <div className="absolute -top-2 left-0 right-0 h-8 bg-black transform rotate-1 opacity-30" />
+
+            <div className="relative z-10">
+              <h2
+                className="text-4xl md:text-6xl font-black text-white mb-4 relative inline-block"
                 style={{
-                  transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (3 + Math.random() * 3)}deg) translateY(${Math.random() * 8 - 4}px)`,
-                  minHeight: "90px",
-                  boxShadow: "2px 2px 0 #000",
-                  border: "none",
-                  marginTop: i % 2 === 0 ? "0px" : "16px",
-                  marginBottom: i % 2 === 1 ? "0px" : "8px",
+                  textShadow: "2px 2px 0px #dc2626, -1px -1px 0px #dc2626, 1px -1px 0px #dc2626, -2px 2px 0px #dc2626",
+                  fontFamily: "'Arial', sans-serif",
                 }}
               >
-                {/* Pin */}
-                <div className="absolute left-1/2 -top-4 z-20" style={{ transform: "translateX(-50%)" }}>
-                  <div className="w-4 h-4 bg-red-500 rounded-full shadow border-2 border-red-700" />
-                </div>
-                {/* Dirty paper texture overlay */}
+                <span className="bg-gradient-to-r from-yellow-400 via-red-500 to-yellow-400 bg-clip-text text-transparent">
+                  EVIDENCE BOARD
+                </span>
+              </h2>
+
+              {/* Hand-drawn arrow pointing down */}
+              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
+                <svg width="40" height="30" viewBox="0 0 40 30" className="text-yellow-400">
+                  <path
+                    d="M20 5 Q15 15 20 25 Q25 15 20 5"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M15 20 L20 25 L25 20"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <p className="text-gray-300 text-lg mt-8 max-w-3xl mx-auto font-mono relative z-10">
+              <span className="bg-yellow-400 text-black px-2 py-1 font-bold transform -rotate-1 inline-block mr-2">
+                CLASSIFIED:
+              </span>
+              What really happens when indie hackers build in public
+            </p>
+          </div>
+
+          {/* Enhanced feature cards with better visual hierarchy */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-20">
+            {[
+              {
+                title: "📖 Build Stories",
+                emoji: "📖",
+                color: "text-blue-400",
+                bgColor: "bg-blue-50",
+                desc: "Long-form war stories from the trenches",
+                details:
+                  "Deep dives into your building journey. The real story behind your products - struggles, breakthroughs, and hard-won lessons.",
+                stamp: "NEW INTEL",
+                stain: true,
+                priority: "HIGH",
+              },
+              {
+                title: "🔧 Build Logs",
+                emoji: "🔧",
+                color: "text-red-400",
+                bgColor: "bg-red-50",
+                desc: "Raw updates. No filters. Pure evidence.",
+                details:
+                  "Daily logs of what you're actually building. Like commit messages but for humans. Ship fast, document faster.",
+                stamp: "LIVE FEED",
+                stain: true,
+                priority: "URGENT",
+              },
+              {
+                title: "🚀 Product Launches",
+                emoji: "🚀",
+                color: "text-green-400",
+                bgColor: "bg-green-50",
+                desc: "Proof of what you've actually shipped",
+                details:
+                  "Your product portfolio. Not promises or coming soon pages. Real products that real people can use right now.",
+                stamp: "VERIFIED",
+                stain: false,
+                priority: "CRITICAL",
+              },
+              {
+                title: "📢 Uplifts",
+                emoji: "📢",
+                color: "text-yellow-400",
+                bgColor: "bg-yellow-50",
+                desc: "Recognition from builders who get it",
+                details:
+                  "Boost other makers who are doing the work. Quality recognition from people who understand the grind.",
+                stamp: "",
+                stain: false,
+                priority: "",
+              },
+              {
+                title: "🤝 Connections",
+                emoji: "🤝",
+                color: "text-purple-400",
+                bgColor: "bg-purple-50",
+                desc: "Find your co-conspirators",
+                details:
+                  "Connect with other indie hackers. Find co-founders, get advice, or just find people who speak your language.",
+                stamp: "",
+                stain: true,
+                priority: "",
+              },
+              {
+                title: "🧠 Mental Logs",
+                emoji: "🧠",
+                color: "text-pink-400",
+                bgColor: "bg-pink-50",
+                desc: "The psychological evidence",
+                details:
+                  "Document the mental journey. Burnout, breakthroughs, impostor syndrome. The stuff nobody talks about but everyone feels.",
+                stamp: "CONFIDENTIAL",
+                stain: true,
+                priority: "SENSITIVE",
+              },
+            ].map((feature, i) => (
+              <div
+                key={feature.title}
+                className="relative group"
+                style={{
+                  transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (2 + Math.random() * 3)}deg) translateY(${Math.random() * 12 - 6}px)`,
+                  marginTop: i % 2 === 0 ? "0px" : "20px",
+                  marginBottom: i % 2 === 1 ? "0px" : "12px",
+                }}
+              >
+                {/* Enhanced sticky note with better shadows and textures */}
                 <div
-                  className="absolute inset-0 pointer-events-none rounded-lg"
+                  className={`${feature.bgColor} px-6 pt-6 pb-8 font-handwriting text-black relative overflow-hidden`}
                   style={{
-                    backgroundImage:
-                      "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
-                    backgroundSize: "cover",
-                    opacity: 0.18,
-                    mixBlendMode: "luminosity",
-                    zIndex: 10,
+                    minHeight: "200px",
+                    boxShadow: "4px 4px 0 #000, 8px 8px 20px rgba(0,0,0,0.3)",
+                    border: "2px solid #000",
                   }}
-                />
-                {/* Stamp */}
-                {card.stamp && (
-                  <div
-                    className="absolute top-3 right-3 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded rotate-[-8deg] shadow z-30 tracking-widest opacity-80"
-                    style={{ letterSpacing: "2px" }}
-                  >
-                    {card.stamp}
+                >
+                  {/* Multiple pin effects for more realistic look */}
+                  <div className="absolute left-1/2 -top-4 z-30" style={{ transform: "translateX(-50%)" }}>
+                    <div className="w-5 h-5 bg-red-500 rounded-full shadow-lg border-2 border-red-700" />
                   </div>
-                )}
-                {/* Coffee stain */}
-                {card.stain && (
-                  <svg className="absolute left-6 bottom-3 z-30 opacity-30" width="48" height="48" viewBox="0 0 48 48">
-                    <ellipse
-                      cx="24"
-                      cy="24"
-                      rx="20"
-                      ry="8"
-                      fill="none"
-                      stroke="#222"
-                      strokeWidth="2"
-                      strokeDasharray="4 4"
-                    />
-                  </svg>
-                )}
-                <h3
-                  className={`${card.color} text-lg font-handwriting font-bold z-20 relative`}
-                  style={{ letterSpacing: "1px", textShadow: "1px 1px 0 #fff", marginBottom: "0" }}
-                >
-                  {card.title}
-                </h3>
-                <p
-                  className="text-black text-sm font-medium z-20 relative font-mono leading-snug"
-                  style={{ marginTop: "0", marginBottom: "0" }}
-                >
-                  {card.desc}
-                </p>
+                  <div className="absolute left-1/4 -top-3 z-20" style={{ transform: "translateX(-50%)" }}>
+                    <div className="w-3 h-3 bg-red-400 rounded-full shadow border border-red-600 opacity-60" />
+                  </div>
+
+                  {/* Priority label */}
+                  {feature.priority && (
+                    <div className="absolute top-2 left-2 bg-black text-white text-xs font-bold px-2 py-1 transform -rotate-12 z-20">
+                      {feature.priority}
+                    </div>
+                  )}
+
+                  {/* Enhanced stamp */}
+                  {feature.stamp && (
+                    <div
+                      className="absolute top-4 right-4 bg-red-700 text-white text-xs font-bold px-3 py-2 transform rotate-12 shadow-lg z-30 border-2 border-red-900"
+                      style={{
+                        letterSpacing: "2px",
+                        fontFamily: "Impact, Arial Black, sans-serif",
+                      }}
+                    >
+                      {feature.stamp}
+                    </div>
+                  )}
+
+                  {/* Paper texture overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      backgroundImage: `
+                  radial-gradient(circle at 20% 20%, rgba(0,0,0,0.1) 1px, transparent 1px),
+                  radial-gradient(circle at 80% 80%, rgba(0,0,0,0.05) 1px, transparent 1px)
+                `,
+                      backgroundSize: "20px 20px, 30px 30px",
+                      opacity: 0.3,
+                      zIndex: 5,
+                    }}
+                  />
+
+                  {/* Enhanced coffee stain */}
+                  {feature.stain && (
+                    <div className="absolute right-6 bottom-4 z-10">
+                      <div
+                        className="w-12 h-8 rounded-full opacity-20"
+                        style={{
+                          background: "radial-gradient(ellipse, #8B4513 0%, #654321 50%, transparent 70%)",
+                          transform: "rotate(25deg)",
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Content with better typography */}
+                  <div className="relative z-20">
+                    <div className="flex items-center mb-4">
+                      <span className="text-3xl mr-3">{feature.emoji}</span>
+                      <h3
+                        className={`${feature.color} text-xl font-bold`}
+                        style={{
+                          letterSpacing: "1px",
+                          textShadow: "1px 1px 0 #fff",
+                          fontFamily: "'Permanent Marker', cursive",
+                        }}
+                      >
+                        {feature.title}
+                      </h3>
+                    </div>
+
+                    <p className="text-gray-800 text-base font-bold mb-3 leading-tight">{feature.desc}</p>
+
+                    <p className="text-gray-700 text-sm leading-relaxed font-mono">{feature.details}</p>
+                  </div>
+
+                  {/* Torn edge effect */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-2 bg-white opacity-50"
+                    style={{
+                      clipPath:
+                        "polygon(0 0, 5% 100%, 10% 0, 15% 100%, 20% 0, 25% 100%, 30% 0, 35% 100%, 40% 0, 45% 100%, 50% 0, 55% 100%, 60% 0, 65% 100%, 70% 0, 75% 100%, 80% 0, 85% 100%, 90% 0, 95% 100%, 100% 0, 100% 100%, 0 100%)",
+                    }}
+                  />
+                </div>
+
+                {/* Hover effect shadow */}
+                <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300 transform translate-x-2 translate-y-2 -z-10" />
               </div>
             ))}
           </div>
 
-          <div className="mt-12 text-center">
-            <p className="text-yellow-300 mb-4 font-mono text-sm">
-              Got a startup? A mess?
-              <br />
-              Cool. That's all you need to show up here.
-            </p>
-            <Link href="/login" passHref legacyBehavior>
-              <a
-                className="bg-red-700 hover:bg-red-800 text-yellow-100 py-3 px-8 rounded-full font-extrabold text-lg shadow-lg border-2 border-yellow-400 tracking-wider font-handwriting inline-block"
-                style={{ letterSpacing: "2px", boxShadow: "4px 4px 0 #000", textShadow: "1px 1px 0 #000" }}
-              >
-                Get on the Wall
-              </a>
-            </Link>
+          {/* Enhanced call to action with evidence bag style */}
+          <div className="text-center relative">
+            <div className="inline-block relative mb-8">
+              {/* Evidence bag background */}
+              <div className="bg-gray-200 p-8 transform rotate-1 shadow-2xl border-4 border-gray-400 relative">
+                <div className="absolute top-2 left-2 right-2 h-1 bg-red-500" />
+                <div className="absolute top-4 left-4 text-xs font-bold text-red-600 tracking-wider">EVIDENCE #001</div>
+
+                <p className="text-black font-handwriting text-xl mb-4 mt-4">
+                  "Stop lurking in the shadows.
+                  <br />
+                  Start building in the light."
+                </p>
+                <p className="text-gray-700 text-sm font-mono">- Testimony from every successful indie hacker</p>
+
+                {/* Evidence bag seal */}
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black px-4 py-1 text-xs font-bold border-2 border-black">
+                  SEALED
+                </div>
+              </div>
+
+              {/* Evidence bag pin */}
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-red-500 rounded-full shadow-lg border-2 border-red-700 z-10" />
+            </div>
+
+            <div className="space-y-6">
+              
+
+              <p className="text-gray-400 text-sm font-mono max-w-md mx-auto leading-relaxed">
+                No followers to farm. No algorithm to game.
+                <br />
+                Just real builders documenting real work.
+                <br />
+                <span className="text-yellow-400 font-bold">Welcome to the evidence room.</span>
+              </p>
+            </div>
           </div>
         </div>
       </section>
