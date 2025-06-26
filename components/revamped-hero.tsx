@@ -189,11 +189,11 @@ const RevampedHero = () => {
           const hideOnMobile = [
             "Just hit $1K MRR!",
             "Launch today!",
-            "Failed fast, learned faster",
             "Move fast, break things",
             "Feedback loop ∞",
             "Validate early, pivot often",
             "Ideas are cheap, execution is everything",
+            "Caffeine-driven development",
           ].includes(q)
 
           return (
@@ -218,7 +218,7 @@ const RevampedHero = () => {
      
 
       {/* MAIN CONTENT */}
-      <main className="relative z-20 flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+      <div className="relative z-20 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto text-center space-y-8">
           {/* Badge with prison theme */}
           <div
@@ -310,7 +310,7 @@ const RevampedHero = () => {
                 </Link>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Bottom accent with prison stripes */}
     
