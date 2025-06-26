@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server"
 import type { Mugshot } from "./types"
+import { normalizeUsername } from "./utils"
 
 // Add a simple cache at the top of the file
 let mugshotsCache: { data: Mugshot[]; timestamp: number } | null = null
@@ -378,15 +379,13 @@ export async function getMugshotByUsername(username: string): Promise<Mugshot | 
       return null
     }
 
-    // Normalize the URL username (lowercase, replace hyphens with spaces for comparison)
-    const normalizedUrlUsername = username.toLowerCase().replace(/-/g, " ")
+    // Normalize the URL username using the same logic as the frontend
+    const normalizedUrlUsername = normalizeUsername(username)
 
     // Find the mugshot with a matching normalized name
     const matchingMugshot = data.find((mugshot) => {
-      // Normalize the database name (lowercase)
-      const normalizedDbName = mugshot.name.toLowerCase()
-
-      // Compare the normalized names
+      // Normalize the database name using the same logic
+      const normalizedDbName = normalizeUsername(mugshot.name)
       return normalizedDbName === normalizedUrlUsername
     })
 
