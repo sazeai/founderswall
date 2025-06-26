@@ -227,7 +227,7 @@ const RevampedHero = () => {
             }`}
           >
             <Badge className="bg-orange-600/20 border-orange-500 text-orange-400 font-mono px-2 py-1 text-sm">
-              <Terminal className="w-4 h-4 mr-2" />🚨 SERIAL BUILDERS ONLY 🚨
+              <Terminal className="w-4 h-4 mr-2" />SERIAL BUILDERS ONLY
             </Badge>
           </div>
 

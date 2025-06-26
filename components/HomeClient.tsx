@@ -626,7 +626,7 @@ export default function HomeClient() {
             </button>
           </div>
           {/* Sticky Note - Instructions */}
-          <div className="absolute top-20 left-16 z-40">
+          <div className="absolute top-4 left-16 z-40">
             <div
               className="bg-yellow-200 p-2 shadow-lg relative max-w-[120px] sm:max-w-[140px]"
               style={{
@@ -643,7 +643,7 @@ export default function HomeClient() {
               </p>
             </div>
           </div>
-          <div className="absolute top-20 right-10 z-40">
+          <div className="absolute top-4 right-12 z-40">
             <div
               className="bg-yellow-200 p-2 shadow-lg relative max-w-[120px] sm:max-w-[140px]"
               style={{
