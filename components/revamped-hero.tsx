@@ -1,9 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Code, Terminal, Rocket } from "lucide-react"
 import Link from "next/link"
 
 const RevampedHero = () => {
@@ -213,20 +210,51 @@ const RevampedHero = () => {
         })}
       </div>
 
-     
-
       {/* MAIN CONTENT */}
       <div className="relative z-20 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto text-center space-y-8">
+        <div className="max-w-6xl mx-auto text-center space-y-2">
           {/* Badge with prison theme */}
-          <div
-            className={`transition-all duration-1000 ${
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-            }`}
-          >
-            <Badge className="bg-orange-600/20 border-orange-500 text-orange-400 font-mono px-2 py-1 text-sm">
-              <Terminal className="w-4 h-4 mr-2" />SERIAL BUILDERS ONLY
-            </Badge>
+          {/* Product Hunt Badge - Styled as Evidence Tag */}
+          <div className="mx-auto inline-flex">
+            <div className="relative">
+              {/* Evidence bag style container */}
+              <div
+                className="bg-yellow-100 p-2 md:p-3 border-2 border-black shadow-lg relative"
+                style={{
+                  transform: "rotate(3deg)",
+                  clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+                }}
+              >
+                {/* Evidence tag label */}
+                <div className="absolute -top-1 md:-top-2 left-1 md:left-2 bg-red-600 text-white text-xs font-bold px-1 md:px-2 py-0.5 md:py-1 transform -rotate-12">
+                  EVIDENCE
+                </div>
+
+                {/* Pin */}
+                <div className="absolute left-1/2 -top-2 md:-top-3 transform -translate-x-1/2 w-3 h-3 md:w-4 md:h-4 bg-red-500 rounded-full shadow border-2 border-red-700 z-10" />
+
+                {/* Product Hunt Badge */}
+                <a
+                  href="https://www.producthunt.com/products/founderswall?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-founderswall"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block hover:scale-105 transition-transform duration-200"
+                >
+                  <img
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=983121&theme=dark&t=1750987443834"
+                    alt="FoundersWall - Where founders show the chaos, not just the launch | Product Hunt"
+                    className="w-32 h-7 md:w-48 md:h-10 lg:w-56 lg:h-12"
+                    width="200"
+                    height="43"
+                  />
+                </a>
+
+                {/* Case number */}
+                <div className="absolute -bottom-1 md:-bottom-2 right-1 md:right-2 bg-black text-white text-xs font-mono px-1 md:px-2 py-0.5 md:py-1 transform rotate-6">
+                  #PH001
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Big Heading with prison/crime theme */}
@@ -288,30 +316,26 @@ const RevampedHero = () => {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             }`}
           >
-<Link
-                  href="/station"
-                  className="group bg-yellow-400 hover:bg-yellow-500 text-black px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center justify-center"
-                >
-                  <span className="mr-2">👮‍♂️</span>
-                  Get on the Board
-                  <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
-                </Link>
-                <Link
-                  href="/logs">
-                <button
-                  className="group bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                >
-                  <span className="mr-2">🔍</span>
-                  Log Your Chaos
-                  <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
-                </button>
-                </Link>
+            <Link
+              href="/station"
+              className="group bg-yellow-400 hover:bg-yellow-500 text-black px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center justify-center"
+            >
+              <span className="mr-2">👮‍♂️</span>
+              Get on the Board
+              <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
+            </Link>
+            <Link href="/logs">
+              <button className="group bg-transparent border-2 border-white hover:bg-white hover:text-red-600 text-white px-6 lg:px-8 py-3 lg:py-4 rounded-lg font-bold text-base lg:text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                <span className="mr-2">🔍</span>
+                Log Your Chaos
+                <div className="ml-2 group-hover:translate-x-1 transition-transform">→</div>
+              </button>
+            </Link>
           </div>
         </div>
       </div>
 
       {/* Bottom accent with prison stripes */}
-    
     </div>
   )
 }
