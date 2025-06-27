@@ -250,7 +250,7 @@ const RevampedHero = () => {
                 </a>
 
                 {/* Case number */}
-                <div className="absolute -bottom-1 md:-bottom-2 right-1 md:right-2 bg-black text-white text-xs font-mono px-1 md:px-2 py-0.5 md:py-1 transform rotate-6">
+                <div className="absolute -bottom-1 md:-bottom-2 right-1 md:right-2 bg-black text-white text-[8px] font-mono px-1 md:px-2 py-0.5 md:py-1 transform rotate-6">
                   #PH001
                 </div>
               </div>
