@@ -71,7 +71,6 @@ const RevampedHero = () => {
     "Caffeine-driven development",
     "Move fast, break things",
     "Ideas are cheap, execution is everything",
-    "Validate early, pivot often",
   ]
 
   const chaosWords = ["BUILD", "B|_|1LD", "BU1LD", "BUILD", "B∪ILD"]
@@ -101,7 +100,7 @@ const RevampedHero = () => {
   }, [])
 
   return (
-    <div className="bg-black py-24 sm:pt-24 pb-2 sm:pb-12 relative overflow-hidden">
+    <div className="bg-black py-24 sm:pt-24 pb-12 relative overflow-hidden">
       {/* BACKGROUND LAYERS */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-black to-zinc-800" />
@@ -191,7 +190,6 @@ const RevampedHero = () => {
             "Launch today!",
             "Move fast, break things",
             "Feedback loop ∞",
-            "Validate early, pivot often",
             "Ideas are cheap, execution is everything",
             "Caffeine-driven development",
           ].includes(q)

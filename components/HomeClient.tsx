@@ -821,8 +821,7 @@ export default function HomeClient() {
           {/* Enhanced header with crime scene tape effect */}
           <div className="text-center mb-16 relative">
             {/* Crime scene tape background */}
-            <div className="absolute -top-4 left-0 right-0 h-12 bg-yellow-400 transform -rotate-1 opacity-20" />
-            <div className="absolute -top-2 left-0 right-0 h-8 bg-black transform rotate-1 opacity-30" />
+          
 
             <div className="relative z-10">
               <h2
@@ -862,7 +861,7 @@ export default function HomeClient() {
               <span className="bg-yellow-400 text-black px-2 py-1 font-bold transform -rotate-1 inline-block mr-2">
                 CLASSIFIED:
               </span>
-              What really happens when indie hackers build in public
+              What really happens on FoundersWall
             </p>
           </div>
 
@@ -876,7 +875,7 @@ export default function HomeClient() {
                 bgColor: "bg-blue-50",
                 desc: "Long-form war stories from the trenches",
                 details:
-                  "Deep dives into your building journey. The real story behind your products - struggles, breakthroughs, and hard-won lessons.",
+                  "“Long-form war stories” on FoundersWall are real, messy stories from builders in the trenches. The wins, the breakdowns, the near-shutdowns — all the stuff most people hide. If you’ve been through it, this is where you tell it.",
                 stamp: "NEW INTEL",
                 stain: true,
                 priority: "HIGH",
@@ -888,7 +887,7 @@ export default function HomeClient() {
                 bgColor: "bg-red-50",
                 desc: "Raw updates. No filters. Pure evidence.",
                 details:
-                  "Daily logs of what you're actually building. Like commit messages but for humans. Ship fast, document faster.",
+                  "Build Logs are your day-to-day updates as a founder short, scrappy notes about what you’re building, fixing, shipping, or struggling with. A place to show you're alive and shipping.",
                 stamp: "LIVE FEED",
                 stain: true,
                 priority: "URGENT",
@@ -900,7 +899,7 @@ export default function HomeClient() {
                 bgColor: "bg-green-50",
                 desc: "Proof of what you've actually shipped",
                 details:
-                  "Your product portfolio. Not promises or coming soon pages. Real products that real people can use right now.",
+                  "The Launch Board is where you share anything you’re putting out into the world early builds, experiments, rough betas, quiet updates. Whether it’s v0.1 or v1.9, if you shipped it, it belongs here.",
                 stamp: "VERIFIED",
                 stain: false,
                 priority: "CRITICAL",
@@ -912,7 +911,7 @@ export default function HomeClient() {
                 bgColor: "bg-yellow-50",
                 desc: "Recognition from builders who get it",
                 details:
-                  "Boost other makers who are doing the work. Quality recognition from people who understand the grind.",
+                  "Uplifts are builder-to-builder launch pledges. You ask for support before launching others promise to show up. When it’s their turn, you return the favor. Real backing, not fake hype.",
                 stamp: "",
                 stain: false,
                 priority: "",
@@ -930,13 +929,13 @@ export default function HomeClient() {
                 priority: "",
               },
               {
-                title: "🧠 Mental Logs",
-                emoji: "🧠",
+                title: "👤 Maker Profile",
+                emoji: "👤",
                 color: "text-pink-400",
                 bgColor: "bg-pink-50",
                 desc: "The psychological evidence",
                 details:
-                  "Document the mental journey. Burnout, breakthroughs, impostor syndrome. The stuff nobody talks about but everyone feels.",
+                  " Maker Profile is your public space on FoundersWall. It shows your face, your startup, and all your launches a simple timeline of what you’ve shipped. No fluff, just visible progress.",
                 stamp: "CONFIDENTIAL",
                 stain: true,
                 priority: "SENSITIVE",

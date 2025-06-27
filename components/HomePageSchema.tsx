@@ -10,4 +10,4 @@ export default function HomePageSchema({ schema }: { schema: object }) {
       }}
     />
   )
-} 
+}

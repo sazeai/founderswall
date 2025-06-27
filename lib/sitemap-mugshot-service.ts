@@ -32,4 +32,4 @@ export async function getAllMugshotsForSitemap(): Promise<Mugshot[]> {
     accessType: mugshot.access_type,
     paymentStatus: mugshot.payment_status,
   }));
-} 
+}

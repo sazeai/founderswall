@@ -17,4 +17,4 @@ ALTER TABLE mugshots
 ALTER COLUMN slug SET NOT NULL;
 
 -- Add unique index on slug
-CREATE UNIQUE INDEX mugshots_slug_idx ON mugshots(slug); 
+CREATE UNIQUE INDEX mugshots_slug_idx ON mugshots(slug);
