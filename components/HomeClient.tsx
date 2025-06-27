@@ -1,10 +1,10 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import RevampedHero from "@/components/revamped-hero"
+import { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import Image from "next/image"
-import { X, ZoomIn, ZoomOut, RefreshCw, Maximize, Minimize, Crown, Star } from "lucide-react"
+import { X, ZoomIn, ZoomOut, RefreshCw, Maximize, Minimize, Star, Crown } from "lucide-react"
 import { getMugshots } from "@/lib/mugshot-service-client"
 import CriminalModal from "@/components/criminal-modal"
 import type { Mugshot } from "@/lib/types"
@@ -12,7 +12,6 @@ import { PublicHeader } from "@/components/public-header"
 import PublicFooter from "@/components/public-footer"
 import LoadingMugshotWall from "@/components/loading-mugshot-wall"
 import { getRandomRotation, getPinPosition } from "@/utils/crimeBoardEffects"
-import RevampedHero from "@/components/revamped-hero"
 
 export default function HomeClient() {
   const [selectedCriminal, setSelectedCriminal] = useState<Mugshot | null>(null)
@@ -39,6 +38,21 @@ export default function HomeClient() {
 
   // Separate featured and regular mugshots
   const featuredMugshots = useMemo(() => mugshots.filter((mugshot) => mugshot.featured), [mugshots])
+
+  // Sort mugshots for leaderboard based on actual products from database
+  const leaderboardMugshots = useMemo(() => {
+    // Create a copy of mugshots and add product counts
+    const mugshotsWithProducts = mugshots.map((mugshot) => ({
+      ...mugshot,
+      productCount: productCounts[mugshot.id] || 0,
+    }))
+
+    // Filter out mugshots with 0 products and sort by product count (descending), take top 3
+    return mugshotsWithProducts
+      .filter((mugshot) => mugshot.productCount > 0) // Only show mugshots with products
+      .sort((a, b) => b.productCount - a.productCount)
+      .slice(0, 3)
+  }, [mugshots, productCounts])
 
   // Generate torn paper effect
   useEffect(() => {
@@ -480,14 +494,50 @@ export default function HomeClient() {
     )
   }
 
+  // Add this above the return statement in your Home component:
+  const wallCards = [
+    {
+      title: "🔧 Build Logs",
+      color: "text-red-600",
+      desc: "Raw updates. No filters. Like digital graffiti. Just ship and log it.",
+      stamp: "EVIDENCE",
+      stain: true,
+    },
+    {
+      title: "📢 Uplifts",
+      color: "text-yellow-600",
+      desc: "Boost the builders who show up. No likes. Just recognition from the real ones.",
+      stamp: "",
+      stain: false,
+    },
+    {
+      title: "🧠 Mental Logs",
+      color: "text-blue-600",
+      desc: "Rants, wins, burnout. Track the chaos behind the code.",
+      stamp: "CONFIDENTIAL",
+      stain: true,
+    },
+    {
+      title: "📸 Product Drops",
+      color: "text-pink-600",
+      desc: "What you've launched. No leaderboard. Just receipts.",
+      stamp: "",
+      stain: false,
+    },
+    {
+      title: "🧷 Pins & Threads",
+      color: "text-green-600",
+      desc: "Connect your chaos. Thread your logs into a timeline.",
+      stamp: "",
+      stain: true,
+    },
+  ]
+
   return (
     <main className="min-h-screen flex flex-col bg-black overflow-x-hidden">
       <PublicHeader />
 
-      {/* New Hero Section with Product Hunt Badge */}
-        <RevampedHero />
-
-       
+      <RevampedHero />
 
       {/* Caution Stripe Separator - Clear separation between sections */}
       <div className="h-8 w-full bg-yellow-400 relative overflow-hidden z-10">
@@ -567,9 +617,8 @@ export default function HomeClient() {
               {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
             </button>
           </div>
-
           {/* Sticky Note - Instructions */}
-          <div className="absolute top-20 left-16 z-40">
+          <div className="hidden sm:block absolute top-4 left-16 z-40">
             <div
               className="bg-yellow-200 p-2 shadow-lg relative max-w-[120px] sm:max-w-[140px]"
               style={{
@@ -586,7 +635,7 @@ export default function HomeClient() {
               </p>
             </div>
           </div>
-          <div className="absolute top-20 right-10 z-40">
+          <div className="hidden sm:block absolute top-4 right-12 z-40">
             <div
               className="bg-yellow-200 p-2 shadow-lg relative max-w-[120px] sm:max-w-[140px]"
               style={{
@@ -599,7 +648,7 @@ export default function HomeClient() {
                 <div className="w-3 h-3 bg-red-500 rounded-full shadow border border-red-700" />
               </div>
               <p className="text-black text-[10px] sm:text-xs leading-tight">
-                This is not a launch list. It's a living board of what founders are really building.
+                This is not a launch list. It’s a living board of what founders are really building.
               </p>
             </div>
           </div>
@@ -747,12 +796,11 @@ export default function HomeClient() {
         <div
           className="absolute inset-0 pointer-events-none z-0"
           style={{
-            backgroundImage: `
-        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%23ffffff' fillOpacity='0.02'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='27' cy='27' r='1'/%3E%3Ccircle cx='47' cy='47' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
-        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%)
-      `,
-            backgroundSize: "60px 60px, 100% 100%, 100% 100%",
+            backgroundImage:
+              "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
+            backgroundSize: "cover",
+            opacity: 0.18,
+            mixBlendMode: "luminosity",
           }}
         />
 
@@ -765,8 +813,6 @@ export default function HomeClient() {
           {/* Enhanced header with crime scene tape effect */}
           <div className="text-center mb-16 relative">
             {/* Crime scene tape background */}
-            <div className="absolute -top-4 left-0 right-0 h-12 bg-yellow-400 transform -rotate-1 opacity-20" />
-            <div className="absolute -top-2 left-0 right-0 h-8 bg-black transform rotate-1 opacity-30" />
 
             <div className="relative z-10">
               <h2
@@ -806,7 +852,7 @@ export default function HomeClient() {
               <span className="bg-yellow-400 text-black px-2 py-1 font-bold transform -rotate-1 inline-block mr-2">
                 CLASSIFIED:
               </span>
-              What really happens when indie hackers build in public
+              What really happens on FoundersWall
             </p>
           </div>
 
@@ -820,7 +866,7 @@ export default function HomeClient() {
                 bgColor: "bg-blue-50",
                 desc: "Long-form war stories from the trenches",
                 details:
-                  "Deep dives into your building journey. The real story behind your products - struggles, breakthroughs, and hard-won lessons.",
+                  "“Long-form war stories” on FoundersWall are real, messy stories from builders in the trenches. The wins, the breakdowns, the near-shutdowns — all the stuff most people hide. If you’ve been through it, this is where you tell it.",
                 stamp: "NEW INTEL",
                 stain: true,
                 priority: "HIGH",
@@ -832,7 +878,7 @@ export default function HomeClient() {
                 bgColor: "bg-red-50",
                 desc: "Raw updates. No filters. Pure evidence.",
                 details:
-                  "Daily logs of what you're actually building. Like commit messages but for humans. Ship fast, document faster.",
+                  "Build Logs are your day-to-day updates as a founder short, scrappy notes about what you’re building, fixing, shipping, or struggling with. A place to show you're alive and shipping.",
                 stamp: "LIVE FEED",
                 stain: true,
                 priority: "URGENT",
@@ -844,7 +890,7 @@ export default function HomeClient() {
                 bgColor: "bg-green-50",
                 desc: "Proof of what you've actually shipped",
                 details:
-                  "Your product portfolio. Not promises or coming soon pages. Real products that real people can use right now.",
+                  "The Launch Board is where you share anything you’re putting out into the world early builds, experiments, rough betas, quiet updates. Whether it’s v0.1 or v1.9, if you shipped it, it belongs here.",
                 stamp: "VERIFIED",
                 stain: false,
                 priority: "CRITICAL",
@@ -856,7 +902,7 @@ export default function HomeClient() {
                 bgColor: "bg-yellow-50",
                 desc: "Recognition from builders who get it",
                 details:
-                  "Boost other makers who are doing the work. Quality recognition from people who understand the grind.",
+                  "Uplifts are builder-to-builder launch pledges. You ask for support before launching others promise to show up. When it’s their turn, you return the favor. Real backing, not fake hype.",
                 stamp: "",
                 stain: false,
                 priority: "",
@@ -874,13 +920,13 @@ export default function HomeClient() {
                 priority: "",
               },
               {
-                title: "🧠 Mental Logs",
-                emoji: "🧠",
+                title: "👤 Maker Profile",
+                emoji: "👤",
                 color: "text-pink-400",
                 bgColor: "bg-pink-50",
                 desc: "The psychological evidence",
                 details:
-                  "Document the mental journey. Burnout, breakthroughs, impostor syndrome. The stuff nobody talks about but everyone feels.",
+                  " Maker Profile is your public space on FoundersWall. It shows your face, your startup, and all your launches a simple timeline of what you’ve shipped. No fluff, just visible progress.",
                 stamp: "CONFIDENTIAL",
                 stain: true,
                 priority: "SENSITIVE",
@@ -921,13 +967,7 @@ export default function HomeClient() {
 
                   {/* Enhanced stamp */}
                   {feature.stamp && (
-                    <div
-                      className="absolute top-4 right-4 bg-red-700 text-white text-xs font-bold px-3 py-2 transform rotate-12 shadow-lg z-30 border-2 border-red-900"
-                      style={{
-                        letterSpacing: "2px",
-                        fontFamily: "Impact, Arial Black, sans-serif",
-                      }}
-                    >
+                    <div className="absolute top-4 right-4 bg-red-700 text-white text-xs font-bold px-3 py-2 transform rotate-12 shadow-lg z-30 border-2 border-red-900">
                       {feature.stamp}
                     </div>
                   )}
