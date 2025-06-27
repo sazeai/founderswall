@@ -189,6 +189,7 @@ const RevampedHero = () => {
             "Feedback loop ∞",
             "Ideas are cheap, execution is everything",
             "Caffeine-driven development",
+            "Coffee > Sleep",
           ].includes(q)
 
           return (
@@ -212,7 +213,7 @@ const RevampedHero = () => {
 
       {/* MAIN CONTENT */}
       <div className="relative z-20 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto text-center space-y-2">
+        <div className="max-w-6xl mx-auto text-center space-y-4">
           {/* Badge with prison theme */}
           {/* Product Hunt Badge - Styled as Evidence Tag */}
           <div className="mx-auto inline-flex">
@@ -226,7 +227,7 @@ const RevampedHero = () => {
                 }}
               >
                 {/* Evidence tag label */}
-                <div className="absolute -top-1 md:-top-2 left-1 md:left-2 bg-red-600 text-white text-xs font-bold px-1 md:px-2 py-0.5 md:py-1 transform -rotate-12">
+                <div className="absolute -top-1 md:-top-2 left-1 md:left-2 bg-red-600 text-white text-[9px] sm:text-xs font-bold px-1 md:px-2 py-0.5 md:py-1 transform -rotate-12">
                   EVIDENCE
                 </div>
 
@@ -312,7 +313,7 @@ const RevampedHero = () => {
 
           {/* CTAs with crime theme */}
           <div
-            className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-1000 delay-600 ${
+            className={`flex flex-col sm:flex-row items-center mt-4 justify-center gap-4 transition-all duration-1000 delay-600 ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             }`}
           >
