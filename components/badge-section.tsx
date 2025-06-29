@@ -33,6 +33,11 @@ export default function BadgeSection() {
                 name: "Dang.ai",
                 url: "https://dang.ai",
               },
+              {
+                "@type": "Organization",
+                name: "Indie.Deals",
+                url: "https://indie.deals",
+              },
             ],
           }),
         }}
@@ -120,6 +125,35 @@ export default function BadgeSection() {
                 className="h-12 md:h-14 w-auto"
                 loading="lazy"
               />
+            </a>
+
+            {/* Indie.Deals Badge */}
+            <a
+              href="https://indie.deals?ref=https%3A%2F%2Ffounderswall.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "none" }}
+              className="inline-block transition-transform hover:scale-105"
+            >
+              <span style={{ fontSize: "14px", fontWeight: "500", color: "#4b5563" }}>
+                Find us on{" "}
+                <span style={{ fontWeight: "700", color: "#0070f3", position: "relative", display: "inline-block" }}>
+                  Indie.Deals
+                  <span className="indie-deals-text-badge" style={{ position: "relative" }}>
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: "0",
+                        left: "0",
+                        width: "0",
+                        height: "2px",
+                        backgroundColor: "#0070f3",
+                        transition: "width 0.3s",
+                      }}
+                    ></span>
+                  </span>
+                </span>
+              </span>
             </a>
           </nav>
         </div>
