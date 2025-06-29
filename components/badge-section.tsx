@@ -1,41 +1,6 @@
 import Image from "next/image"
 
 export default function BadgeSection() {
-  const badges = [
-    {
-      href: "https://huzzler.so/products/VhGPTL2Ajs/founderswall?utm_source=huzzler_product_website&utm_medium=badge&utm_campaign=badge",
-      src: "https://huzzler.so/assets/images/embeddable-badges/featured.png",
-      alt: "Featured on Huzzler - FoundersWall",
-      title: "FoundersWall is featured on Huzzler",
-      width: 150,
-      height: 54,
-    },
-    {
-      href: "https://turbo0.com/item/founderswall",
-      src: "https://img.turbo0.com/badge-listed-light.svg",
-      alt: "Listed on Turbo0 - FoundersWall",
-      title: "FoundersWall is listed on Turbo0",
-      width: 150,
-      height: 54,
-    },
-    {
-      href: "https://similarlabs.com/?ref=embed",
-      src: "https://similarlabs.com/similarlabs-embed-badge-dark.svg",
-      alt: "SimilarLabs Partner - FoundersWall",
-      title: "FoundersWall partners with SimilarLabs",
-      width: 150,
-      height: 54,
-    },
-    {
-      href: "https://dang.ai/",
-      src: "https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png",
-      alt: "Featured on Dang.ai - FoundersWall",
-      title: "FoundersWall is featured on Dang.ai",
-      width: 150,
-      height: 54,
-    },
-  ]
-
   return (
     <>
       {/* SEO-friendly structured data */}
@@ -47,11 +12,28 @@ export default function BadgeSection() {
             "@type": "WebPage",
             name: "FoundersWall - Featured Badges",
             description: "FoundersWall is featured and recognized by leading startup platforms",
-            mentions: badges.map((badge) => ({
-              "@type": "Organization",
-              name: badge.alt.split(" - ")[0],
-              url: badge.href,
-            })),
+            mentions: [
+              {
+                "@type": "Organization",
+                name: "Huzzler",
+                url: "https://huzzler.so/products/VhGPTL2Ajs/founderswall",
+              },
+              {
+                "@type": "Organization",
+                name: "Turbo0",
+                url: "https://turbo0.com/item/founderswall",
+              },
+              {
+                "@type": "Organization",
+                name: "SimilarLabs",
+                url: "https://similarlabs.com",
+              },
+              {
+                "@type": "Organization",
+                name: "Dang.ai",
+                url: "https://dang.ai",
+              },
+            ],
           }),
         }}
       />
@@ -72,31 +54,73 @@ export default function BadgeSection() {
             role="navigation"
             aria-label="Platform recognition badges"
           >
-            {badges.map((badge, index) => (
-              <a
-                key={index}
-                href={badge.href}
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-                className="inline-block transition-transform hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-black rounded"
-                title={badge.title}
-                itemProp="mentions"
-                itemScope
-                itemType="https://schema.org/Organization"
-              >
-                <Image
-                  src={badge.src || "/placeholder.svg"}
-                  alt={badge.alt}
-                  width={badge.width}
-                  height={badge.height}
-                  className="h-12 md:h-14 w-auto"
-                  loading="lazy"
-                  itemProp="logo"
-                />
-                <meta itemProp="name" content={badge.alt.split(" - ")[0]} />
-                <meta itemProp="url" content={badge.href} />
-              </a>
-            ))}
+            {/* Huzzler Badge */}
+            <a
+              href="https://huzzler.so/products/VhGPTL2Ajs/founderswall?utm_source=huzzler_product_website&utm_medium=badge&utm_campaign=badge"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block transition-transform hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-black rounded"
+              title="FoundersWall is featured on Huzzler"
+            >
+              <Image
+                src="https://huzzler.so/assets/images/embeddable-badges/featured.png"
+                alt="Featured on Huzzler - FoundersWall"
+                width={150}
+                height={54}
+                className="h-12 md:h-14 w-auto"
+                loading="lazy"
+              />
+            </a>
+
+            {/* Turbo0 Badge - Kept simple for crawler verification */}
+            <a
+              href="https://turbo0.com/item/founderswall"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block transition-transform hover:scale-105"
+            >
+              <img
+                src="https://img.turbo0.com/badge-listed-light.svg"
+                alt="Listed on Turbo0"
+                style={{ height: "54px", width: "auto" }}
+              />
+            </a>
+
+            {/* SimilarLabs Badge */}
+            <a
+              href="https://similarlabs.com/?ref=embed"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block transition-transform hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-black rounded"
+              title="FoundersWall partners with SimilarLabs"
+            >
+              <Image
+                src="https://similarlabs.com/similarlabs-embed-badge-dark.svg"
+                alt="SimilarLabs Partner - FoundersWall"
+                width={150}
+                height={54}
+                className="h-12 md:h-14 w-auto"
+                loading="lazy"
+              />
+            </a>
+
+            {/* Dang.ai Badge */}
+            <a
+              href="https://dang.ai/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block transition-transform hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-black rounded"
+              title="FoundersWall is featured on Dang.ai"
+            >
+              <Image
+                src="https://cdn.prod.website-files.com/63d8afd87da01fb58ea3fbcb/6487e2868c6c8f93b4828827_dang-badge.png"
+                alt="Featured on Dang.ai - FoundersWall"
+                width={150}
+                height={54}
+                className="h-12 md:h-14 w-auto"
+                loading="lazy"
+              />
+            </a>
           </nav>
         </div>
       </section>
