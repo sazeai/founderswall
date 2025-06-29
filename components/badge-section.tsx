@@ -38,6 +38,11 @@ export default function BadgeSection() {
                 name: "Indie.Deals",
                 url: "https://indie.deals",
               },
+              {
+                "@type": "Organization",
+                name: "Startup Fame",
+                url: "https://startupfa.me",
+              },
             ],
           }),
         }}
@@ -124,6 +129,22 @@ export default function BadgeSection() {
                 height={54}
                 className="h-12 md:h-14 w-auto"
                 loading="lazy"
+              />
+            </a>
+
+            {/* Startup Fame Badge */}
+            <a
+              href="https://startupfa.me/s/founderswall?utm_source=founderswall.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block transition-transform hover:scale-105"
+            >
+              <img
+                src="https://startupfa.me/badges/featured-badge.webp"
+                alt="Featured on Startup Fame"
+                width={171}
+                height={54}
+                style={{ height: "54px", width: "auto" }}
               />
             </a>
 
