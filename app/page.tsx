@@ -1,53 +1,38 @@
-import HomePageSchema from "@/components/HomePageSchema"
+import { Suspense } from "react"
 import HomeClient from "@/components/HomeClient"
+import BadgeSection from "@/components/badge-section"
+import LoadingMugshotWall from "@/components/loading-mugshot-wall"
+import type { Metadata } from "next"
 
-export default function Home() {
-
-  const webPageSchema = {
-    "@type": "WebPage",
-    "@id": "https://founderswall.com/#webpage",
-    url: "https://founderswall.com",
-    name: "FoundersWall – A Public Log of Legendary Builders",
+export const metadata: Metadata = {
+  title: "FoundersWall - Where Indie Hackers Build in Public",
+  description:
+    "Join the community of indie hackers building in public. Share your journey, connect with fellow builders, and showcase your products on the wall.",
+  keywords: "indie hackers, build in public, startup community, founders, entrepreneurs, product launches",
+  openGraph: {
+    title: "FoundersWall - Where Indie Hackers Build in Public",
     description:
-      "Discover and explore top indie makers. FoundersWall is where the most consistent, creative, and relentless builders get tracked, logged, and celebrated.",
-    inLanguage: "en-US",
-    isPartOf: "https://founderswall.com/#website",
-    about: {
-      "@type": "Organization",
-      "@id": "https://founderswall.com/#organization",
-      name: "FoundersWall",
-      description: "A platform for indie makers to showcase their builds and connect with the community",
-    },
-    potentialAction: [
-      {
-        "@type": "ReadAction",
-        target: ["https://founderswall.com"],
-      },
-    ],
-  }
+      "Join the community of indie hackers building in public. Share your journey, connect with fellow builders, and showcase your products on the wall.",
+    type: "website",
+    url: "https://founderswall.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FoundersWall - Where Indie Hackers Build in Public",
+    description:
+      "Join the community of indie hackers building in public. Share your journey, connect with fellow builders, and showcase your products on the wall.",
+  },
+}
 
-  const breadcrumbSchema = {
-    "@type": "BreadcrumbList",
-    "@id": "https://founderswall.com/#breadcrumb",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: "https://founderswall.com",
-      },
-    ],
-  }
-
-  const schema = {
-    "@context": "https://schema.org",
-    "@graph": [webPageSchema, breadcrumbSchema],
-  }
-
+export default function HomePage() {
   return (
     <>
-      <HomePageSchema schema={schema} />
-      <HomeClient />
+      <Suspense fallback={<LoadingMugshotWall />}>
+        <HomeClient />
+      </Suspense>
+
+      {/* Server-side rendered badges for SEO */}
+      <BadgeSection />
     </>
   )
 }

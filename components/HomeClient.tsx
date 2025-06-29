@@ -10,7 +10,6 @@ import CriminalModal from "@/components/criminal-modal"
 import type { Mugshot } from "@/lib/types"
 import { PublicHeader } from "@/components/public-header"
 import PublicFooter from "@/components/public-footer"
-import BadgeSection from "@/components/badge-section"
 import LoadingMugshotWall from "@/components/loading-mugshot-wall"
 import { getRandomRotation, getPinPosition } from "@/utils/crimeBoardEffects"
 
@@ -495,45 +494,6 @@ export default function HomeClient() {
     )
   }
 
-  // Add this above the return statement in your Home component:
-  const wallCards = [
-    {
-      title: "🔧 Build Logs",
-      color: "text-red-600",
-      desc: "Raw updates. No filters. Like digital graffiti. Just ship and log it.",
-      stamp: "EVIDENCE",
-      stain: true,
-    },
-    {
-      title: "📢 Uplifts",
-      color: "text-yellow-600",
-      desc: "Boost the builders who show up. No likes. Just recognition from the real ones.",
-      stamp: "",
-      stain: false,
-    },
-    {
-      title: "🧠 Mental Logs",
-      color: "text-blue-600",
-      desc: "Rants, wins, burnout. Track the chaos behind the code.",
-      stamp: "CONFIDENTIAL",
-      stain: true,
-    },
-    {
-      title: "📸 Product Drops",
-      color: "text-pink-600",
-      desc: "What you've launched. No leaderboard. Just receipts.",
-      stamp: "",
-      stain: false,
-    },
-    {
-      title: "🧷 Pins & Threads",
-      color: "text-green-600",
-      desc: "Connect your chaos. Thread your logs into a timeline.",
-      stamp: "",
-      stain: true,
-    },
-  ]
-
   return (
     <main className="min-h-screen flex flex-col bg-black overflow-x-hidden">
       <PublicHeader />
@@ -813,8 +773,6 @@ export default function HomeClient() {
         <div className="max-w-7xl mx-auto relative z-10">
           {/* Enhanced header with crime scene tape effect */}
           <div className="text-center mb-16 relative">
-            {/* Crime scene tape background */}
-
             <div className="relative z-10">
               <h2
                 className="text-4xl md:text-6xl font-black text-white mb-4 relative inline-block"
@@ -858,191 +816,224 @@ export default function HomeClient() {
           </div>
 
           {/* Enhanced feature cards with better visual hierarchy */}
-          {[
-            {
-              title: "📖 Build Stories",
-              emoji: "📖",
-              color: "text-blue-400",
-              bgColor: "bg-blue-50",
-              desc: "Long-form war stories from the trenches",
-              details:
-                "Long-form war stories on FoundersWall are real, messy stories from builders in the trenches. The wins, the breakdowns, the near-shutdowns — all the stuff most people hide. If you've been through it, this is where you tell it.",
-              stamp: "NEW INTEL",
-              stain: true,
-              priority: "HIGH",
-            },
-            {
-              title: "🔧 Build Logs",
-              emoji: "🔧",
-              color: "text-red-400",
-              bgColor: "bg-red-50",
-              desc: "Raw updates. No filters. Pure evidence.",
-              details:
-                "Build Logs are your day-to-day updates as a founder short, scrappy notes about what you're building, fixing, shipping, or struggling with. A place to show you're alive and shipping.",
-              stamp: "LIVE FEED",
-              stain: true,
-              priority: "URGENT",
-            },
-            {
-              title: "🚀 Product Launches",
-              emoji: "🚀",
-              color: "text-green-400",
-              bgColor: "bg-green-50",
-              desc: "Proof of what you've actually shipped",
-              details:
-                "The Launch Board is where you share anything you're putting out into the world early builds, experiments, rough betas, quiet updates. Whether it's v0.1 or v1.9, if you shipped it, it belongs here.",
-              stamp: "VERIFIED",
-              stain: false,
-              priority: "CRITICAL",
-            },
-            {
-              title: "📢 Uplifts",
-              emoji: "📢",
-              color: "text-yellow-400",
-              bgColor: "bg-yellow-50",
-              desc: "Recognition from builders who get it",
-              details:
-                "Uplifts are builder-to-builder launch pledges. You ask for support before launching others promise to show up. When it's their turn, you return the favor. Real backing, not fake hype.",
-              stamp: "",
-              stain: false,
-              priority: "",
-            },
-            {
-              title: "🤝 Connections",
-              emoji: "🤝",
-              color: "text-purple-400",
-              bgColor: "bg-purple-50",
-              desc: "Find your co-conspirators",
-              details:
-                "Connect with other indie hackers. Find co-founders, get advice, or just find people who speak your language.",
-              stamp: "",
-              stain: true,
-              priority: "",
-            },
-            {
-              title: "👤 Maker Profile",
-              emoji: "👤",
-              color: "text-pink-400",
-              bgColor: "bg-pink-50",
-              desc: "The psychological evidence",
-              details:
-                "Maker Profile is your public space on FoundersWall. It shows your face, your startup, and all your launches a simple timeline of what you've shipped. No fluff, just visible progress.",
-              stamp: "CONFIDENTIAL",
-              stain: true,
-              priority: "SENSITIVE",
-            },
-          ].map((feature, i) => (
-            <div
-              key={feature.title}
-              className="relative group"
-              style={{
-                transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (2 + Math.random() * 3)}deg) translateY(${Math.random() * 12 - 6}px)`,
-                marginTop: i % 2 === 0 ? "0px" : "20px",
-                marginBottom: i % 2 === 1 ? "0px" : "12px",
-              }}
-            >
-              {/* Enhanced sticky note with better shadows and textures */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-20">
+            {[
+              {
+                title: "📖 Build Stories",
+                emoji: "📖",
+                color: "text-blue-400",
+                bgColor: "bg-blue-50",
+                desc: "Long-form war stories from the trenches",
+                details:
+                  "Long-form war stories on FoundersWall are real, messy stories from builders in the trenches. The wins, the breakdowns, the near-shutdowns — all the stuff most people hide. If you've been through it, this is where you tell it.",
+                stamp: "NEW INTEL",
+                stain: true,
+                priority: "HIGH",
+              },
+              {
+                title: "🔧 Build Logs",
+                emoji: "🔧",
+                color: "text-red-400",
+                bgColor: "bg-red-50",
+                desc: "Raw updates. No filters. Pure evidence.",
+                details:
+                  "Build Logs are your day-to-day updates as a founder short, scrappy notes about what you're building, fixing, shipping, or struggling with. A place to show you're alive and shipping.",
+                stamp: "LIVE FEED",
+                stain: true,
+                priority: "URGENT",
+              },
+              {
+                title: "🚀 Product Launches",
+                emoji: "🚀",
+                color: "text-green-400",
+                bgColor: "bg-green-50",
+                desc: "Proof of what you've actually shipped",
+                details:
+                  "The Launch Board is where you share anything you're putting out into the world early builds, experiments, rough betas, quiet updates. Whether it's v0.1 or v1.9, if you shipped it, it belongs here.",
+                stamp: "VERIFIED",
+                stain: false,
+                priority: "CRITICAL",
+              },
+              {
+                title: "📢 Uplifts",
+                emoji: "📢",
+                color: "text-yellow-400",
+                bgColor: "bg-yellow-50",
+                desc: "Recognition from builders who get it",
+                details:
+                  "Uplifts are builder-to-builder launch pledges. You ask for support before launching others promise to show up. When it's their turn, you return the favor. Real backing, not fake hype.",
+                stamp: "",
+                stain: false,
+                priority: "",
+              },
+              {
+                title: "🤝 Connections",
+                emoji: "🤝",
+                color: "text-purple-400",
+                bgColor: "bg-purple-50",
+                desc: "Find your co-conspirators",
+                details:
+                  "Connect with other indie hackers. Find co-founders, get advice, or just find people who speak your language.",
+                stamp: "",
+                stain: true,
+                priority: "",
+              },
+              {
+                title: "👤 Maker Profile",
+                emoji: "👤",
+                color: "text-pink-400",
+                bgColor: "bg-pink-50",
+                desc: "The psychological evidence",
+                details:
+                  "Maker Profile is your public space on FoundersWall. It shows your face, your startup, and all your launches a simple timeline of what you've shipped. No fluff, just visible progress.",
+                stamp: "CONFIDENTIAL",
+                stain: true,
+                priority: "SENSITIVE",
+              },
+            ].map((feature, i) => (
               <div
-                className={`${feature.bgColor} px-6 pt-6 pb-8 font-handwriting text-black relative overflow-hidden`}
+                key={feature.title}
+                className="relative group"
                 style={{
-                  minHeight: "200px",
-                  boxShadow: "4px 4px 0 #000, 8px 8px 20px rgba(0,0,0,0.3)",
-                  border: "2px solid #000",
+                  transform: `rotate(${(i % 2 === 0 ? -1 : 1) * (2 + Math.random() * 3)}deg) translateY(${Math.random() * 12 - 6}px)`,
+                  marginTop: i % 2 === 0 ? "0px" : "20px",
+                  marginBottom: i % 2 === 1 ? "0px" : "12px",
                 }}
               >
-                {/* Multiple pin effects for more realistic look */}
-                <div className="absolute left-1/2 -top-4 z-30" style={{ transform: "translateX(-50%)" }}>
-                  <div className="w-5 h-5 bg-red-500 rounded-full shadow-lg border-2 border-red-700" />
-                </div>
-                <div className="absolute left-1/4 -top-3 z-20" style={{ transform: "translateX(-50%)" }}>
-                  <div className="w-3 h-3 bg-red-400 rounded-full shadow border border-red-600 opacity-60" />
-                </div>
-
-                {/* Priority label */}
-                {feature.priority && (
-                  <div className="absolute top-2 left-2 bg-black text-white text-xs font-bold px-2 py-1 transform -rotate-12 z-20">
-                    {feature.priority}
-                  </div>
-                )}
-
-                {/* Enhanced stamp */}
-                {feature.stamp && (
-                  <div className="absolute top-4 right-4 bg-red-700 text-white text-xs font-bold px-3 py-2 transform rotate-12 shadow-lg z-30 border-2 border-red-900">
-                    {feature.stamp}
-                  </div>
-                )}
-
-                {/* Paper texture overlay */}
+                {/* Enhanced sticky note with better shadows and textures */}
                 <div
-                  className="absolute inset-0 pointer-events-none"
+                  className={`${feature.bgColor} px-6 pt-6 pb-8 font-handwriting text-black relative overflow-hidden`}
                   style={{
-                    backgroundImage: `
+                    minHeight: "200px",
+                    boxShadow: "4px 4px 0 #000, 8px 8px 20px rgba(0,0,0,0.3)",
+                    border: "2px solid #000",
+                  }}
+                >
+                  {/* Multiple pin effects for more realistic look */}
+                  <div className="absolute left-1/2 -top-4 z-30" style={{ transform: "translateX(-50%)" }}>
+                    <div className="w-5 h-5 bg-red-500 rounded-full shadow-lg border-2 border-red-700" />
+                  </div>
+                  <div className="absolute left-1/4 -top-3 z-20" style={{ transform: "translateX(-50%)" }}>
+                    <div className="w-3 h-3 bg-red-400 rounded-full shadow border border-red-600 opacity-60" />
+                  </div>
+
+                  {/* Priority label */}
+                  {feature.priority && (
+                    <div className="absolute top-2 left-2 bg-black text-white text-xs font-bold px-2 py-1 transform -rotate-12 z-20">
+                      {feature.priority}
+                    </div>
+                  )}
+
+                  {/* Enhanced stamp */}
+                  {feature.stamp && (
+                    <div className="absolute top-4 right-4 bg-red-700 text-white text-xs font-bold px-3 py-2 transform rotate-12 shadow-lg z-30 border-2 border-red-900">
+                      {feature.stamp}
+                    </div>
+                  )}
+
+                  {/* Paper texture overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      backgroundImage: `
                       radial-gradient(circle at 20% 20%, rgba(0,0,0,0.1) 1px, transparent 1px),
                       radial-gradient(circle at 80% 80%, rgba(0,0,0,0.05) 1px, transparent 1px)
                     `,
-                    backgroundSize: "20px 20px, 30px 30px",
-                    opacity: 0.3,
-                    zIndex: 5,
-                  }}
-                />
+                      backgroundSize: "20px 20px, 30px 30px",
+                      opacity: 0.3,
+                      zIndex: 5,
+                    }}
+                  />
 
-                {/* Enhanced coffee stain */}
-                {feature.stain && (
-                  <div className="absolute right-6 bottom-4 z-10">
-                    <div
-                      className="w-12 h-8 rounded-full opacity-20"
-                      style={{
-                        background: "radial-gradient(ellipse, #8B4513 0%, #654321 50%, transparent 70%)",
-                        transform: "rotate(25deg)",
-                      }}
-                    />
+                  {/* Enhanced coffee stain */}
+                  {feature.stain && (
+                    <div className="absolute right-6 bottom-4 z-10">
+                      <div
+                        className="w-12 h-8 rounded-full opacity-20"
+                        style={{
+                          background: "radial-gradient(ellipse, #8B4513 0%, #654321 50%, transparent 70%)",
+                          transform: "rotate(25deg)",
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Content with better typography */}
+                  <div className="relative z-20">
+                    <div className="flex items-center mb-4">
+                      <span className="text-3xl mr-3">{feature.emoji}</span>
+                      <h3
+                        className={`${feature.color} text-xl font-bold`}
+                        style={{
+                          letterSpacing: "1px",
+                          textShadow: "1px 1px 0 #fff",
+                          fontFamily: "'Permanent Marker', cursive",
+                        }}
+                      >
+                        {feature.title}
+                      </h3>
+                    </div>
+
+                    <p className="text-gray-800 text-base font-bold mb-3 leading-tight">{feature.desc}</p>
+
+                    <p className="text-gray-700 text-sm leading-relaxed font-mono">{feature.details}</p>
                   </div>
-                )}
 
-                {/* Content with better typography */}
-                <div className="relative z-20">
-                  <div className="flex items-center mb-4">
-                    <span className="text-3xl mr-3">{feature.emoji}</span>
-                    <h3
-                      className={`${feature.color} text-xl font-bold`}
-                      style={{
-                        letterSpacing: "1px",
-                        textShadow: "1px 1px 0 #fff",
-                        fontFamily: "'Permanent Marker', cursive",
-                      }}
-                    >
-                      {feature.title}
-                    </h3>
-                  </div>
-
-                  <p className="text-gray-800 text-base font-bold mb-3 leading-tight">{feature.desc}</p>
-
-                  <p className="text-gray-700 text-sm leading-relaxed font-mono">{feature.details}</p>
+                  {/* Torn edge effect */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 h-2 bg-white opacity-50"
+                    style={{
+                      clipPath:
+                        "polygon(0 0, 5% 100%, 10% 0, 15% 100%, 20% 0, 25% 100%, 30% 0, 35% 100%, 40% 0, 45% 100%, 50% 0, 55% 100%, 60% 0, 65% 100%, 70% 0, 75% 100%, 80% 0, 85% 100%, 90% 0, 95% 100%, 100% 0, 100% 100%, 0 100%)",
+                    }}
+                  />
                 </div>
 
-                {/* Torn edge effect */}
-                <div
-                  className="absolute bottom-0 left-0 right-0 h-2 bg-white opacity-50"
-                  style={{
-                    clipPath:
-                      "polygon(0 0, 5% 100%, 10% 0, 15% 100%, 20% 0, 25% 100%, 30% 0, 35% 100%, 40% 0, 45% 100%, 50% 0, 55% 100%, 60% 0, 65% 100%, 70% 0, 75% 100%, 80% 0, 85% 100%, 90% 0, 95% 100%, 100% 0, 100% 100%, 0 100%)",
-                  }}
-                />
+                {/* Hover effect shadow */}
+                <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300 transform translate-x-2 translate-y-2 -z-10" />
+              </div>
+            ))}
+          </div>
+
+          {/* Enhanced call to action with evidence bag style */}
+          <div className="text-center relative">
+            <div className="inline-block relative mb-8">
+              {/* Evidence bag background */}
+              <div className="bg-gray-200 p-8 transform rotate-1 shadow-2xl border-4 border-gray-400 relative">
+                <div className="absolute top-2 left-2 right-2 h-1 bg-red-500" />
+                <div className="absolute top-4 left-4 text-xs font-bold text-red-600 tracking-wider">EVIDENCE #001</div>
+
+                <p className="text-black font-handwriting text-xl mb-4 mt-4">
+                  "Stop lurking in the shadows.
+                  <br />
+                  Start building in the light."
+                </p>
+                <p className="text-gray-700 text-sm font-mono">- Testimony from every successful indie hacker</p>
+
+                {/* Evidence bag seal */}
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black px-4 py-1 text-xs font-bold border-2 border-black">
+                  SEALED
+                </div>
               </div>
 
-              {/* Hover effect shadow */}
-              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300 transform translate-x-2 translate-y-2 -z-10" />
+              {/* Evidence bag pin */}
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-red-500 rounded-full shadow-lg border-2 border-red-700 z-10" />
             </div>
-          ))}
+
+            <div className="space-y-6">
+              <p className="text-gray-400 text-sm font-mono max-w-md mx-auto leading-relaxed">
+                No followers to farm. No algorithm to game.
+                <br />
+                Just real builders documenting real work.
+                <br />
+                <span className="text-yellow-400 font-bold">Welcome to the evidence room.</span>
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Badge Section - Added just above footer */}
-      <BadgeSection />
-
       <PublicFooter />
-
-      {/* PinWall component, floating button, and AddLogModal have been moved to app/logs/page.tsx */}
     </main>
   )
 }
