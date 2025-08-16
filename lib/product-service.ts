@@ -10,8 +10,7 @@ export async function getProducts(limit = 10, offset = 0) {
   try {
     const supabase = await createClient()
 
-
-    // Get products with founder information
+    // Get products with founder information (visible only)
     const { data: products, error } = await supabase
       .from("products")
       .select(`
@@ -23,6 +22,8 @@ export async function getProducts(limit = 10, offset = 0) {
         ),
         mugshots:founder_id (slug)
       `)
+      .eq('is_visible', true)
+      .lte('launch_date', new Date().toISOString())
       .order("created_at", { ascending: false })
       .limit(limit)
       .range(offset, offset + limit - 1)
@@ -57,18 +58,10 @@ export async function getProducts(limit = 10, offset = 0) {
 
     // Format products for the frontend
     const formattedProducts = products.map((product) => {
-
       // Ensure launch_date is valid or use created_at as fallback
       let launchDate = product.launch_date
       if (!launchDate) {
         launchDate = product.created_at
-      }
-
-      // Validate the date
-      try {
-        new Date(launchDate).toISOString()
-      } catch (e) {
-        launchDate = new Date().toISOString()
       }
 
       return {
@@ -89,12 +82,14 @@ export async function getProducts(limit = 10, offset = 0) {
         productUrl: product.product_url,
         socialLinks: product.social_links,
         launchDate: launchDate,
-        upvotes: upvoteCounts.get(product.id) || 0,
+        upvotes: upvoteCounts.get(String(product.id)) || 0,
         createdAt: product.created_at,
         updatedAt: product.updated_at,
-        imageUrl: product.logo_url,
         founderSlug: product.mugshots?.slug || undefined,
-      }
+        imageUrl: product.logo_url,
+        tier: product.tier || 'free',
+        queuePosition: product.queue_position || undefined,
+      } as Product
     })
 
 
@@ -117,7 +112,6 @@ export async function getProductBySlug(slug: string) {
   try {
     const supabase = await createClient()
 
-    // Use ilike for case-insensitive matching
     const { data: product, error } = await supabase
       .from("products")
       .select(`
@@ -138,6 +132,11 @@ export async function getProductBySlug(slug: string) {
 
     if (!product) {
       return { product: null, error: "Product not found" }
+    }
+
+    // Hide if not yet visible (future launch)
+    if (!product.is_visible || (product.launch_date && new Date(product.launch_date) > new Date())) {
+      return { product: null, error: "Product not launched yet" }
     }
 
     // Get upvote count
@@ -191,7 +190,9 @@ export async function getProductBySlug(slug: string) {
       updatedAt: product.updated_at,
       imageUrl: product.logo_url,
       founderSlug: product.mugshots?.slug || undefined,
-    }
+      tier: product.tier || 'free',
+      queuePosition: product.queue_position || undefined,
+    } as Product
 
     // Store in cache before returning
     const result = { product: formattedProduct, error: null };
@@ -383,5 +384,7 @@ export async function getProductsByFounderId(founderId: string): Promise<Product
     timelineEntries: product.timeline_entries || [],
     imageUrl: product.logo_url,
     founderSlug: product.mugshots?.slug || undefined,
+    tier: product.tier || 'free',
+    queuePosition: product.queue_position || undefined,
   }))
 }

@@ -33,30 +33,66 @@ import type { ProductFormData } from "@/lib/types"
 
 const PRODUCT_CATEGORIES = [
   "AI Tools",
+  "AI Agents",
   "Analytics",
+  "Automation",
+  "Collaboration",
+  "Community",
+  "Content Creation",
+  "Customer Support",
+  "Data Infrastructure",
   "Design Tools",
   "Developer Tools",
+  "DevOps",
   "E-commerce",
   "Education",
   "Finance",
+  "Gaming",
   "Health & Fitness",
+  "HR & Recruiting",
+  "Legal",
+  "Low-Code / No-Code",
   "Marketing",
+  "Mobile",
   "Productivity",
+  "Sales",
+  "Security",
+  "SEO",
   "Social Media",
+  "Video",
   "Other",
 ]
 
-const PRODUCT_STATUSES = ["On the Run", "Under Investigation", "Captured"]
+const PRODUCT_STATUSES = [
+  "Building",
+  "Beta / Early Access",
+  "Launched",
+  "Scaling",
+]
 
-// Function to set a fixed time (12:00 PM) for the launch date
-function setFixedLaunchTime(dateString: string): string {
-  try {
-    const date = new Date(dateString)
-    date.setUTCHours(12, 0, 0, 0) // Set to 12:00 PM UTC
-    return date.toISOString()
-  } catch (error) {
-    return new Date().toISOString() // Fallback to current time
+const LAUNCH_DAYS = [1, 4] // Monday (1) and Thursday (4)
+
+function getNextLaunchDates(numDates = 6) {
+  const dates: Date[] = []
+  let date = new Date()
+  date.setHours(0, 0, 0, 0)
+  while (dates.length < numDates) {
+    date.setDate(date.getDate() + 1)
+    if (LAUNCH_DAYS.includes(date.getDay())) {
+      const d = new Date(date)
+      d.setHours(0,0,0,0)
+      dates.push(d)
+    }
   }
+  return dates
+}
+
+// Format YYYY-MM-DD in LOCAL calendar (avoids UTC shift backwards)
+function formatLocalYMD(date: Date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
 
 export default function SubmitLaunchForm() {
@@ -103,12 +139,14 @@ export default function SubmitLaunchForm() {
       setIsLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => { subscription?.unsubscribe && subscription.unsubscribe() }
   }, [router])
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [tier, setTier] = useState<"paid" | "free">("free")
+  const [availableDates, setAvailableDates] = useState<Date[]>(getNextLaunchDates())
 
   // Form data state
   const [formData, setFormData] = useState<ProductFormData>({
@@ -120,12 +158,13 @@ export default function SubmitLaunchForm() {
     screenshotPreview: "",
     category: "",
     tags: [],
-    status: "On the Run",
+    status: "Building", // updated default to match new PRODUCT_STATUSES
     summary: ["", "", ""],
     description: "",
     productUrl: "",
     socialLinks: {},
-    launchDate: new Date().toISOString().split("T")[0], // Always today
+    tier: "free",
+    launchDate: formatLocalYMD(availableDates[0]), // was toISOString split causing -1 day in ahead timezones
     initialTimelineEntry: {
       headline: "Product launched on Founders Wall",
       description: "The product was officially launched on Founders Wall's Heist Board.",
@@ -347,10 +386,6 @@ export default function SubmitLaunchForm() {
       // Filter out empty summary bullets
       const filteredSummary = formData.summary.filter((item) => item.trim() !== "")
 
-      // Set a fixed time (12:00 PM) for the launch date - always use today's date
-      const today = new Date()
-      const launchDateWithFixedTime = setFixedLaunchTime(today.toISOString().split("T")[0])
-
       // Prepare product data (remove founderId - server will determine it)
       const productData = {
         title: formData.title,
@@ -363,7 +398,8 @@ export default function SubmitLaunchForm() {
         description: formData.description,
         productUrl: formData.productUrl,
         socialLinks: formData.socialLinks,
-        launchDate: launchDateWithFixedTime,
+        tier: formData.tier,
+        launchDate: formData.launchDate, // removed setFixedLaunchTime
         initialTimelineEntry: formData.initialTimelineEntry,
       }
 
@@ -391,7 +427,8 @@ export default function SubmitLaunchForm() {
       const product = await response.json()
 
       // Redirect to the product page
-      router.push(`/launch/${product.slug}`)
+           router.replace(`/station?scheduled=${encodeURIComponent(product.slug)}&date=${encodeURIComponent(product.launch_date || product.launchDate)}`)
+      
     } catch (err) {
       setError("An unexpected error occurred. Please try again.")
       setIsSubmitting(false)
@@ -444,6 +481,112 @@ export default function SubmitLaunchForm() {
                   <CardDescription className="text-gray-400">Tell us about your product</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Tier selection */}
+                  <div className="space-y-2">
+                    <Label>Launch Tier</Label>
+                    <div className="flex gap-4">
+                      <Button
+                        type="button"
+                        className={tier === "paid" ? "bg-yellow-400" : "bg-gray-800"}
+                        onClick={() => {
+                          setTier("paid")
+                          setFormData({ ...formData, tier: "paid" })
+                        }}
+                      >
+                        Paid (Pick any date)
+                      </Button>
+                      <Button
+                        type="button"
+                        className={tier === "free" ? "bg-yellow-400" : "bg-gray-800"}
+                        onClick={() => {
+                          setTier("free")
+                          // keep selected date if still visible
+                          if (!availableDates.find(d => formatLocalYMD(d) === formData.launchDate)) {
+                            setFormData({ ...formData, tier: "free", launchDate: formatLocalYMD(availableDates[0]) })
+                          } else {
+                            setFormData({ ...formData, tier: "free" })
+                          }
+                        }}
+                      >
+                        Free (Choose a free slot)
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Unified Launch date picker */}
+                  <div className="space-y-2">
+                    <Label htmlFor="launchDate">Launch Date</Label>
+                    {tier === 'free' ? (
+                      <div>
+                        <p className="text-xs text-gray-400 mb-2">Choose a free launch slot (Mon & Thu).</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                          {availableDates.map((date, idx) => {
+                            const iso = formatLocalYMD(date)
+                            const isFull = idx < 2 // placeholder logic until real capacity from backend
+                            const isSelected = formData.launchDate === iso
+                            const baseClasses = 'rounded-md p-3 border text-left transition relative'
+                            const fullClasses = 'border-red-600/60 bg-red-900/30 text-red-300 cursor-not-allowed'
+                            const selectableClasses = isSelected
+                              ? 'border-yellow-400 bg-yellow-400/10 text-yellow-300'
+                              : 'border-gray-700 bg-gray-800 hover:border-yellow-400/60 hover:bg-gray-700 cursor-pointer'
+                            return (
+                              <button
+                                type="button"
+                                key={iso}
+                                disabled={isFull}
+                                onClick={() => {
+                                  if (!isFull) setFormData({ ...formData, launchDate: iso })
+                                }}
+                                className={`${baseClasses} ${isFull ? fullClasses : selectableClasses}`}
+                                aria-pressed={isSelected && !isFull}
+                              >
+                                <div className="text-sm font-medium tracking-wide">
+                                  {date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                </div>
+                                <div className="mt-1 text-xs font-normal">
+                                  {isFull ? 'All slots filled' : (isSelected ? 'Selected' : 'Slots available')}
+                                </div>
+                                {isFull && (
+                                  <span className="absolute top-1 right-2 text-[10px] uppercase tracking-wide text-red-400">Full</span>
+                                )}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        {/* If currently selected date is a full one (edge when switching tiers) auto-move to first open */}
+                        {(() => {
+                          // Auto selection moved to useEffect (SSR-safe)
+                          return null
+                        })()}
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <select
+                          id="launchDate"
+                          name="launchDate"
+                          value={formData.launchDate}
+                          onChange={(e) => setFormData({ ...formData, launchDate: e.target.value })}
+                          className="bg-gray-800 border-gray-700 text-white w-full p-2 rounded appearance-none"
+                        >
+                          {availableDates.map((date) => {
+                            const iso = formatLocalYMD(date)
+                            return (
+                              <option key={iso} value={iso}>
+                                {date.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+                              </option>
+                            )
+                          })}
+                        </select>
+                        <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      </div>
+                    )}
+                    <p className="text-xs text-gray-400">
+                      {tier === 'paid'
+                        ? 'Select any available launch slot.'
+                        : 'Full slots are marked in red. Pick any available upcoming date.'}
+                    </p>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="title">Product Name</Label>
                     <Input
@@ -458,7 +601,7 @@ export default function SubmitLaunchForm() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Product Logo</Label>
+                      <Label>Product Logo (eg. 512x512 px)</Label>
                       <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center bg-gray-800">
                         {formData.logoPreview ? (
                           <div className="relative w-32 h-32 mx-auto">
@@ -505,7 +648,7 @@ export default function SubmitLaunchForm() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Product Screenshot</Label>
+                      <Label>Product Screenshot(eg. 1280x800px)</Label>
                       <div className="border-2 border-dashed border-gray-700 rounded-lg p-4 text-center bg-gray-800">
                         {formData.screenshotPreview ? (
                           <div className="relative w-full h-32 mx-auto">
@@ -629,22 +772,6 @@ export default function SubmitLaunchForm() {
                     </div>
                     <p className="text-xs text-gray-400">Press Enter to add a tag</p>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="launchDate">Launch Date</Label>
-                    <div className="relative">
-                      <Input
-                        id="launchDate"
-                        name="launchDate"
-                        type="date"
-                        value={new Date().toISOString().split("T")[0]}
-                        disabled
-                        className="bg-gray-800 border-gray-700 pl-10 opacity-70"
-                      />
-                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    </div>
-                    <p className="text-xs text-gray-400">Products are automatically launched today at 12:00 PM UTC.</p>
-                  </div>
                 </CardContent>
                 <CardFooter className="flex justify-end">
                   <Button
@@ -671,10 +798,24 @@ export default function SubmitLaunchForm() {
             <div className="space-y-6">
               <Card className="bg-gray-900 border border-gray-800 shadow-md">
                 <CardHeader>
-                  <CardTitle className="text-white">Case File Details</CardTitle>
+                  <CardTitle className="text-white">Product Details</CardTitle>
                   <CardDescription className="text-gray-400">Provide more information about your product</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                   <div className="space-y-2">
+                    <Label htmlFor="productUrl">Product URL</Label>
+                    <div className="relative">
+                      <Input
+                        id="productUrl"
+                        name="productUrl"
+                        value={formData.productUrl}
+                        onChange={handleInputChange}
+                        placeholder="https://example.com"
+                        className="bg-gray-800 border-gray-700 pl-10"
+                      />
+                      <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="summary">Evidence Summary (Bullets)</Label>
                     {formData.summary.map((bullet, index) => (
@@ -719,20 +860,7 @@ export default function SubmitLaunchForm() {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="productUrl">Product URL</Label>
-                    <div className="relative">
-                      <Input
-                        id="productUrl"
-                        name="productUrl"
-                        value={formData.productUrl}
-                        onChange={handleInputChange}
-                        placeholder="https://example.com"
-                        className="bg-gray-800 border-gray-700 pl-10"
-                      />
-                      <Link className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    </div>
-                  </div>
+               
 
                   <div className="space-y-2">
                     <Label>Social Links (Optional)</Label>
@@ -805,7 +933,7 @@ export default function SubmitLaunchForm() {
                     <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                        <p className="text-sm font-medium">{new Date().toLocaleDateString()}</p>
+                        <p className="text-sm font-medium">{new Date(formData.launchDate + 'T00:00:00').toLocaleDateString()}</p>
                       </div>
                       <Input
                         value={formData.initialTimelineEntry?.headline || ""}

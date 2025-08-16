@@ -2,8 +2,8 @@ import { NextResponse } from "next/server"
 import { createClient } from "@/utils/supabase/server"
 import { getProductBySlug } from "@/lib/product-service"
 
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
-  const slug = params.slug
+export async function GET(request: Request, context: { params: Promise<{ slug: string }> }) {
+  const { slug } = await context.params
 
   const { product, error } = await getProductBySlug(slug)
 
@@ -18,9 +18,9 @@ export async function GET(request: Request, { params }: { params: { slug: string
   return NextResponse.json(product)
 }
 
-export async function PATCH(request: Request, { params }: { params: { slug: string } }) {
+export async function PATCH(request: Request, context: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient()
-  const slug = params.slug
+  const { slug } = await context.params
 
   try {
     // Get the current user

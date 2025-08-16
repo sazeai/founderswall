@@ -84,18 +84,7 @@ export default function StationHeader({ user }: StationHeaderProps) {
                   All Launches
                 </span>
               </Link>
-              <Link href="/uplift" className="px-3 py-2 text-gray-300 hover:text-white transition-colors">
-                <span className="flex items-center">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Uplift
-                </span>
-              </Link>
-              <Link href="/station/show-up" className="px-3 py-2 text-gray-300 hover:text-white transition-colors">
-                <span className="flex items-center">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Request Support
-                </span>
-              </Link>
+           
               {/* ONLY ADDITION - story  Link */}
               <Link href="/station/submit-story" className="px-3 py-2 text-gray-300 hover:text-white transition-colors">
                 <span className="flex items-center">
@@ -122,7 +111,7 @@ export default function StationHeader({ user }: StationHeaderProps) {
               <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-10 border border-gray-700">
                 <div className="px-4 py-2 border-b border-gray-700">
                   <p className="text-xs font-medium">{user.email}</p>
-                  <p className="text-xs text-gray-400">Suspect</p>
+                  <p className="text-xs text-gray-400">Builder</p>
                 </div>
                 <Link
                   href="/station/edit-mugshot"

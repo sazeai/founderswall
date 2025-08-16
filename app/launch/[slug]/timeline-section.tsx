@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Clock } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import { createClient } from "@/utils/supabase/client"
@@ -50,36 +50,30 @@ export default function TimelineSection({ productSlug, productId, timelineEntrie
   const [isOwner, setIsOwner] = useState(false)
   const [entries, setEntries] = useState<TimelineEntry[]>(timelineEntries)
   const [lastEntryDate, setLastEntryDate] = useState<string | null>(null)
-  const [isCheckingOwnership, setIsCheckingOwnership] = useState(false)
+
+  // Track last ownership check per user+slug to avoid duplicate calls
+  const lastCheckKeyRef = useRef<string | null>(null)
 
   // Check if the current user is the product owner
   useEffect(() => {
-    const checkOwnership = async () => {
-      if (!user || isCheckingOwnership) return
-
-      setIsCheckingOwnership(true)
-
+    const run = async () => {
+      if (!user || isLoading) return
+      const key = `${user.id}:${productSlug}`
+      if (lastCheckKeyRef.current === key) return
+      lastCheckKeyRef.current = key
       try {
         const response = await fetch(`/api/products/${productSlug}/ownership`)
         const data = await response.json()
-
-        setIsOwner(data.isOwner)
-
-        // If user is owner, check their last entry date
+        setIsOwner(Boolean(data.isOwner))
         if (data.isOwner && entries.length > 0) {
           setLastEntryDate(entries[0].date)
         }
       } catch (error) {
         console.error("Error in user verification for timeline :", error)
-      } finally {
-        setIsCheckingOwnership(false)
       }
     }
-
-    if (user && !isLoading) {
-      checkOwnership()
-    }
-  }, [user, isLoading, productSlug, entries, isCheckingOwnership])
+    run()
+  }, [user?.id, isLoading, productSlug])
 
   const handleEntryAdded = async () => {
     // Refresh timeline entries

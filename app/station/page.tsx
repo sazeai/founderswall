@@ -1,8 +1,9 @@
 import type React from "react"
 import Link from "next/link"
 import { createClient } from "@/utils/supabase/server"
-import { Camera, FileText, Users, Eye, Edit, Crown, Star, PlusCircle } from "lucide-react"
+import { Camera, FileText, Eye, Edit, PlusCircle } from "lucide-react"
 import { StationHeaderClient } from "@/components/StationHeaderClient"
+import YourLaunches from "@/components/YourLaunches"
 
 export default async function StationDashboard() {
   const supabase = await createClient()
@@ -39,33 +40,6 @@ export default async function StationDashboard() {
     productsCount = pCount || 0
   }
 
-  // Get user's nominations count
-  const { count: nominationsCount } = await supabase
-    .from("nominations")
-    .select("*", { count: "exact", head: true })
-    .eq("supporter_user_id", user.id)
-
-  // Get user's connections count
-  const { count: connectionsCount } = await supabase
-    .from("connections")
-    .select("*", { count: "exact", head: true })
-    .eq("created_by", user.email)
-
-  // Get user's support requests (launches) count
-  const { count: supportRequestsCount } = await supabase
-    .from("launches")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id)
-
-  // Get user profile for badge type
-  const { data: userProfile } = await supabase
-    .from("user_profiles")
-    .select("badge_type")
-    .eq("user_id", user.id)
-    .single()
-
-  const badgeType = userProfile?.badge_type || "wanted"
-
   // Get user's pins count
   const { count: pinsCount } = await supabase
     .from("pins")
@@ -90,20 +64,6 @@ export default async function StationDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold mb-2 text-white">Your Indie Crime Status</h2>
-            <div className="flex items-center gap-2">
-              {badgeType === "community_pick" && <Crown className="w-5 h-5 text-yellow-400" />}
-              {badgeType === "startup_saviour" && <Star className="w-5 h-5 text-blue-400" />}
-              <span className="text-lg font-bold text-white uppercase tracking-wider">
-                {badgeType === "wanted" && <span className="font-handwriting text-yellow-400">WANTED</span>}
-                {badgeType === "community_pick" && "COMMUNITY PICK"}
-                {badgeType === "startup_saviour" && "STARTUP SAVIOUR"}
-              </span>
-            </div>
-            <p className="text-gray-400 text-sm mt-1">
-              {badgeType === "wanted" && "Create a Profile"}
-              {badgeType === "community_pick" && "You've been selected by the community!"}
-              {badgeType === "startup_saviour" && "You've helped nominate underdog talented builder to the wall"}
-            </p>
           </div>
           <div className="text-right">
             {userMugshot ? (
@@ -147,15 +107,6 @@ export default async function StationDashboard() {
           status="normal"
         />
 
-        <CriminalStatCard
-          title="Request Support"
-          value={supportRequestsCount || 0}
-          icon={<Users className="w-8 h-8 text-red-400" />}
-          linkText="Request Support"
-          linkHref="/station/show-up"
-          status="normal"
-        />
-
         <div className="relative">
           <CriminalStatCard
             title="Build Logs"
@@ -172,7 +123,7 @@ export default async function StationDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Criminal Operations */}
         <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg relative">
-          <h2 className="text-xl font-bold mb-4 text-white">FOUNCER ACTIVITIES</h2>
+          <h2 className="text-xl font-bold mb-4 text-white">FOUNDER ACTIVITIES</h2>
           <div className="space-y-4">
             {!userMugshot ? (
               <CriminalActionCard
@@ -184,7 +135,7 @@ export default async function StationDashboard() {
               />
             ) : (
               <CriminalActionCard
-                title="Edit Your Mugshot"
+                title="Edit Your Profile"
                 description="Update your founder profile and details"
                 icon={<Edit className="w-6 h-6" />}
                 href="/station/edit-mugshot"
@@ -193,8 +144,8 @@ export default async function StationDashboard() {
             )}
 
             <CriminalActionCard
-              title="Submit Product Evidence"
-              description="Add your product to the Heist Board"
+              title="Submit Your Product"
+              description="Add your product to the Launch Board"
               icon={<FileText className="w-6 h-6" />}
               href="/station/show-up"
               priority="normal"
@@ -208,21 +159,6 @@ export default async function StationDashboard() {
               priority="normal"
             />
 
-            {userMugshot && (
-              <CriminalActionCard
-                title="Share Your Arrest"
-                description="Spread the word about your criminal activity"
-                icon={<Users className="w-6 h-6" />}
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                  `Just got arrested on the #FoundersWall 🚨
-I'm officially guilty of building in public
-
-${process.env.NEXT_PUBLIC_APP_URL}/maker/${userMugshot.name.toLowerCase().replace(/\s+/g, "-")}`,
-                )}`}
-                priority="normal"
-                external={true}
-              />
-            )}
             {/* Small tape accent */}
             <div className="absolute -top-2 left-8 w-10 h-2 bg-yellow-400/80 rounded shadow-sm z-10"></div>
           </div>
@@ -233,8 +169,8 @@ ${process.env.NEXT_PUBLIC_APP_URL}/maker/${userMugshot.name.toLowerCase().replac
           <h2 className="text-xl font-bold mb-4 text-white">INVESTIGATION ACTIVITIES</h2>
           <div className="space-y-4">
             <CriminalActionCard
-              title="View The Wall"
-              description="Browse all criminals and their mugshots"
+              title="Exlore the Founder build Logs"
+              description="Browse all aweosme products on launch board"
               icon={<Eye className="w-6 h-6" />}
               href="/"
               priority="normal"
@@ -242,15 +178,15 @@ ${process.env.NEXT_PUBLIC_APP_URL}/maker/${userMugshot.name.toLowerCase().replac
 
             <CriminalActionCard
               title="Investigate Products"
-              description="Browse the Heist Board for criminal Build Log"
+              description="Browse the Launched Products"
               icon={<FileText className="w-6 h-6" />}
               href="/launch"
               priority="normal"
             />
 
             <CriminalActionCard
-              title="Browse Ghost Projects"
-              description="Discover abandoned projects and hidden gems"
+              title="Learn from Founder stories"
+              description="DLearn from fails and wins from amazing founders"
               icon={<Eye className="w-6 h-6" />}
               href="/ghost"
               priority="normal"
@@ -260,36 +196,10 @@ ${process.env.NEXT_PUBLIC_APP_URL}/maker/${userMugshot.name.toLowerCase().replac
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="mt-8 bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg">
-        <h2 className="text-xl font-bold mb-4 text-white">CASE FILE ACTIVITY</h2>
-        <div className="space-y-4">
-          <ActivityItem
-            title="Detective Account Created"
-            description="Your investigation credentials have been established"
-            time="Account creation"
-            type="system"
-          />
-          {userMugshot && (
-            <ActivityItem
-              title="Criminal Mugshot Filed"
-              description={`Arrested for: ${userMugshot.crime}`}
-              time={new Date(userMugshot.created_at).toLocaleDateString()}
-              type="arrest"
-            />
-          )}
-          {(nominationsCount || 0) > 0 && (
-            <ActivityItem
-              title={`${nominationsCount} Criminal${(nominationsCount || 0) > 1 ? "s" : ""} Nominated`}
-              description="You've helped identify suspects for the wall"
-              time="Recent activity"
-              type="nomination"
-            />
-          )}
-        </div>
+      {/* Your Launches Section */}
+      <div className="mt-8">
+        <YourLaunches />
       </div>
-
-    
     </div>
   )
 }

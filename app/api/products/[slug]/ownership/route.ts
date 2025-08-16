@@ -11,9 +11,9 @@ interface CachedOwnership {
 const ownershipCache = new Map<string, CachedOwnership>();
 const OWNERSHIP_CACHE_DURATION = 30000; // 30 seconds
 
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, context: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient()
-  const slug = params.slug
+  const { slug } = await context.params
 
   try {
     const {
@@ -21,8 +21,6 @@ export async function GET(request: Request, { params }: { params: { slug: string
     } = await supabase.auth.getUser()
 
     if (!user) {
-      // For non-logged-in users, ownership is always false and doesn't need user-specific caching key part.
-      // However, to keep cache structure simple, we can return directly or use a generic key if we were to cache this.
       return NextResponse.json({ isOwner: false })
     }
 
@@ -57,7 +55,6 @@ export async function GET(request: Request, { params }: { params: { slug: string
     return NextResponse.json({ isOwner })
 
   } catch (error) {
-    // Avoid caching general errors unless specific strategy is in place
     return NextResponse.json({ isOwner: false })
   }
 }

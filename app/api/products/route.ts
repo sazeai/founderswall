@@ -15,6 +15,9 @@ interface CachedProductsData {
 const productsCache = new Map<string, CachedProductsData>();
 const PRODUCTS_CACHE_DURATION = 60000; // 60 seconds, adjust as needed
 
+const ALLOWED_LAUNCH_DAYS = [1,4] // Monday, Thursday
+const FREE_DAY_CAPACITY = 5 // placeholder capacity for free tier per launch day
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const limit = Number.parseInt(searchParams.get("limit") || "10")
@@ -34,7 +37,7 @@ export async function GET(request: Request) {
   try {
     const supabase = await createClient()
 
-    // Get products with founder information
+    // Get products with founder information – only visible ones
     const { data: products, error } = await supabase
       .from("products")
       .select(`
@@ -46,7 +49,9 @@ export async function GET(request: Request) {
         ),
         mugshots:founder_id (slug)
       `)
-      .order("created_at", { ascending: false })
+      .eq('is_visible', true) // ensure only explicitly visible
+      .lte('launch_date', new Date().toISOString()) // double-guard: hide future launches
+      .order("launch_date", { ascending: false })
       .limit(limit)
       .range(offset, offset + limit - 1)
 
@@ -199,10 +204,81 @@ export async function POST(request: Request) {
     const productData = await request.json()
 
     // Validate required fields
-    const requiredFields = ["title", "category", "summary", "tags", "productUrl"]
+    const requiredFields = ["title", "category", "summary", "tags", "productUrl", "tier", "launchDate"]
     for (const field of requiredFields) {
       if (!productData[field]) {
         return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 })
+      }
+    }
+
+    // --- Launch scheduling and queue management ---
+    let launchDate = new Date(productData.launchDate)
+    launchDate.setUTCHours(8, 0, 0, 0) // normalize to 08:00 UTC
+    let queuePosition = null
+
+    const dayUTC = launchDate.getUTCDay()
+    // Restrict ALL tiers to Monday/Thursday
+    if (!ALLOWED_LAUNCH_DAYS.includes(dayUTC)) {
+      return NextResponse.json({ error: "Launch date must be Monday or Thursday." }, { status: 400 })
+    }
+
+    // Get the user's mugshot ID (this is what should be used as founder_id)
+    const { data: mugshot, error: mugshotError } = await supabase
+      .from("mugshots")
+      .select("id")
+      .eq("user_id", user.id)
+      .single()
+
+    if (mugshotError || !mugshot) {
+      return NextResponse.json(
+        {
+          error: "You must have a mugshot profile to create a product. Please create your mugshot first.",
+        },
+        { status: 400 },
+      )
+    }
+
+    // Enforce max 1 launch per founder per calendar launch day (UTC) regardless of tier
+    const dayStart = new Date(launchDate)
+    dayStart.setUTCHours(0,0,0,0)
+    const dayEnd = new Date(dayStart)
+    dayEnd.setUTCDate(dayEnd.getUTCDate() + 1)
+
+    const { data: launchesForFounder } = await supabase
+      .from("products")
+      .select("id")
+      .eq("founder_id", mugshot.id)
+      .gte("launch_date", dayStart.toISOString())
+      .lt("launch_date", dayEnd.toISOString())
+
+    if (launchesForFounder && launchesForFounder.length > 0) {
+      return NextResponse.json({ error: "You already have a launch scheduled that day." }, { status: 400 })
+    }
+
+    // Assign queue position for free launches WITH capacity + rollover logic
+    if (productData.tier === "free") {
+      while (true) {
+        const { count: dayCount, error: capErr } = await supabase
+          .from('products')
+          .select('id', { count: 'exact', head: true })
+          .eq('launch_date', launchDate.toISOString())
+          .eq('tier', 'free')
+        if (capErr) break
+        if ((dayCount || 0) >= FREE_DAY_CAPACITY) {
+          // advance date to next allowed launch day (UTC)
+          do {
+            launchDate.setUTCDate(launchDate.getUTCDate() + 1)
+          } while (!ALLOWED_LAUNCH_DAYS.includes(launchDate.getUTCDay()))
+          continue
+        } else {
+          const { count } = await supabase
+            .from("products")
+            .select("id", { count: "exact", head: true })
+            .eq("launch_date", launchDate.toISOString())
+            .eq("tier", "free")
+          queuePosition = (count || 0) + 1
+          break
+        }
       }
     }
 
@@ -235,36 +311,11 @@ export async function POST(request: Request) {
     // Generate unique case ID
     const caseId = await generateUniqueCaseId(supabase)
 
-    // Ensure launch date is valid and has a fixed time (12:00 PM UTC)
-    let launchDate = new Date()
-    try {
-      launchDate = new Date(productData.launchDate)
-      // Set to 12:00 PM UTC
-      launchDate.setUTCHours(12, 0, 0, 0)
-    } catch (e) {
-      // Default to today at 12:00 PM UTC
-      launchDate = new Date()
-      launchDate.setUTCHours(12, 0, 0, 0)
-    }
-
-    // Get the user's mugshot ID (this is what should be used as founder_id)
-    const { data: mugshot, error: mugshotError } = await supabase
-      .from("mugshots")
-      .select("id")
-      .eq("user_id", user.id)
-      .single()
-
-    if (mugshotError || !mugshot) {
-      return NextResponse.json(
-        {
-          error: "You must have a mugshot profile to create a product. Please create your mugshot first.",
-        },
-        { status: 400 },
-      )
-    }
-
     // Use the user's mugshot ID as the founder_id
     const founderId = mugshot.id
+
+    // Determine visibility (will be false for future dates)
+    const isVisible = launchDate <= new Date()
 
     // Insert the product
     const { data: product, error } = await supabase
@@ -284,6 +335,10 @@ export async function POST(request: Request) {
         product_url: productData.productUrl,
         social_links: productData.socialLinks,
         launch_date: launchDate.toISOString(),
+        tier: productData.tier,
+        queue_position: queuePosition,
+        // is_visible column must be added via migration; if absent this will be ignored or error
+        is_visible: isVisible,
       })
       .select()
       .single()

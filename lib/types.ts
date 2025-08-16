@@ -89,6 +89,8 @@ export interface Product {
   founderSlug?: string
   timelineEntries?: TimelineEntry[]
   imageUrl: string // To fix missing property error
+  tier: "paid" | "free"
+  queuePosition?: number
 }
 
 export interface BuildStory {
@@ -165,6 +167,8 @@ export interface ProductFormData {
     other?: string
   }
   launchDate: string
+  tier: "paid" | "free"
+  queuePosition?: number
   initialTimelineEntry?: {
     headline: string
     description: string

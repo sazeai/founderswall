@@ -11,9 +11,9 @@ interface CachedTimeline {
 const timelineCache = new Map<string, CachedTimeline>();
 const TIMELINE_CACHE_DURATION = 30000; // 30 seconds
 
-export async function POST(request: Request, { params }: { params: { slug: string } }) {
+export async function POST(request: Request, context: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient()
-  const slug = params.slug
+  const { slug } = await context.params
 
   try {
     // Get the current user
@@ -108,9 +108,9 @@ export async function POST(request: Request, { params }: { params: { slug: strin
 }
 
 // Add a GET endpoint to fetch timeline entries
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, context: { params: Promise<{ slug: string }> }) {
   const supabase = await createClient()
-  const slug = params.slug
+  const { slug } = await context.params
 
   const cacheKey = `timeline-${slug}`;
   const cachedEntry = timelineCache.get(cacheKey);
