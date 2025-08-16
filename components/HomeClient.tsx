@@ -732,24 +732,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <section className="relative py-20 px-4 sm:px-8 lg:px-16 bg-gradient-to-b from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] text-white overflow-hidden">
-        {/* Enhanced grunge texture with multiple layers */}
-        <div
-          className="absolute inset-0 pointer-events-none z-0"
-          style={{
-            backgroundImage:
-              "url('https://w7.pngwing.com/pngs/930/611/png-transparent-retro-wall-texture-retro-texture-crack-thumbnail.png')",
-            backgroundSize: "cover",
-            opacity: 0.18,
-            mixBlendMode: "luminosity",
-          }}
-        />
-
-        {/* Scattered evidence markers */}
-        <div className="absolute top-10 left-10 w-8 h-8 bg-red-600 rounded-full opacity-20 animate-pulse" />
-        <div className="absolute top-32 right-20 w-6 h-6 bg-yellow-500 rounded-full opacity-30" />
-        <div className="absolute bottom-20 left-1/4 w-4 h-4 bg-blue-500 rounded-full opacity-25" />
-      </section>
+      
 
       <PublicFooter />
     </main>

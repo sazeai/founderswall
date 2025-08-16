@@ -26,7 +26,8 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <>
+    <>      
+
       <Suspense fallback={<LoadingMugshotWall />}>
         <HomeClient />
       </Suspense>
