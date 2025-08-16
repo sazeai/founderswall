@@ -12,6 +12,7 @@ import { PublicHeader } from "@/components/public-header"
 import PublicFooter from "@/components/public-footer"
 import LoadingMugshotWall from "@/components/loading-mugshot-wall"
 import { getRandomRotation, getPinPosition } from "@/utils/crimeBoardEffects"
+import InPeriodLaunches from "@/components/InPeriodLaunches"
 
 export default function HomeClient() {
   const [selectedCriminal, setSelectedCriminal] = useState<Mugshot | null>(null)
@@ -510,6 +511,9 @@ export default function HomeClient() {
           }}
         ></div>
       </div>
+
+      {/* In-Period Product Launches Section */}
+      <InPeriodLaunches />
 
       <section
         id="corkboard-section"

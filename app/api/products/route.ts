@@ -23,9 +23,12 @@ export async function GET(request: Request) {
   const limit = Number.parseInt(searchParams.get("limit") || "10")
   const offset = Number.parseInt(searchParams.get("offset") || "0")
   const filter = searchParams.get("filter") as "trending" | "newest" | "most-wanted" | undefined
+  const inPeriod = searchParams.get("in_period") === "1"
+  const start = searchParams.get("start")
+  const end = searchParams.get("end")
 
   // Create a cache key based on request parameters
-  const cacheKey = `products-limit:${limit}-offset:${offset}-filter:${filter || 'none'}`;
+  const cacheKey = `products-limit:${limit}-offset:${offset}-filter:${filter || 'none'}-inperiod:${inPeriod}-start:${start}-end:${end}`;
 
   // Check cache first
   const cachedEntry = productsCache.get(cacheKey);
@@ -33,12 +36,9 @@ export async function GET(request: Request) {
     return NextResponse.json(cachedEntry.data);
   }
 
-
   try {
     const supabase = await createClient()
-
-    // Get products with founder information – only visible ones
-    const { data: products, error } = await supabase
+    let query = supabase
       .from("products")
       .select(`
         *,
@@ -49,12 +49,17 @@ export async function GET(request: Request) {
         ),
         mugshots:founder_id (slug)
       `)
-      .eq('is_visible', true) // ensure only explicitly visible
-      .lte('launch_date', new Date().toISOString()) // double-guard: hide future launches
-      .order("launch_date", { ascending: false })
-      .limit(limit)
-      .range(offset, offset + limit - 1)
+      .eq('is_visible', true)
 
+    if (inPeriod && start && end) {
+      query = query.gte('launch_date', start).lt('launch_date', end)
+    } else {
+      query = query.lte('launch_date', new Date().toISOString())
+    }
+
+    query = query.order("launch_date", { ascending: false }).limit(limit).range(offset, offset + limit - 1)
+
+    const { data: products, error } = await query
 
     if (error) {
       console.error("API: Products query error:", error)
@@ -62,35 +67,27 @@ export async function GET(request: Request) {
     }
 
     if (!products) {
-      productsCache.set(cacheKey, { timestamp: Date.now(), data: [] }); // Cache empty result
+      productsCache.set(cacheKey, { timestamp: Date.now(), data: [] });
       return NextResponse.json([])
     }
 
     // Get upvote counts for each product individually
     const upvoteCounts = new Map<string, number>()
-
-    // Count upvotes for each product individually
     for (const product of products) {
       const { count, error: countError } = await supabase
         .from("product_upvotes")
         .select("*", { count: "exact", head: true })
         .eq("product_id", product.id)
-
       if (!countError) {
         upvoteCounts.set(String(product.id), count || 0)
       } else {
-        upvoteCounts.set(String(product.id), 0) // Default to 0 if error
+        upvoteCounts.set(String(product.id), 0)
       }
     }
 
-    // Format products for the frontend
     const formattedProducts = products.map((product) => {
-      // Ensure launch_date is valid or use created_at as fallback
       let launchDate = product.launch_date
-      if (!launchDate) {
-        launchDate = product.created_at
-      }
-
+      if (!launchDate) launchDate = product.created_at
       return {
         id: product.id,
         slug: product.slug,
@@ -116,9 +113,7 @@ export async function GET(request: Request) {
       }
     })
 
-    // Store in cache
     productsCache.set(cacheKey, { timestamp: Date.now(), data: formattedProducts });
-
     return NextResponse.json(formattedProducts)
   } catch (error) {
     console.error("API: Unexpected error:", error)

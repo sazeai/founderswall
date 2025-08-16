@@ -40,52 +40,29 @@ export default async function StationDashboard() {
     productsCount = pCount || 0
   }
 
+
   // Get user's pins count
   const { count: pinsCount } = await supabase
     .from("pins")
     .select("*", { count: "exact", head: true })
     .eq("user_id", user.id)
 
+  // Get user's stories count
+  const { count: storiesCount } = await supabase
+    .from("build_stories")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+
   return (
     <div className="container mx-auto py-8 px-4">
       <header className="mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-white">Your Station</h1>
+       <h1 className="text-3xl font-bold mb-2 text-red-500 stamped-text">BUILDER PLAYGROUND</h1>
+        
         <StationHeaderClient />
       </header>
 
-      {/* Header Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-red-500 stamped-text">BUILDER PLAYGROUND</h1>
-        <p className="text-gray-400">Your Chaos Hub</p>
-      </div>
 
-      {/* Criminal Status Card */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-lg p-6 mb-8 relative">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold mb-2 text-white">Your Indie Crime Status</h2>
-          </div>
-          <div className="text-right">
-            {userMugshot ? (
-              <div className="flex flex-col items-end">
-                <span className="flex items-center gap-2 text-green-400 font-bold uppercase">
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>IN CUSTODY
-                </span>
-                <p className="text-gray-400 text-sm">Mugshot on file</p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-end">
-                <span className="flex items-center gap-2 text-red-500 font-bold uppercase">
-                  <span className="inline-block w-2 h-2 rounded-full bg-red-500"></span>AT LARGE
-                </span>
-                <p className="text-gray-400 text-sm">No mugshot yet</p>
-              </div>
-            )}
-          </div>
-        </div>
-        {/* Small tape accent */}
-        <div className="absolute -top-2 left-8 w-12 h-2 bg-yellow-400/80 rounded shadow-sm z-10"></div>
-      </div>
+
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -114,6 +91,16 @@ export default async function StationDashboard() {
             icon={<FileText className="w-8 h-8 text-green-400" />}
             linkText="View & Edit Logs"
             linkHref="/station/logs"
+            status="normal"
+          />
+        </div>
+        <div className="relative">
+          <CriminalStatCard
+            title="All Stories"
+            value={storiesCount || 0}
+            icon={<FileText className="w-8 h-8 text-green-400" />}
+            linkText="Submit a story"
+            linkHref="/station/submit-story"
             status="normal"
           />
         </div>
