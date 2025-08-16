@@ -87,16 +87,16 @@ export default function InPeriodLaunches() {
   }
 
   return (
-    <section className="bg-gradient-to-br from-yellow-900/60 via-black/80 to-yellow-900/60 py-20">
+    <section className="bg-gradient-to-br from-yellow-900/60 via-black/80 to-yellow-900/60 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-sm font-bold mb-6 shadow-lg">
-            <Flame className="w-5 h-5 mr-2 animate-pulse" />🔥 HOT LAUNCHES THIS WEEK
+            <Flame className="w-5 h-5 mr-2 animate-pulse" />HOT LAUNCHES
           </div>
-          <h2 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-orange-400 mb-6">
+          <h2 className="text-3xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-orange-400 mb-6">
             Live Product Launches
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-tight">
             Discover groundbreaking products launching this week and be part of the innovation revolution
           </p>
 
@@ -182,7 +182,7 @@ export default function InPeriodLaunches() {
 
               <Link
                 href={`/launch/${product.slug}`}
-                className="inline-flex items-center justify-center w-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 group-hover:shadow-lg transform hover:scale-105"
+                className="inline-flex items-center justify-center w-full bg-gradient-to-r from-secondary to-primary hover:from-primary hover:to-secondary text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 group-hover:shadow-lg transform hover:scale-105"
               >
                 <Zap className="w-5 h-5 mr-2" />
                 Explore Launch
