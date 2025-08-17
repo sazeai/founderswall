@@ -4,8 +4,9 @@ import type { Mugshot } from "./types"
 export async function getMugshots() {
   try {
     const isServer = typeof window === "undefined"
+    // Use production URL as fallback for SSR in prod
     const baseUrl = isServer
-      ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+      ? process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://founderswall.com"
       : ""
     const response = await fetch(`${baseUrl}/api/mugshots`, { cache: "no-store" })
     if (!response.ok) {
