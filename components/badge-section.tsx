@@ -1,6 +1,29 @@
+
 import Image from "next/image"
+import { useEffect, useRef } from "react"
 
 export default function BadgeSection() {
+  const navRef = useRef<HTMLDivElement>(null)
+
+  // Auto-scroll badges left to right on mobile
+  useEffect(() => {
+    const nav = navRef.current
+    if (!nav) return
+    if (window.innerWidth >= 768) return // Only on mobile
+    let frame: number
+    let direction = 1
+    const scrollStep = 0.5 // px per frame
+    function animate() {
+      if (!nav) return
+      if (nav.scrollLeft + nav.offsetWidth >= nav.scrollWidth) direction = -1
+      if (nav.scrollLeft <= 0) direction = 1
+      nav.scrollLeft += scrollStep * direction
+      frame = requestAnimationFrame(animate)
+    }
+    frame = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
   return (
     <>
       {/* SEO-friendly structured data */}
@@ -59,11 +82,13 @@ export default function BadgeSection() {
             <p className="text-sm text-gray-500">FoundersWall is featured and trusted by top startup communities</p>
           </div>
 
-          <nav
-            className="flex flex-wrap items-center justify-center gap-6 md:gap-8"
-            role="navigation"
-            aria-label="Platform recognition badges"
-          >
+      <nav
+        ref={navRef}
+        className="flex flex-nowrap md:flex-wrap items-center md:justify-center gap-6 md:gap-8 overflow-x-auto md:overflow-x-visible scrollbar-hide py-2"
+        style={{ WebkitOverflowScrolling: "touch" }}
+        role="navigation"
+        aria-label="Platform recognition badges"
+      >
             {/* Huzzler Badge */}
             <a
               href="https://huzzler.so/products/VhGPTL2Ajs/founderswall?utm_source=huzzler_product_website&utm_medium=badge&utm_campaign=badge"
