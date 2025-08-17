@@ -3,12 +3,15 @@ import type { Mugshot } from "./types"
 // Client-side functions for fetching data
 export async function getMugshots() {
   try {
-    const response = await fetch("/api/mugshots")
+    const isServer = typeof window === "undefined"
+    const baseUrl = isServer
+      ? process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+      : ""
+    const response = await fetch(`${baseUrl}/api/mugshots`, { cache: "no-store" })
     if (!response.ok) {
       throw new Error("Failed to fetch mugshots")
     }
     const mugshots = await response.json()
-
     return mugshots as Mugshot[]
   } catch (error) {
     console.error("Error fetching mugshots:", error)

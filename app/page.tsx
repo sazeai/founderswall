@@ -1,7 +1,5 @@
-import { Suspense } from "react"
-import HomeClient from "@/components/HomeClient"
-import BadgeSection from "@/components/badge-section"
-import LoadingMugshotWall from "@/components/loading-mugshot-wall"
+
+import HomeServer from "@/components/HomeServer"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -24,16 +22,13 @@ export const metadata: Metadata = {
   },
 }
 
+
 export default function HomePage() {
   return (
-    <>      
-
-      <Suspense fallback={<LoadingMugshotWall />}>
-        <HomeClient />
-      </Suspense>
-
+    <>
+      <HomeServer />
       {/* Server-side rendered badges for SEO */}
-      <BadgeSection />
+      
     </>
   )
 }

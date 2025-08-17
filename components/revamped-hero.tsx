@@ -26,7 +26,7 @@ const RevampedHero = () => {
 
  
   return (
-    <div className="bg-black py-24 pb-8 relative overflow-hidden">
+    <div className="bg-black pt-24 relative overflow-hidden">
       {/* Minimalist two-column hero */}
       <div className="relative z-10 flex flex-col sm:flex-row items-start justify-between  px-4 sm:px-8 lg:px-16">
         {/* Mascot on the left */}
@@ -74,7 +74,7 @@ const RevampedHero = () => {
                 </a>
 
                 {/* Case number */}
-                <div className="absolute -bottom-1 md:-bottom-2 right-1 md:right-2 bg-black text-white text-[9px] sm:text-xs font-mono px-1 md:px-2 py-0.5 md:py-1 transform rotate-6">
+                <div className="absolute -bottom-1 md:-bottom-2 right-1 md:right-2 bg-black text-white text-[8px] sm:text-xs font-mono px-1 md:px-2 py-0.5 md:py-1 transform rotate-6">
                   #PH001
                 </div>
               </div>
@@ -90,8 +90,18 @@ const RevampedHero = () => {
 Ship every week, stack your launches, and show you're still building. No followers to chase, no noise to fake, just your timeline proving you're alive and putting in the work. </p>
         </div>
       </div>
+      <div className="h-8 w-full bg-yellow-400 relative overflow-hidden z-10">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "repeating-linear-gradient(45deg, #000 0, #000 10px, #f6e05e 10px, #f6e05e 20px)",
+            backgroundSize: "28px 28px",
+          }}
+        ></div>
+      </div>
     </div>
   )
 }
 
 export default RevampedHero
+

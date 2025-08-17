@@ -1,28 +1,32 @@
 "use client"
 
 import type React from "react"
-import RevampedHero from "@/components/revamped-hero"
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { X, ZoomIn, ZoomOut, RefreshCw, Maximize, Minimize, Star, Crown } from "lucide-react"
-import { getMugshots } from "@/lib/mugshot-service-client"
 import CriminalModal from "@/components/criminal-modal"
 import type { Mugshot } from "@/lib/types"
 import { PublicHeader } from "@/components/public-header"
 import PublicFooter from "@/components/public-footer"
-import LoadingMugshotWall from "@/components/loading-mugshot-wall"
-import { getRandomRotation, getPinPosition } from "@/utils/crimeBoardEffects"
-import InPeriodLaunches from "@/components/InPeriodLaunches"
+import BadgeSection from "@/components/badge-section"
 
-export default function HomeClient() {
+interface HomeClientProps {
+  mugshots: Mugshot[]
+  productCounts: Record<string, number>
+}
+
+export default function HomeClient({ mugshots }: HomeClientProps) {
+  // Debug: log mugshots prop to verify data
+  if (typeof window !== "undefined") {
+    // Only log on client
+    // eslint-disable-next-line no-console
+    console.log("[HomeClient] mugshots prop:", mugshots)
+  }
   const [selectedCriminal, setSelectedCriminal] = useState<Mugshot | null>(null)
-  const [mugshots, setMugshots] = useState<Mugshot[]>([])
   const [zoomLevel, setZoomLevel] = useState(1)
   const [hoveredCriminal, setHoveredCriminal] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [productCounts, setProductCounts] = useState<Record<string, number>>({})
+  // SSR: loading and error state not needed
 
   // New state for panning
   const [panPosition, setPanPosition] = useState({ x: 0, y: 0 })
@@ -39,102 +43,93 @@ export default function HomeClient() {
 
   // Separate featured and regular mugshots
 
-  // Generate torn paper effect
+  // Deterministic torn paper effect for hydration safety
   useEffect(() => {
-    const generateTornEdge = () => {
-      const edges = []
-      const segments = 30
-
-      for (let i = 0; i < segments; i++) {
-        const depth = Math.random() * 5 + 2
-        edges.push(`${(i / segments) * 100}% ${depth}px`)
+    const seededRandom = (seed: string) => {
+      let h = 2166136261 >>> 0;
+      for (let i = 0; i < seed.length; i++) {
+        h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
       }
+      return () => {
+        h += h << 13; h ^= h >>> 7;
+        h += h << 3; h ^= h >>> 17;
+        h += h << 5;
+        return (h >>> 0) / 4294967296;
+      };
+    };
 
-      return edges.join(",")
-    }
+    const generateTornEdge = (seed: string) => {
+      const edges = [];
+      const segments = 30;
+      const rand = seededRandom(seed);
+      for (let i = 0; i < segments; i++) {
+        const depth = rand() * 5 + 2;
+        edges.push(`${(i / segments) * 100}% ${depth}px`);
+      }
+      return edges.join(",");
+    };
 
-    setTopTornEdge(generateTornEdge())
-    setBottomTornEdge(generateTornEdge())
-  }, [])
+    setTopTornEdge(generateTornEdge("top"));
+    setBottomTornEdge(generateTornEdge("bottom"));
+  }, []);
 
-  // Add coffee stains effect
+  // Deterministic coffee stains effect for hydration safety
   useEffect(() => {
-    if (!boardRef.current || isLoading) return
+    if (!boardRef.current) return;
 
-    const addCoffeeStain = () => {
-      const coffeeStain = document.createElement("div")
-      coffeeStain.className = "absolute opacity-20 pointer-events-none z-5" // Lower z-index
-      coffeeStain.style.left = `${Math.random() * 80 + 10}%`
-      coffeeStain.style.top = `${Math.random() * 80 + 10}%`
-      coffeeStain.style.transform = `rotate(${Math.random() * 360}deg)`
+    const seededRandom = (seed: string) => {
+      let h = 2166136261 >>> 0;
+      for (let i = 0; i < seed.length; i++) {
+        h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
+      }
+      return () => {
+        h += h << 13; h ^= h >>> 7;
+        h += h << 3; h ^= h >>> 17;
+        h += h << 5;
+        return (h >>> 0) / 4294967296;
+      };
+    };
 
-      // Create SVG for coffee stain instead of image
-      const svgNS = "http://www.w3.org/2000/svg"
-      const svg = document.createElementNS(svgNS, "svg")
-      svg.setAttribute("width", "100")
-      svg.setAttribute("height", "100")
-      svg.setAttribute("viewBox", "0 0 100 100")
-
-      const path = document.createElementNS(svgNS, "path")
-      path.setAttribute("fill", "#8B4513")
-      path.setAttribute("opacity", "0.3")
-
-      svg.appendChild(path)
-      coffeeStain.appendChild(svg)
-      boardRef.current?.appendChild(coffeeStain)
-    }
-
-    // Add a few coffee stains
+    const stains = [];
+    const rand = seededRandom("coffee-stain");
     for (let i = 0; i < 3; i++) {
-      setTimeout(addCoffeeStain, i * 100)
+      const left = rand() * 80 + 10;
+      const top = rand() * 80 + 10;
+      const rotate = rand() * 360;
+      stains.push({ left, top, rotate });
     }
+
+    stains.forEach(({ left, top, rotate }) => {
+      const coffeeStain = document.createElement("div");
+      coffeeStain.className = "absolute opacity-20 pointer-events-none z-5";
+      coffeeStain.style.left = `${left}%`;
+      coffeeStain.style.top = `${top}%`;
+      coffeeStain.style.transform = `rotate(${rotate}deg)`;
+
+      // Create SVG for coffee stain
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("width", "100");
+      svg.setAttribute("height", "100");
+      svg.setAttribute("viewBox", "0 0 100 100");
+
+      const path = document.createElementNS(svgNS, "path");
+      path.setAttribute("fill", "#8B4513");
+      path.setAttribute("opacity", "0.3");
+
+      svg.appendChild(path);
+      coffeeStain.appendChild(svg);
+      boardRef.current?.appendChild(coffeeStain);
+    });
 
     // Cleanup function to remove stains when component unmounts
     return () => {
-      const stains = boardRef.current?.querySelectorAll(".coffee-stain")
-      stains?.forEach((stain) => stain.remove())
-    }
-  }, [isLoading])
+      const stains = boardRef.current?.querySelectorAll(".coffee-stain");
+      stains?.forEach((stain) => stain.remove());
+    };
+  }, []);
 
-  // Load mugshots, and product counts from database
-  const loadData = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const mugshotsData = await getMugshots()
-
-      // Fetch products directly from API
-      const productsResponse = await fetch("/api/products?limit=1000")
-      const productsData = await productsResponse.json()
-
-      setMugshots(mugshotsData)
-
-      // Calculate product counts per founder (mugshots.id)
-      const counts: Record<string, number> = {}
-
-      if (Array.isArray(productsData)) {
-        productsData.forEach((product) => {
-          // product.founderId should be the mugshots.id
-          if (product.founderId) {
-            counts[product.founderId] = (counts[product.founderId] || 0) + 1
-          }
-        })
-      }
-
-      setProductCounts(counts)
-    } catch (err) {
-      setError("Failed to load data. Please try refreshing the page.")
-      console.error("Error loading data:", err)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  // Update the useEffect to use the memoized function
-  useEffect(() => {
-    loadData()
-  }, [loadData])
+  // Data is now passed as props from server, no fetching here
 
   const openCriminalModal = (criminal: Mugshot) => {
     setSelectedCriminal(criminal)
@@ -156,83 +151,74 @@ export default function HomeClient() {
     openCriminalModal(criminal)
   }
 
-  // Get grid positions for the polaroids
-  const getGridPosition = (index: number) => {
+  // Deterministic seeded random for hydration-safe effects
+  function seededRandom(seed: string) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < seed.length; i++) {
+      h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
+    }
+    return () => {
+      h += h << 13; h ^= h >>> 7;
+      h += h << 3; h ^= h >>> 17;
+      h += h << 5;
+      return (h >>> 0) / 4294967296;
+    };
+  }
+
+  // Deterministic random rotation for each mugshot
+  const getDeterministicRotation = (id: string) => {
+    const rand = seededRandom(id)();
+    return rand * 14 - 7; // -7 to +7 degrees
+  };
+
+  // Deterministic pin position for each mugshot
+  const getDeterministicPinPosition = (id: string) => {
+    const rand = seededRandom(id + "pin")();
+    // Example: top-left, top-right, etc. based on random
+    const positions = [
+      { top: "-8px", left: "-8px" },
+      { top: "-8px", left: "calc(100% - 8px)" },
+      { top: "calc(100% - 8px)", left: "-8px" },
+      { top: "calc(100% - 8px)", left: "calc(100% - 8px)" },
+    ];
+    return positions[Math.floor(rand * positions.length)];
+  };
+
+  // Deterministic spiral layout for hydration safety
+  const getGridPosition = (index: number, id: string) => {
     // Check if we're on mobile
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768
-
-    // For mobile: 4 items per row, smaller cards
-    const itemsPerRow = isMobile ? 4 : 6
-
-    // For spiral layout
-    // Start from the center and spiral outward
-    // This creates a rectangular spiral pattern
-
-    // Define the center of the board - moved higher up
-    const centerX = 50
-    const centerY = 35 // Back to original position
-
-    // Calculate the spiral position
-    // We'll use a rectangular spiral algorithm
-    let x = 0,
-      y = 0
-    let direction = 0 // 0: right, 1: down, 2: left, 3: up
-    let steps = 1
-    let stepCount = 0
-    let turnCount = 0
-
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+    const itemsPerRow = isMobile ? 4 : 6;
+    const centerX = 50;
+    const centerY = 35;
+    let x = 0, y = 0;
+    let direction = 0, steps = 1, stepCount = 0, turnCount = 0;
     for (let i = 0; i < index; i++) {
-      // Move in the current direction
       switch (direction) {
-        case 0:
-          x++
-          break // Move right
-        case 1:
-          y++
-          break // Move down
-        case 2:
-          x--
-          break // Move left
-        case 3:
-          y--
-          break // Move up
+        case 0: x++; break;
+        case 1: y++; break;
+        case 2: x--; break;
+        case 3: y--; break;
       }
-
-      // Count steps taken in this direction
-      stepCount++
-
-      // If we've taken enough steps, change direction
+      stepCount++;
       if (stepCount === steps) {
-        direction = (direction + 1) % 4
-        stepCount = 0
-        turnCount++
-
-        // After completing two turns (one horizontal, one vertical),
-        // increase the number of steps for the next two turns
+        direction = (direction + 1) % 4;
+        stepCount = 0;
+        turnCount++;
         if (turnCount === 2) {
-          steps++
-          turnCount = 0
+          steps++;
+          turnCount = 0;
         }
       }
     }
-
-    // Scale the spiral to fit the board
-    // Adjust these values to control the spacing between cards
-    // Increased horizontal spacing for desktop to 15 (was 12)
-    // Increased vertical spacing for desktop by applying a multiplier
-    const horizontalScale = isMobile ? 18 : 15
-    const verticalScale = isMobile ? 18 : 22 // Increased vertical spacing on desktop
-
-    // Calculate final position
-    // Apply different scaling for x and y to create more vertical space between cards on desktop
-    const left = centerX + x * horizontalScale
-    const top = centerY + y * verticalScale
-
-    return {
-      top: `${top}%`,
-      left: `${left}%`,
-    }
-  }
+    // Add a deterministic offset per mugshot for hydration safety
+    const rand = seededRandom(id)(/* no arg */);
+    const horizontalScale = (isMobile ? 18 : 15) + rand * 2;
+    const verticalScale = (isMobile ? 18 : 22) + rand * 2;
+    const left = centerX + x * horizontalScale;
+    const top = centerY + y * verticalScale;
+    return { top: `${top}%`, left: `${left}%` };
+  };
 
   // Calculate board height based on number of mugshots
   const calculateBoardHeight = () => {
@@ -455,35 +441,12 @@ export default function HomeClient() {
 
   const [isAddLogModalOpen, setIsAddLogModalOpen] = useState(false)
 
-  // Show loading state
-  if (isLoading) {
-    return <LoadingMugshotWall />
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-black">
-        <div className="bg-red-900/50 p-6 rounded-lg max-w-md text-center">
-          <X className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Error Loading Data</h2>
-          <p className="text-gray-300 mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    )
-  }
+  // Loading and error state handled by server, not needed here
 
   return (
     <main className="min-h-screen flex flex-col bg-black overflow-x-hidden">
       <PublicHeader />
 
-      <RevampedHero />
 
       {/* Caution Stripe Separator - Clear separation between sections */}
       <div className="h-8 w-full bg-yellow-400 relative overflow-hidden z-10">
@@ -495,9 +458,6 @@ export default function HomeClient() {
           }}
         ></div>
       </div>
-
-      {/* In-Period Product Launches Section */}
-      <InPeriodLaunches />
 
       <section
         id="corkboard-section"
@@ -613,17 +573,12 @@ export default function HomeClient() {
             }}
           >
             {/* All Mugshots - Using spiral layout (including featured ones) */}
-            {mugshots.map((mugshot, index) => {
-              const position = getGridPosition(index)
-              const rotation = getRandomRotation() // Random rotation between -7 and 7 degrees
-              const isHovered = hoveredCriminal === mugshot.id
-
-              // Get random pin position
-              const pinPosition = getPinPosition("top-left")
-
-              // Get badge info for special users
-              const badgeInfo = getBadgeInfo(mugshot.badgeType || "wanted")
-
+            {Array.isArray(mugshots) && mugshots.length > 0 ? mugshots.map((mugshot, index) => {
+              const position = getGridPosition(index, mugshot.id);
+              const rotation = getDeterministicRotation(mugshot.id);
+              const isHovered = hoveredCriminal === mugshot.id;
+              const pinPosition = getDeterministicPinPosition(mugshot.id);
+              const badgeInfo = getBadgeInfo(mugshot.badgeType || "wanted");
               return (
                 <div
                   key={mugshot.id}
@@ -633,8 +588,7 @@ export default function HomeClient() {
                     left: position.left,
                     transform: `rotate(${rotation}deg)`,
                     zIndex: 10,
-                    width: typeof window !== "undefined" && window.innerWidth < 768 ? "70px" : "90px", // Smaller on mobile
-                    // Add margin to create more space between cards
+                    width: typeof window !== "undefined" && window.innerWidth < 768 ? "70px" : "90px",
                     margin: "10px",
                   }}
                   onClick={() => handleCriminalClick(mugshot)}
@@ -653,8 +607,9 @@ export default function HomeClient() {
                   <div
                     className="absolute w-4 h-4 rounded-full bg-red-500 shadow-md z-20"
                     style={{
-                      top: pinPosition.top,
-                      left: pinPosition.left,
+                      top: "-10px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
                     }}
                   ></div>
 
@@ -712,7 +667,9 @@ export default function HomeClient() {
                   </div>
                 </div>
               )
-            })}
+            }) : (
+              <div className="text-white text-center w-full mt-12">No mugshots found.</div>
+            )}
           </div>
         </div>
 
@@ -732,7 +689,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      
+      <BadgeSection />
 
       <PublicFooter />
     </main>

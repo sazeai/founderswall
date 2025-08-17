@@ -162,7 +162,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#000000" />
         <meta name="color-scheme" content="dark" />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className + " dark"} style={{ colorScheme: "dark" }}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
         </ThemeProvider>
